@@ -1,9 +1,9 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 setup(
     name="skillful_nowcasting",
-    version="0.0.2",
-    packages=["nowcasting_gan"],
+    version="0.0.3",
+    packages=find_packages(),
     url="https://github.com/openclimatefix/skillful_nowcasting",
     license="MIT License",
     company="Open Climate Fix Ltd",

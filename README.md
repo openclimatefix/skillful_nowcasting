@@ -9,5 +9,5 @@ pip install -r requirements.txt
 pip install -e .
 ````
 
-Alternatively, you can also install a usually older version through ```pip install skillful_nowcasting```
+Alternatively, you can also install a usually older version through ```pip install skillful-nowcasting```
 

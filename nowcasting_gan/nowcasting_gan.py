@@ -1,5 +1,5 @@
 import torch
-from nowcasting_gan.losses import get_loss, NowcastingLoss, GridCellLoss
+from nowcasting_gan.losses import NowcastingLoss, GridCellLoss
 import pytorch_lightning as pl
 import torchvision
 from typing import List
@@ -260,27 +260,3 @@ class NowcastingGAN(pl.LightningModule):
             )
 
 
-class NowcastingGenerator(torch.nn.Module):
-    def __init__(
-            self,
-            conditioning_stack: torch.nn.Module,
-            latent_stack: torch.nn.Module,
-            sampler: torch.nn.Module,
-    ):
-        """
-        Wraps the three parts of the generator for simpler calling
-        Args:
-            conditioning_stack:
-            latent_stack:
-            sampler:
-        """
-        super().__init__()
-        self.conditioning_stack = conditioning_stack
-        self.latent_stack = latent_stack
-        self.sampler = sampler
-
-    def forward(self, x):
-        conditioning_states = self.conditioning_stack(x)
-        latent_dim = self.latent_stack(x)
-        x = self.sampler(conditioning_states, latent_dim)
-        return x

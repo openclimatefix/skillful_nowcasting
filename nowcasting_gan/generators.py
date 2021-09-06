@@ -160,3 +160,29 @@ class NowcastingSampler(torch.nn.Module):
         # Convert forecasts to a torch Tensor
         forecasts = torch.stack(forecasts, dim=1)
         return forecasts
+
+
+class NowcastingGenerator(torch.nn.Module):
+    def __init__(
+            self,
+            conditioning_stack: torch.nn.Module,
+            latent_stack: torch.nn.Module,
+            sampler: torch.nn.Module,
+    ):
+        """
+        Wraps the three parts of the generator for simpler calling
+        Args:
+            conditioning_stack:
+            latent_stack:
+            sampler:
+        """
+        super().__init__()
+        self.conditioning_stack = conditioning_stack
+        self.latent_stack = latent_stack
+        self.sampler = sampler
+
+    def forward(self, x):
+        conditioning_states = self.conditioning_stack(x)
+        latent_dim = self.latent_stack(x)
+        x = self.sampler(conditioning_states, latent_dim)
+        return x

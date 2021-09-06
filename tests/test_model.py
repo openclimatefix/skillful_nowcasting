@@ -3,7 +3,12 @@ from nowcasting_gan import NowcastingGAN
 
 
 def test_nowcasting_gan_creation():
-    model = NowcastingGAN(forecast_steps=24, input_channels=1, output_shape=128, latent_channels=768, context_channels=768, num_samples=3)
+    model = NowcastingGAN(forecast_steps=24,
+                          input_channels=1,
+                          output_shape=128,
+                          latent_channels=768,
+                          context_channels=768,
+                          num_samples=3)
     x = torch.randn(
         (2, 4, 1, 128, 128)
     )

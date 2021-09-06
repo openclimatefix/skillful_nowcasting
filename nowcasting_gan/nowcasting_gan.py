@@ -4,7 +4,7 @@ import pytorch_lightning as pl
 import torchvision
 from typing import List
 from nowcasting_gan.common import LatentConditioningStack, ContextConditioningStack
-from nowcasting_gan.generators import NowcastingSampler
+from nowcasting_gan.generators import NowcastingSampler, NowcastingGenerator
 from nowcasting_gan.discriminators import (
     NowcastingSpatialDiscriminator,
     NowcastingTemporalDiscriminator,

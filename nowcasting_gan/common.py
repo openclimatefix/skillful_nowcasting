@@ -10,7 +10,7 @@ from nowcasting_gan.layers import SelfAttention2d
 
 class GBlock(torch.nn.Module):
     def __init__(
-            self, input_channels: int = 12, output_channels: int = 12, conv_type: str = "standard"
+        self, input_channels: int = 12, output_channels: int = 12, conv_type: str = "standard"
     ):
         """
         G Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
@@ -64,12 +64,12 @@ class GBlock(torch.nn.Module):
 
 class DBlock(torch.nn.Module):
     def __init__(
-            self,
-            input_channels: int = 12,
-            output_channels: int = 12,
-            conv_type: str = "standard",
-            first_relu: bool = True,
-            keep_same_output: bool = False,
+        self,
+        input_channels: int = 12,
+        output_channels: int = 12,
+        conv_type: str = "standard",
+        first_relu: bool = True,
+        keep_same_output: bool = False,
     ):
         """
         D and 3D Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
@@ -133,7 +133,7 @@ class DBlock(torch.nn.Module):
 
 class LBlock(torch.nn.Module):
     def __init__(
-            self, input_channels: int = 12, output_channels: int = 12, conv_type: str = "standard"
+        self, input_channels: int = 12, output_channels: int = 12, conv_type: str = "standard"
     ):
         """
         L-Block for increasing the number of channels in the input
@@ -176,11 +176,11 @@ class LBlock(torch.nn.Module):
 
 class ContextConditioningStack(torch.nn.Module):
     def __init__(
-            self,
-            input_channels: int = 1,
-            output_channels: int = 768,
-            num_context_steps: int = 4,
-            conv_type: str = "standard",
+        self,
+        input_channels: int = 1,
+        output_channels: int = 768,
+        num_context_steps: int = 4,
+        conv_type: str = "standard",
     ):
         """
         Conditioning Stack using the context images from Skillful Nowcasting, , see https://arxiv.org/pdf/2104.00954.pdf
@@ -256,7 +256,7 @@ class ContextConditioningStack(torch.nn.Module):
         self.relu = torch.nn.ReLU()
 
     def forward(
-            self, x: torch.Tensor
+        self, x: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         # Each timestep processed separately
         x = self.space2depth(x)
@@ -289,10 +289,10 @@ class ContextConditioningStack(torch.nn.Module):
 
 class LatentConditioningStack(torch.nn.Module):
     def __init__(
-            self,
-            shape: (int, int, int) = (8, 8, 8),
-            output_channels: int = 768,
-            use_attention: bool = True,
+        self,
+        shape: (int, int, int) = (8, 8, 8),
+        output_channels: int = 768,
+        use_attention: bool = True,
     ):
         """
         Latent conditioning stack from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
@@ -321,9 +321,7 @@ class LatentConditioningStack(torch.nn.Module):
             self.att_block = SelfAttention2d(
                 input_dims=output_channels // 4, output_dims=output_channels // 4
             )
-        self.l_block4 = LBlock(
-            input_channels=output_channels // 4, output_channels=output_channels
-        )
+        self.l_block4 = LBlock(input_channels=output_channels // 4, output_channels=output_channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """

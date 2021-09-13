@@ -7,11 +7,11 @@ from nowcasting_gan.common import DBlock
 
 class NowcastingTemporalDiscriminator(torch.nn.Module):
     def __init__(
-            self,
-            input_channels: int = 12,
-            crop_size: int = 128,
-            num_layers: int = 3,
-            conv_type: str = "standard",
+        self,
+        input_channels: int = 12,
+        crop_size: int = 128,
+        num_layers: int = 3,
+        conv_type: str = "standard",
     ):
         """
         Temporal Discriminator from the Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
@@ -89,11 +89,11 @@ class NowcastingTemporalDiscriminator(torch.nn.Module):
 
 class NowcastingSpatialDiscriminator(torch.nn.Module):
     def __init__(
-            self,
-            input_channels: int = 12,
-            num_timesteps: int = 8,
-            num_layers: int = 4,
-            conv_type: str = "standard",
+        self,
+        input_channels: int = 12,
+        num_timesteps: int = 8,
+        num_layers: int = 4,
+        conv_type: str = "standard",
     ):
         """
         Spatial discriminator from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf

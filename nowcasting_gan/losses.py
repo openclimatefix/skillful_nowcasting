@@ -178,13 +178,13 @@ class FocalLoss(nn.Module):
     """
 
     def __init__(
-            self,
-            apply_nonlin=None,
-            alpha=None,
-            gamma=2,
-            balance_index=0,
-            smooth=1e-5,
-            size_average=True,
+        self,
+        apply_nonlin=None,
+        alpha=None,
+        gamma=2,
+        balance_index=0,
+        smooth=1e-5,
+        size_average=True,
     ):
         super(FocalLoss, self).__init__()
         self.apply_nonlin = apply_nonlin
@@ -238,9 +238,7 @@ class FocalLoss(nn.Module):
             one_hot_key = one_hot_key.to(logit.device)
 
         if self.smooth:
-            one_hot_key = torch.clamp(
-                one_hot_key, self.smooth / (num_class - 1), 1.0 - self.smooth
-            )
+            one_hot_key = torch.clamp(one_hot_key, self.smooth / (num_class - 1), 1.0 - self.smooth)
         pt = (one_hot_key * logit).sum(1) + self.smooth
         logpt = pt.log()
 

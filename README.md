@@ -10,4 +10,3 @@ pip install -e .
 ````
 
 Alternatively, you can also install a usually older version through ```pip install skillful-nowcasting```
-

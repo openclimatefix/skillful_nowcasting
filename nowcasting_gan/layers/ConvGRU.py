@@ -16,13 +16,13 @@ class ConvGRU1DCell(nn.Module):
     # --------------------------------------------------------------------------
 
     def __init__(
-            self,
-            input_channels: int,
-            hidden_channels: int,
-            kernel_size: int,
-            stride: int = 1,
-            padding: int = 0,
-            recurrent_kernel_size: int = 3,
+        self,
+        input_channels: int,
+        hidden_channels: int,
+        kernel_size: int,
+        stride: int = 1,
+        padding: int = 0,
+        recurrent_kernel_size: int = 3,
     ):
         """
         One-Dimensional Convolutional Gated Recurrent Unit (ConvGRU1D) cell.
@@ -81,7 +81,7 @@ class ConvGRU1DCell(nn.Module):
 
     def forward(self, input, hx=None):
         output_size = (
-                int((input.size(-1) - self.kernel_size + 2 * self.padding_ih) / self.stride) + 1
+            int((input.size(-1) - self.kernel_size + 2 * self.padding_ih) / self.stride) + 1
         )
         # Handle the case of no hidden state provided
         if hx is None:
@@ -113,13 +113,13 @@ class ConvGRU2DCell(nn.Module):
     # --------------------------------------------------------------------------
 
     def __init__(
-            self,
-            input_channels: int,
-            hidden_channels: int,
-            kernel_size: Union[int, Tuple[int, int]],
-            stride: Union[int, Tuple[int, int]] = (1, 1),
-            padding: Union[int, Tuple[int, int]] = (0, 0),
-            recurrent_kernel_size: Union[int, Tuple[int, int]] = (3, 3),
+        self,
+        input_channels: int,
+        hidden_channels: int,
+        kernel_size: Union[int, Tuple[int, int]],
+        stride: Union[int, Tuple[int, int]] = (1, 1),
+        padding: Union[int, Tuple[int, int]] = (0, 0),
+        recurrent_kernel_size: Union[int, Tuple[int, int]] = (3, 3),
     ):
         """
         Two-Dimensional Convolutional Gated Recurrent Unit (ConvGRU2D) cell.
@@ -177,7 +177,7 @@ class ConvGRU2DCell(nn.Module):
                 input_channels,
                 kernel_size[0],
                 kernel_size[1],
-                ),
+            ),
             requires_grad=True,
         )
         self.weight_hh = nn.Parameter(
@@ -186,7 +186,7 @@ class ConvGRU2DCell(nn.Module):
                 input_channels,
                 recurrent_kernel_size[0],
                 recurrent_kernel_size[1],
-                ),
+            ),
             requires_grad=True,
         )
         self.bias_ih = nn.Parameter(torch.zeros(hidden_channels * 3), requires_grad=True)
@@ -231,13 +231,13 @@ class ConvGRU2DCell(nn.Module):
 
 class ConvGRU(nn.Module):
     def __init__(
-            self,
-            input_channels: int,
-            hidden_channels: int,
-            kernel_size: Union[int, Tuple[int, int]],
-            stride: Union[int, Tuple[int, int]] = (1, 1),
-            padding: Union[int, Tuple[int, int]] = (0, 0),
-            recurrent_kernel_size: Union[int, Tuple[int, int]] = (3, 3),
+        self,
+        input_channels: int,
+        hidden_channels: int,
+        kernel_size: Union[int, Tuple[int, int]],
+        stride: Union[int, Tuple[int, int]] = (1, 1),
+        padding: Union[int, Tuple[int, int]] = (0, 0),
+        recurrent_kernel_size: Union[int, Tuple[int, int]] = (3, 3),
     ):
         """
         Recurrent wrapper for use with any rnn cell that takes as input a tensor
@@ -292,16 +292,16 @@ def _opt_cell_end(hidden, ih_1, hh_1, ih_2, hh_2, ih_3, hh_3):
 
 @torch.jit.script
 def _opt_convgrucell_1d(
-        inputs,
-        hidden,
-        channels: int,
-        w_ih,
-        w_hh,
-        b_ih,
-        b_hh,
-        stride: int,
-        pad1: int,
-        pad2: int,
+    inputs,
+    hidden,
+    channels: int,
+    w_ih,
+    w_hh,
+    b_ih,
+    b_hh,
+    stride: int,
+    pad1: int,
+    pad2: int,
 ):
     ih_output = functional.conv1d(inputs, w_ih, bias=b_ih, stride=stride, padding=pad1)
     hh_output = functional.conv1d(hidden, w_hh, bias=b_hh, stride=1, padding=pad2)
@@ -319,16 +319,16 @@ def _opt_convgrucell_1d(
 
 @torch.jit.script
 def _opt_convgrucell_2d(
-        inputs,
-        hidden,
-        channels: int,
-        w_ih,
-        w_hh,
-        b_ih,
-        b_hh,
-        stride: List[int],
-        pad1: List[int],
-        pad2: List[int],
+    inputs,
+    hidden,
+    channels: int,
+    w_ih,
+    w_hh,
+    b_ih,
+    b_hh,
+    stride: List[int],
+    pad1: List[int],
+    pad2: List[int],
 ):
     ih_output = functional.conv2d(inputs, w_ih, bias=b_ih, stride=stride, padding=pad1)
     hh_output = functional.conv2d(hidden, w_hh, bias=b_hh, stride=1, padding=pad2)

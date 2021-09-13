@@ -23,7 +23,7 @@ setup(
         "metnet",
         "forecasting",
         "remote-sensing",
-        "gan"
+        "gan",
     ],
     install_requires=install_requires,
     long_description=long_description,

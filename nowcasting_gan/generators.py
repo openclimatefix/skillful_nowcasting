@@ -8,11 +8,11 @@ from nowcasting_gan.layers import ConvGRU
 
 class NowcastingSampler(torch.nn.Module):
     def __init__(
-            self,
-            forecast_steps: int = 18,
-            latent_channels: int = 768,
-            context_channels: int = 384,
-            output_channels: int = 1,
+        self,
+        forecast_steps: int = 18,
+        latent_channels: int = 768,
+        context_channels: int = 384,
+        output_channels: int = 1,
     ):
         """
         Sampler from the Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
@@ -52,9 +52,7 @@ class NowcastingSampler(torch.nn.Module):
             kernel_size=(3, 3),
             padding=(1, 1),
         )
-        self.g4 = GBlock(
-            input_channels=latent_channels // 8, output_channels=latent_channels // 16
-        )
+        self.g4 = GBlock(input_channels=latent_channels // 8, output_channels=latent_channels // 16)
         self.bn = torch.nn.BatchNorm2d(latent_channels // 16)
         self.relu = torch.nn.ReLU()
         self.conv_1x1 = spectral_norm(
@@ -87,7 +85,7 @@ class NowcastingSampler(torch.nn.Module):
         self.stacks = stacks
 
     def forward(
-            self, conditioning_states: List[torch.Tensor], latent_dim: torch.Tensor
+        self, conditioning_states: List[torch.Tensor], latent_dim: torch.Tensor
     ) -> torch.Tensor:
         """
         Perform the sampling from Skillful Nowcasting with GANs
@@ -164,10 +162,10 @@ class NowcastingSampler(torch.nn.Module):
 
 class NowcastingGenerator(torch.nn.Module):
     def __init__(
-            self,
-            conditioning_stack: torch.nn.Module,
-            latent_stack: torch.nn.Module,
-            sampler: torch.nn.Module,
+        self,
+        conditioning_stack: torch.nn.Module,
+        latent_stack: torch.nn.Module,
+        sampler: torch.nn.Module,
     ):
         """
         Wraps the three parts of the generator for simpler calling

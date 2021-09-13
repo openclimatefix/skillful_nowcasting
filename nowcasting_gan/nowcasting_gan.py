@@ -13,21 +13,21 @@ from nowcasting_gan.discriminators import (
 
 class NowcastingGAN(pl.LightningModule):
     def __init__(
-            self,
-            forecast_steps: int = 18,
-            input_channels: int = 1,
-            output_shape: int = 256,
-            gen_lr: float = 0.00005,
-            disc_lr: float = 0.0002,
-            visualize: bool = False,
-            pretrained: bool = False,
-            conv_type: str = "standard",
-            num_samples: int = 6,
-            grid_lambda: float = 20.0,
-            beta1: float = 0.0,
-            beta2: float = 0.999,
-            latent_channels: int = 768,
-            context_channels: int = 384,
+        self,
+        forecast_steps: int = 18,
+        input_channels: int = 1,
+        output_shape: int = 256,
+        gen_lr: float = 0.00005,
+        disc_lr: float = 0.0002,
+        visualize: bool = False,
+        pretrained: bool = False,
+        conv_type: str = "standard",
+        num_samples: int = 6,
+        grid_lambda: float = 20.0,
+        beta1: float = 0.0,
+        beta2: float = 0.999,
+        latent_channels: int = 768,
+        context_channels: int = 384,
     ):
         """
         Nowcasting GAN is an attempt to recreate DeepMind's Skillful Nowcasting GAN from https://arxiv.org/abs/2104.00954
@@ -234,7 +234,7 @@ class NowcastingGAN(pl.LightningModule):
         return [opt_g, opt_d_s, opt_d_t], []
 
     def visualize_step(
-            self, x: torch.Tensor, y: torch.Tensor, y_hat: torch.Tensor, batch_idx: int, step: str
+        self, x: torch.Tensor, y: torch.Tensor, y_hat: torch.Tensor, batch_idx: int, step: str
     ) -> None:
         # the logger you used (in this case tensorboard)
         tensorboard = self.logger.experiment[0]
@@ -258,5 +258,3 @@ class NowcastingGAN(pl.LightningModule):
             tensorboard.add_image(
                 f"{step}/Generated_Image_Frame_{i}", image_grid, global_step=batch_idx
             )
-
-

@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
+
 class SelfAttention2d(nn.Module):
     r"""Self Attention Module as proposed in the paper `"Self-Attention Generative Adversarial
     Networks by Han Zhang et. al." <https://arxiv.org/abs/1805.08318>`_

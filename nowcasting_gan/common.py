@@ -92,12 +92,12 @@ class DBlock(torch.nn.Module):
         )
         self.first_conv_3x3 = conv2d(
             in_channels=input_channels,
-            out_channels=input_channels,
+            out_channels=output_channels,
             kernel_size=3,
             padding=1,
         )
         self.last_conv_3x3 = conv2d(
-            in_channels=input_channels,
+            in_channels=output_channels,
             out_channels=output_channels,
             kernel_size=3,
             padding=1,

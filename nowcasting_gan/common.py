@@ -1,6 +1,6 @@
 from typing import Tuple
 import torch
-from torch.distributions import uniform
+from torch.distributions import normal
 from torch.nn.utils import spectral_norm
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
 from torch.nn.functional import interpolate
@@ -167,7 +167,8 @@ class LBlock(torch.nn.Module):
     def forward(self, x) -> torch.Tensor:
         x1 = self.conv_1x1(x)
 
-        x2 = self.first_conv_3x3(x)
+        x2 = self.relu(x)
+        x2 = self.first_conv_3x3(x2)
         x2 = self.relu(x2)
         x2 = self.last_conv_3x3(x2)
         x = x2 + (torch.cat((x, x1), dim=1))
@@ -305,7 +306,7 @@ class LatentConditioningStack(torch.nn.Module):
         super().__init__()
         self.shape = shape
         self.use_attention = use_attention
-        self.distribution = uniform.Uniform(low=torch.Tensor([0.0]), high=torch.Tensor([1.0]))
+        self.distribution = normal.Normal(loc=torch.Tensor([0.0]), scale=torch.Tensor([1.0]))
 
         self.conv_3x3 = torch.nn.Conv2d(
             in_channels=shape[0], out_channels=shape[0], kernel_size=3, padding=1
@@ -318,9 +319,12 @@ class LatentConditioningStack(torch.nn.Module):
             input_channels=output_channels // 16, output_channels=output_channels // 4
         )
         if self.use_attention:
+            # Nature Paper, 4 Attention layers, conv_2d (1,1,192,48) for the first 3, (1,1,48,192) for the last one
+            # Last one might just be normal conv? Go from 1/4th input back to original input
             self.att_block = SelfAttention2d(
-                input_dims=output_channels // 4, output_dims=output_channels // 4
+                input_dims=output_channels // 4, output_dims=output_channels // 16
             )
+            self.att_block_conv = torch.nn.Conv2d(in_channels=output_channels // 16, out_channels=output_channels // 4, kernel_size=(1,1))
         self.l_block4 = LBlock(input_channels=output_channels // 4, output_channels=output_channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -341,5 +345,6 @@ class LatentConditioningStack(torch.nn.Module):
         z = self.l_block3(z)
         if self.use_attention:
             z = self.att_block(z)
+            z = self.att_block_conv(z)
         z = self.l_block4(z)
         return z

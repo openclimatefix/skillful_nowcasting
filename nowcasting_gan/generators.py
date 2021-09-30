@@ -26,32 +26,36 @@ class NowcastingSampler(torch.nn.Module):
         super().__init__()
         self.forecast_steps = forecast_steps
         self.convGRU1 = ConvGRU(
-            input_channels=latent_channels,
+            input_channels=latent_channels+context_channels,
             hidden_channels=context_channels,
             kernel_size=(3, 3),
             padding=(1, 1),
         )
+        self.gru_conv_1x1 = torch.nn.Conv2d(in_channels=latent_channels+context_channels, out_channels=latent_channels, kernel_size=(1,1))
         self.g1 = GBlock(input_channels=latent_channels, output_channels=latent_channels // 2)
         self.convGRU2 = ConvGRU(
-            input_channels=latent_channels // 2,
+            input_channels=latent_channels // 2 + context_channels // 2,
             hidden_channels=context_channels // 2,
             kernel_size=(3, 3),
             padding=(1, 1),
         )
+        self.gru_conv_1x1_2 = torch.nn.Conv2d(in_channels=latent_channels // 2 + context_channels // 2, out_channels=latent_channels // 2, kernel_size=(1,1))
         self.g2 = GBlock(input_channels=latent_channels // 2, output_channels=latent_channels // 4)
         self.convGRU3 = ConvGRU(
-            input_channels=latent_channels // 4,
+            input_channels=latent_channels // 4 + context_channels // 4,
             hidden_channels=context_channels // 4,
             kernel_size=(3, 3),
             padding=(1, 1),
         )
+        self.gru_conv_1x1_3 = torch.nn.Conv2d(in_channels=latent_channels // 4 + context_channels // 4, out_channels=latent_channels // 4, kernel_size=(1,1))
         self.g3 = GBlock(input_channels=latent_channels // 4, output_channels=latent_channels // 8)
         self.convGRU4 = ConvGRU(
-            input_channels=latent_channels // 8,
+            input_channels=latent_channels // 8 + context_channels // 8,
             hidden_channels=context_channels // 8,
             kernel_size=(3, 3),
             padding=(1, 1),
         )
+        self.gru_conv_1x1_4 = torch.nn.Conv2d(in_channels=latent_channels // 8 + context_channels // 8, out_channels=latent_channels // 8, kernel_size=(1,1))
         self.g4 = GBlock(input_channels=latent_channels // 8, output_channels=latent_channels // 16)
         self.bn = torch.nn.BatchNorm2d(latent_channels // 16)
         self.relu = torch.nn.ReLU()
@@ -69,10 +73,13 @@ class NowcastingSampler(torch.nn.Module):
             stacks[f"forecast_{i}"] = torch.nn.ModuleList(
                 [
                     self.convGRU1,
+                    self.gru_conv_1x1,
                     self.g1,
                     self.convGRU2,
+                    self.gru_conv_1x1_2,
                     self.g2,
                     self.convGRU3,
+                    self.gru_conv_1x1_3,
                     self.g3,
                     self.convGRU4,
                     self.g4,

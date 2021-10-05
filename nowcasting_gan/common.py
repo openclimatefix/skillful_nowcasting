@@ -90,6 +90,7 @@ class DBlock(torch.nn.Module):
             out_channels=output_channels,
             kernel_size=1,
         )
+        self.avg_pool_1x1 = torch.nn.AvgPool2d(kernel_size=2, stride=2)
         self.first_conv_3x3 = conv2d(
             in_channels=input_channels,
             out_channels=output_channels,
@@ -103,6 +104,7 @@ class DBlock(torch.nn.Module):
             padding=1,
             stride=1,
         )
+        self.avg_pool_3x3 = torch.nn.AvgPool2d(kernel_size=2, stride=2)
         if conv_type == "3d":
             # Need spectrally normalized convolutions
             self.conv_1x1 = spectral_norm(self.conv_1x1)
@@ -115,18 +117,14 @@ class DBlock(torch.nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x1 = self.conv_1x1(x)
         if not self.keep_same_output:
-            x1 = interpolate(
-                x1, mode="trilinear" if self.conv_type == "3d" else "bilinear", scale_factor=0.5
-            )  # Downscale by half
+            x1 = self.avg_pool_1x1(x1)
         if self.first_relu:
             x = self.relu(x)
         x = self.first_conv_3x3(x)
         x = self.relu(x)
         x = self.last_conv_3x3(x)
         if not self.keep_same_output:
-            x = interpolate(
-                x, mode="trilinear" if self.conv_type == "3d" else "bilinear", scale_factor=0.5
-            )  # Downscale by half
+            x = self.avg_pool_3x3(x)
         x = x1 + x  # Sum the outputs should be half spatial and double channels
         return x
 

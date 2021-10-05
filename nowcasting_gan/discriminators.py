@@ -137,6 +137,7 @@ class NowcastingSpatialDiscriminator(torch.nn.Module):
         # Spectrally normalized linear layer for binary classification
         self.fc = spectral_norm(torch.nn.Linear(2 * internal_chn * input_channels, 1))
         self.relu = torch.nn.ReLU()
+        self.bn = torch.nn.BatchNorm1d(1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x should be the chosen 8 or so
@@ -159,5 +160,6 @@ class NowcastingSpatialDiscriminator(torch.nn.Module):
         x = torch.stack(representations, dim=0).sum(dim=0)  # Should be right shape? TODO Check
         # ReLU the output
         x = self.fc(x)
+        x = self.bn(x)
         # x = self.relu(x)
         return x

@@ -15,7 +15,6 @@ def test_nowcasting_gan_creation():
     model.eval()
     with torch.no_grad():
         out = model(x)
-    # MetNet creates predictions for the center 1/4th
     assert out.size() == (
         2,
         18,

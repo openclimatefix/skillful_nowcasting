@@ -320,9 +320,9 @@ class LatentConditioningStack(torch.nn.Module):
             # Nature Paper, 4 Attention layers, conv_2d (1,1,192,48) for the first 3, (1,1,48,192) for the last one
             # Last one might just be normal conv? Go from 1/4th input back to original input
             self.att_block = SelfAttention2d(
-                input_dims=output_channels // 4, output_dims=output_channels // 16
+                input_dims=output_channels // 4, output_dims=output_channels // 4
             )
-            self.att_block_conv = torch.nn.Conv2d(in_channels=output_channels // 16, out_channels=output_channels // 4, kernel_size=(1,1))
+            #self.att_block_conv = torch.nn.Conv2d(in_channels=output_channels // 16, out_channels=output_channels // 4, kernel_size=(1,1))
         self.l_block4 = LBlock(input_channels=output_channels // 4, output_channels=output_channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -343,6 +343,6 @@ class LatentConditioningStack(torch.nn.Module):
         z = self.l_block3(z)
         if self.use_attention:
             z = self.att_block(z)
-            z = self.att_block_conv(z)
+            # z = self.att_block_conv(z)
         z = self.l_block4(z)
         return z

@@ -1,9 +1,9 @@
 import torch
-from nowcasting_gan import NowcastingGAN
+from nowcasting_gan import DGMR
 
 
 def test_nowcasting_gan_creation():
-    model = NowcastingGAN(
+    model = DGMR(
         forecast_steps=18,
         input_channels=1,
         output_shape=128,

@@ -88,21 +88,21 @@ class AttentionLayer(torch.nn.Module):
             in_channels=input_channels,
             out_channels=self.output_channels // self.ratio_kq,
             kernel_size=(1, 1),
-            padding="VALID",
+            padding="valid",
             bias=False,
         )
         self.key = torch.nn.Conv2d(
             in_channels=input_channels,
             out_channels=self.output_channels // self.ratio_kq,
             kernel_size=(1, 1),
-            padding="VALID",
+            padding="valid",
             bias=False,
         )
         self.value = torch.nn.Conv2d(
             in_channels=input_channels,
             out_channels=self.output_channels // self.ratio_v,
             kernel_size=(1, 1),
-            padding="VALID",
+            padding="valid",
             bias=False,
         )
 
@@ -110,7 +110,7 @@ class AttentionLayer(torch.nn.Module):
             in_channels=self.output_channels,
             out_channels=self.output_channels,
             kernel_size=(1, 1),
-            padding="VALID",
+            padding="valid",
             bias=False,
         )
 

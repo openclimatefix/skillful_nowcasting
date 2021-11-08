@@ -396,7 +396,7 @@ class LatentConditioningStack(torch.nn.Module):
             self.att_block = SelfAttention2d(
                 input_dims=output_channels // 4, output_dims=output_channels // 4
             )
-            #self.att_block_conv = torch.nn.Conv2d(in_channels=output_channels // 16, out_channels=output_channels // 4, kernel_size=(1,1))
+            # self.att_block_conv = torch.nn.Conv2d(in_channels=output_channels // 16, out_channels=output_channels // 4, kernel_size=(1,1))
         self.l_block4 = LBlock(input_channels=output_channels // 4, output_channels=output_channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

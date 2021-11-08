@@ -8,5 +8,4 @@ import fsspec
 module = tensorflow_hub.load("/home/jacob/256x256/")
 print(module)
 print(module.signatures)
-sig_model = module.signatures['default']
-
+sig_model = module.signatures["default"]

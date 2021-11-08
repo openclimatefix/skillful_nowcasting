@@ -3,9 +3,8 @@ import torch
 from torch.distributions import normal
 from torch.nn.utils import spectral_norm
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
-from torch.nn.functional import interpolate
 from nowcasting_gan.layers.utils import get_conv_layer
-from nowcasting_gan.layers import SelfAttention2d
+from nowcasting_gan.layers import SelfAttention2d, AttentionLayer
 
 
 class GBlock(torch.nn.Module):
@@ -400,10 +399,9 @@ class LatentConditioningStack(torch.nn.Module):
             input_channels=output_channels // 16, output_channels=output_channels // 4
         )
         if self.use_attention:
-            self.att_block = SelfAttention2d(
-                input_dims=output_channels // 4, output_dims=output_channels // 4
+            self.att_block = AttentionLayer(
+                input_channels=output_channels // 4, output_channels=output_channels // 4
             )
-            # self.att_block_conv = torch.nn.Conv2d(in_channels=output_channels // 16, out_channels=output_channels // 4, kernel_size=(1,1))
         self.l_block4 = LBlock(input_channels=output_channels // 4, output_channels=output_channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

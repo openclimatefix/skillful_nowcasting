@@ -15,6 +15,7 @@ from nowcasting_gan.discriminators import Discriminator
 
 class DGMR(pl.LightningModule):
     """Deep Generative Model of Radar"""
+
     def __init__(
         self,
         forecast_steps: int = 18,

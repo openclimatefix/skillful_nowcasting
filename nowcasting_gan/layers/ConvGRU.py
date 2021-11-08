@@ -5,7 +5,7 @@ import torch.nn.functional as F
 class ConvGRU(torch.nn.Module):
     """A ConvGRU implementation."""
 
-    def __init__(self, kernel_size = 3, sn_eps = 0.0001):
+    def __init__(self, kernel_size=3, sn_eps=0.0001):
         """Constructor.
 
         Args:
@@ -32,23 +32,20 @@ class ConvGRU(torch.nn.Module):
         xh = torch.cat([x, prev_state], dim=1)
 
         # Read gate of the GRU.
-        read_gate_conv = layers.SNConv2D(
-            num_channels, self._kernel_size, sn_eps=self._sn_eps)
+        read_gate_conv = layers.SNConv2D(num_channels, self._kernel_size, sn_eps=self._sn_eps)
         read_gate = F.sigmoid(read_gate_conv(xh))
 
         # Update gate of the GRU.
-        update_gate_conv = layers.SNConv2D(
-            num_channels, self._kernel_size, sn_eps=self._sn_eps)
+        update_gate_conv = layers.SNConv2D(num_channels, self._kernel_size, sn_eps=self._sn_eps)
         update_gate = F.sigmoid(update_gate_conv(xh))
 
         # Gate the inputs.
         gated_input = torch.cat([x, read_gate * prev_state], dim=1)
 
         # Gate the cell and state / outputs.
-        output_conv = layers.SNConv2D(
-            num_channels, self._kernel_size, sn_eps=self._sn_eps)
+        output_conv = layers.SNConv2D(num_channels, self._kernel_size, sn_eps=self._sn_eps)
         c = F.relu(output_conv(gated_input))
-        out = update_gate * prev_state + (1. - update_gate) * c
+        out = update_gate * prev_state + (1.0 - update_gate) * c
         new_state = out
 
         return out, new_state

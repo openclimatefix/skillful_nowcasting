@@ -1,6 +1,7 @@
 import torch
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
 from torch.nn.utils import spectral_norm
+import torch.nn.functional as F
 from torchvision.transforms import RandomCrop
 from nowcasting_gan.common import DBlock
 
@@ -152,14 +153,29 @@ class NowcastingSpatialDiscriminator(torch.nn.Module):
                 rep = d(rep)
             rep = self.d6(rep)  # 2x2
 
+            rep = torch.sum(F.relu(rep), dim=[1,2])
+            rep = self.bn(rep)
+            rep = self.fc(rep)
+            """
+            Pseudocode from DeepMind
+            # Sum-pool the representations and feed to spectrally normalized lin. layer.
+            y = tf.reduce_sum(tf.nn.relu(y), axis=[1, 2])
+            y = layers.BatchNorm(calc_sigma=False)(y)
+            output_layer = layers.Linear(output_size=1)
+            output = output_layer(y)
+
+            # Take the sum across the t samples. Note: we apply the ReLU to
+            # (1 - score_real) and (1 + score_generated) in the loss.
+            output = tf.reshape(output, [b, n, 1])
+            output = tf.reduce_sum(output, keepdims=True, axis=1)
+            return output
+            """
             # Sum-pool along width and height all 8 representations, pretty sure only the last output
-            rep = torch.sum(rep.view(rep.size(0), rep.size(1), -1), dim=2)
+            # rep = torch.sum(rep.view(rep.size(0), rep.size(1), -1), dim=2)
             representations.append(rep)
 
         # The representations are summed together before the ReLU
-        x = torch.stack(representations, dim=0).sum(dim=0)  # Should be right shape? TODO Check
-        # ReLU the output
-        x = self.fc(x)
-        x = self.bn(x)
-        # x = self.relu(x)
+        x = torch.stack(representations, dim=0) # Should be right shape? TODO Check
+        # Should be [Batch, N, 1]
+        x = torch.sum(x, keepdim = True, dim=1)
         return x

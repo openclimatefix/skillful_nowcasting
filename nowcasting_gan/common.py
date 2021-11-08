@@ -155,6 +155,8 @@ class DBlock(torch.nn.Module):
             keep_same_output: Whether the output should have the same spatial dimensions as input, if False, downscales by 2
         """
         super().__init__()
+        self.input_channels = input_channels
+        self.output_channels = output_channels
         self.first_relu = first_relu
         self.keep_same_output = keep_same_output
         self.conv_type = conv_type
@@ -189,14 +191,19 @@ class DBlock(torch.nn.Module):
         # Concatenate to double final channels and keep reduced spatial extent
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x1 = self.conv_1x1(x)
-        if not self.keep_same_output:
-            x1 = self.avg_pool_1x1(x1)
+        if self.input_channels != self.output_channels:
+            x1 = self.conv_1x1(x)
+            if not self.keep_same_output:
+                x1 = self.avg_pool_1x1(x1)
+        else:
+            x1 = x
+
         if self.first_relu:
             x = self.relu(x)
         x = self.first_conv_3x3(x)
         x = self.relu(x)
         x = self.last_conv_3x3(x)
+
         if not self.keep_same_output:
             x = self.avg_pool_3x3(x)
         x = x1 + x  # Sum the outputs should be half spatial and double channels

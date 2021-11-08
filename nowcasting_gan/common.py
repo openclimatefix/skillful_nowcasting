@@ -1,5 +1,8 @@
 from typing import Tuple
+
+import einops
 import torch
+import torch.nn.functional as F
 from torch.distributions import normal
 from torch.nn.utils import spectral_norm
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
@@ -369,13 +372,19 @@ class ContextConditioningStack(torch.nn.Module):
         scale_2 = torch.cat(scale_2, dim=1)  # B, T, C, H, W and want along C dimension
         scale_3 = torch.cat(scale_3, dim=1)  # B, T, C, H, W and want along C dimension
         scale_4 = torch.cat(scale_4, dim=1)  # B, T, C, H, W and want along C dimension
-        # TODO Figure out where extra channels come from, paper says concat outputs and divide channels by 2 gives 48,96,192,384 total, but this gives 8*4 = 32, 16*4 = 64
-        scale_1 = self.relu(self.conv1(scale_1))
-        scale_2 = self.relu(self.conv2(scale_2))
-        scale_3 = self.relu(self.conv3(scale_3))
-        scale_4 = self.relu(self.conv4(scale_4))
+        # Mixing layer
+        scale_1 = self._mixing_layer(scale_1, self.conv1)
+        scale_2 = self._mixing_layer(scale_2, self.conv2)
+        scale_3 = self._mixing_layer(scale_3, self.conv3)
+        scale_4 = self._mixing_layer(scale_4, self.conv4)
 
         return scale_1, scale_2, scale_3, scale_4
+
+    def _mixing_layer(self, inputs, conv_block):
+        # Convert from [batch_size, time, h, w, c] -> [batch_size, h, w, c * time]
+        # then perform convolution on the output while preserving number of c.
+        stacked_inputs = einops.rearrange(inputs, 'b t h w c -> b h w (c t)')
+        return F.relu(conv_block(stacked_inputs))
 
 
 class LatentConditioningStack(torch.nn.Module):

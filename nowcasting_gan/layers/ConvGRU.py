@@ -16,14 +16,26 @@ class ConvGRUCell(torch.nn.Module):
         self._kernel_size = kernel_size
         self._sn_eps = sn_eps
         # TODO Spectrally Normalize Convolutions here
-        self.read_gate_conv = torch.nn.Conv2d(in_channels = input_channels, out_channels =
-        output_channels, kernel_size = (kernel_size, kernel_size), padding = 1) # TODO check if
+        self.read_gate_conv = torch.nn.Conv2d(
+            in_channels=input_channels,
+            out_channels=output_channels,
+            kernel_size=(kernel_size, kernel_size),
+            padding=1,
+        )  # TODO check if
         # padding needed
-        self.update_gate_conv = torch.nn.Conv2d(in_channels = input_channels, out_channels =
-        output_channels, kernel_size = (kernel_size, kernel_size), padding = 1) # TODO check if
+        self.update_gate_conv = torch.nn.Conv2d(
+            in_channels=input_channels,
+            out_channels=output_channels,
+            kernel_size=(kernel_size, kernel_size),
+            padding=1,
+        )  # TODO check if
         # padding needed
-        self.output_conv = torch.nn.Conv2d(in_channels = input_channels, out_channels =
-        output_channels, kernel_size = (kernel_size, kernel_size), padding = 1) # TODO check if
+        self.output_conv = torch.nn.Conv2d(
+            in_channels=input_channels,
+            out_channels=output_channels,
+            kernel_size=(kernel_size, kernel_size),
+            padding=1,
+        )  # TODO check if
         # padding needed
 
     def forward(self, x, prev_state):
@@ -61,9 +73,8 @@ class ConvGRU(torch.nn.Module):
     """ConvGRU Cell wrapper to replace tf.static_rnn in TF implementation"""
 
     def __init__(
-            self, input_channels: int, output_channels: int, kernel_size:
-            int = 3, sn_eps = 0.0001
-            ):
+        self, input_channels: int, output_channels: int, kernel_size: int = 3, sn_eps=0.0001
+    ):
         super().__init__()
         self.cell = ConvGRUCell(input_channels, output_channels, kernel_size, sn_eps)
 

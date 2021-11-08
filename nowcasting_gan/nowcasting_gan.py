@@ -75,9 +75,7 @@ class NowcastingGAN(pl.LightningModule):
             latent_channels=self.latent_channels,
             context_channels=self.context_channels,
         )
-        self.generator = Generator(
-            self.conditioning_stack, self.latent_stack, self.sampler
-        )
+        self.generator = Generator(self.conditioning_stack, self.latent_stack, self.sampler)
         self.temporal_discriminator = TemporalDiscriminator(
             input_channels=input_channels, crop_size=output_shape // 2, conv_type=conv_type
         )

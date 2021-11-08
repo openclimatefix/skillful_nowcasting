@@ -1,5 +1,11 @@
 import torch
-from nowcasting_gan.losses import NowcastingLoss, GridCellLoss, loss_hinge_disc, loss_hinge_gen, grid_cell_regularizer
+from nowcasting_gan.losses import (
+    NowcastingLoss,
+    GridCellLoss,
+    loss_hinge_disc,
+    loss_hinge_gen,
+    grid_cell_regularizer,
+)
 import pytorch_lightning as pl
 import torchvision
 from nowcasting_gan.common import LatentConditioningStack, ContextConditioningStack
@@ -13,8 +19,8 @@ class DGMR(pl.LightningModule):
         forecast_steps: int = 18,
         input_channels: int = 1,
         output_shape: int = 256,
-        gen_lr: float = 5E-5,
-        disc_lr: float = 2E-4,
+        gen_lr: float = 5e-5,
+        disc_lr: float = 2e-4,
         visualize: bool = False,
         pretrained: bool = False,
         conv_type: str = "standard",
@@ -144,9 +150,7 @@ class DGMR(pl.LightningModule):
         b2 = self.beta2
 
         opt_g = torch.optim.Adam(self.generator.parameters(), lr=self.gen_lr, betas=(b1, b2))
-        opt_d = torch.optim.Adam(
-            self.discriminator.parameters(), lr=self.disc_lr, betas=(b1, b2)
-        )
+        opt_d = torch.optim.Adam(self.discriminator.parameters(), lr=self.disc_lr, betas=(b1, b2))
 
         return [opt_g, opt_d], []
 

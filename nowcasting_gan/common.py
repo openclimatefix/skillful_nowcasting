@@ -200,7 +200,8 @@ class LBlock(torch.nn.Module):
     """Residual block for the Latent Stack."""
 
     def __init__(
-        self, input_channels: int = 12, output_channels: int = 12, conv_type: str = "standard"
+        self, input_channels: int = 12, output_channels: int = 12, kernel_size: int = 3,
+                                                                                       conv_type: str = "standard"
     ):
         """
         L-Block for increasing the number of channels in the input
@@ -216,7 +217,7 @@ class LBlock(torch.nn.Module):
         self.conv_1x1 = conv2d(
             in_channels=input_channels,
             out_channels=output_channels - input_channels,
-            kernel_size=1,
+            kernel_size=kernel_size,
         )
 
         self.first_conv_3x3 = conv2d(
@@ -391,8 +392,6 @@ class LatentConditioningStack(torch.nn.Module):
             input_channels=output_channels // 16, output_channels=output_channels // 4
         )
         if self.use_attention:
-            # Nature Paper, 4 Attention layers, conv_2d (1,1,192,48) for the first 3, (1,1,48,192) for the last one
-            # Last one might just be normal conv? Go from 1/4th input back to original input
             self.att_block = SelfAttention2d(
                 input_dims=output_channels // 4, output_dims=output_channels // 4
             )
@@ -408,15 +407,22 @@ class LatentConditioningStack(torch.nn.Module):
         Returns:
 
         """
+
+        # Independent draws from Norma ldistribution
         z = self.distribution.sample(self.shape)
         # Batch is at end for some reason, reshape
         z = torch.permute(z, (3, 0, 1, 2)).type_as(x)
+
+        # 3x3 Convolution
         z = self.conv_3x3(z)
+
+        # 3 L Blocks to increase number of channels
         z = self.l_block1(z)
         z = self.l_block2(z)
         z = self.l_block3(z)
-        if self.use_attention:
-            z = self.att_block(z)
-            # z = self.att_block_conv(z)
+        # Spatial attention module
+        z = self.att_block(z)
+
+        # L block to increase number of channel to 768
         z = self.l_block4(z)
         return z

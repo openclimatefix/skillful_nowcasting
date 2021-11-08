@@ -241,4 +241,3 @@ class TemporalDiscriminator(object):
     output = tf.reshape(output, [b, t, 1])
     scores = tf.reduce_sum(output, keepdims=True, axis=1)
     return scores
-

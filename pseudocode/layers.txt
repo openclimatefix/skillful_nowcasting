@@ -139,4 +139,3 @@ class Attention(object):
 
     # Residual connection.
     return out + tensor
-

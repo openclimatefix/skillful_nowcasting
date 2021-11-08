@@ -13,4 +13,3 @@ convolutional latent stack.
 `layers.txt` - Describes the various common modules.
 
 `train.txt` - Pseudocode for the training loop.
-

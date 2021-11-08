@@ -267,4 +267,3 @@ def time_apply(func, inputs):
 def batch_apply(func, inputs):
   """Apply function func on each element of inputs along the batch axis."""
   return layers.ApplyAlongAxis(func, axis=0)(inputs)
-

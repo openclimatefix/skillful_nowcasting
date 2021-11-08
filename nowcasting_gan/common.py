@@ -383,7 +383,7 @@ class ContextConditioningStack(torch.nn.Module):
     def _mixing_layer(self, inputs, conv_block):
         # Convert from [batch_size, time, h, w, c] -> [batch_size, h, w, c * time]
         # then perform convolution on the output while preserving number of c.
-        stacked_inputs = einops.rearrange(inputs, 'b t h w c -> b h w (c t)')
+        stacked_inputs = einops.rearrange(inputs, "b t h w c -> b h w (c t)")
         return F.relu(conv_block(stacked_inputs))
 
 

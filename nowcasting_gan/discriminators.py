@@ -6,7 +6,7 @@ from torchvision.transforms import RandomCrop
 from nowcasting_gan.common import DBlock
 
 
-class NowcastingDiscriminator(torch.nn.Module):
+class Discriminator(torch.nn.Module):
     def __init__(
         self,
         input_channels: int = 12,
@@ -15,10 +15,10 @@ class NowcastingDiscriminator(torch.nn.Module):
         conv_type: str = "standard",
     ):
         super().__init__()
-        self.spatial_discriminator = NowcastingSpatialDiscriminator(
+        self.spatial_discriminator = SpatialDiscriminator(
             input_channels=input_channels, num_timesteps=num_spatial_frames, conv_type=conv_type
         )
-        self.temporal_discriminator = NowcastingTemporalDiscriminator(
+        self.temporal_discriminator = TemporalDiscriminator(
             input_channels=input_channels, crop_size=num_temporal_crop_size, conv_type=conv_type
         )
 
@@ -29,7 +29,7 @@ class NowcastingDiscriminator(torch.nn.Module):
         return torch.cat([spatial_loss, temporal_loss], dim=1)
 
 
-class NowcastingTemporalDiscriminator(torch.nn.Module):
+class TemporalDiscriminator(torch.nn.Module):
     def __init__(
         self,
         input_channels: int = 12,
@@ -119,7 +119,7 @@ class NowcastingTemporalDiscriminator(torch.nn.Module):
         return x
 
 
-class NowcastingSpatialDiscriminator(torch.nn.Module):
+class SpatialDiscriminator(torch.nn.Module):
     def __init__(
         self,
         input_channels: int = 12,

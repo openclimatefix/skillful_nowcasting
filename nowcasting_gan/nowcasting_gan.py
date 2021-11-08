@@ -4,10 +4,10 @@ import pytorch_lightning as pl
 import torchvision
 from typing import List
 from nowcasting_gan.common import LatentConditioningStack, ContextConditioningStack
-from nowcasting_gan.generators import NowcastingSampler, NowcastingGenerator
+from nowcasting_gan.generators import Sampler, Generator
 from nowcasting_gan.discriminators import (
-    NowcastingSpatialDiscriminator,
-    NowcastingTemporalDiscriminator,
+    SpatialDiscriminator,
+    TemporalDiscriminator,
 )
 
 
@@ -70,18 +70,18 @@ class NowcastingGAN(pl.LightningModule):
             shape=(8 * self.input_channels, output_shape // 32, output_shape // 32),
             output_channels=self.latent_channels,
         )
-        self.sampler = NowcastingSampler(
+        self.sampler = Sampler(
             forecast_steps=forecast_steps,
             latent_channels=self.latent_channels,
             context_channels=self.context_channels,
         )
-        self.generator = NowcastingGenerator(
+        self.generator = Generator(
             self.conditioning_stack, self.latent_stack, self.sampler
         )
-        self.temporal_discriminator = NowcastingTemporalDiscriminator(
+        self.temporal_discriminator = TemporalDiscriminator(
             input_channels=input_channels, crop_size=output_shape // 2, conv_type=conv_type
         )
-        self.spatial_discriminator = NowcastingSpatialDiscriminator(
+        self.spatial_discriminator = SpatialDiscriminator(
             input_channels=input_channels, num_timesteps=8, conv_type=conv_type
         )
         self.save_hyperparameters()

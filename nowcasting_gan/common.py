@@ -42,11 +42,10 @@ class GBlock(torch.nn.Module):
             kernel_size=1,
         )
         # Upsample 2D conv
-        self.first_conv_3x3 = torch.nn.ConvTranspose2d(
+        self.first_conv_3x3 = conv2d(
             in_channels=input_channels,
             out_channels=input_channels,
             kernel_size=3,
-            stride=2,
             padding=1,
         )
         self.last_conv_3x3 = conv2d(

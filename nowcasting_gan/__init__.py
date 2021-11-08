@@ -1,4 +1,4 @@
 from .nowcasting_gan import NowcastingGAN
-from .generators import NowcastingSampler, NowcastingGenerator
-from .discriminators import NowcastingSpatialDiscriminator, NowcastingTemporalDiscriminator
+from .generators import Sampler, Generator
+from .discriminators import SpatialDiscriminator, TemporalDiscriminator
 from .common import LatentConditioningStack, ContextConditioningStack

@@ -153,7 +153,7 @@ class NowcastingSpatialDiscriminator(torch.nn.Module):
                 rep = d(rep)
             rep = self.d6(rep)  # 2x2
 
-            rep = torch.sum(F.relu(rep), dim=[1,2])
+            rep = torch.sum(F.relu(rep), dim=[1, 2])
             rep = self.bn(rep)
             rep = self.fc(rep)
             """
@@ -175,7 +175,7 @@ class NowcastingSpatialDiscriminator(torch.nn.Module):
             representations.append(rep)
 
         # The representations are summed together before the ReLU
-        x = torch.stack(representations, dim=0) # Should be right shape? TODO Check
+        x = torch.stack(representations, dim=0)  # Should be right shape? TODO Check
         # Should be [Batch, N, 1]
-        x = torch.sum(x, keepdim = True, dim=1)
+        x = torch.sum(x, keepdim=True, dim=1)
         return x

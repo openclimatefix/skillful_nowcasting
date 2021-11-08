@@ -207,8 +207,11 @@ class LBlock(torch.nn.Module):
     """Residual block for the Latent Stack."""
 
     def __init__(
-        self, input_channels: int = 12, output_channels: int = 12, kernel_size: int = 3,
-                                                                                       conv_type: str = "standard"
+        self,
+        input_channels: int = 12,
+        output_channels: int = 12,
+        kernel_size: int = 3,
+        conv_type: str = "standard",
     ):
         """
         L-Block for increasing the number of channels in the input

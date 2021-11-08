@@ -61,9 +61,12 @@ class NowcastingTemporalDiscriminator(torch.nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.transform(x)
+
         x = self.space2depth(x)
         # Have to move time and channels
         x = torch.permute(x, dims=(0, 2, 1, 3, 4))
+        # 2 residual 3D blocks to halve resolution if image, double number of channels and reduce
+        # number of time steps
         x = self.d1(x)
         x = self.d2(x)
         # Convert back to T x C x H x W
@@ -72,19 +75,24 @@ class NowcastingTemporalDiscriminator(torch.nn.Module):
         representations = []
         for idx in range(x.size(1)):
             # Intermediate DBlocks
+            # Three residual D Blocks to halve the resolution of the image and double
+            # the number of channels.
             rep = x[:, idx, :, :, :]
             for d in self.intermediate_dblocks:
                 rep = d(rep)
+            # One more D Block without downsampling or increase number of channels
             rep = self.d_last(rep)
-            # Sum-pool along width and height all 8 representations, pretty sure only the last output
-            rep = torch.sum(rep.view(rep.size(0), rep.size(1), -1), dim=2)
+
+            rep = torch.sum(F.relu(rep), dim=[1,2])
+            rep = self.bn(rep)
+            rep = self.fc(rep)
+
             # rep = self.fc(rep)
             representations.append(rep)
         # The representations are summed together before the ReLU
-        x = torch.stack(representations, dim=0).sum(dim=0)  # Should be right shape? TODO Check
-        # ReLU the output
-        x = self.fc(x)
-        # x = self.relu(x)
+        x = torch.stack(representations, dim=0) # Should be right shape? TODO Check
+        # Should be [Batch, N, 1]
+        x = torch.sum(x, keepdim = True, dim=1)
         return x
 
 

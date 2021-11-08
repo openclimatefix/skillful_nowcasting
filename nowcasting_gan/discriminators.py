@@ -101,16 +101,16 @@ class NowcastingTemporalDiscriminator(torch.nn.Module):
             # One more D Block without downsampling or increase number of channels
             rep = self.d_last(rep)
 
-            rep = torch.sum(F.relu(rep), dim=[1,2])
+            rep = torch.sum(F.relu(rep), dim=[1, 2])
             rep = self.bn(rep)
             rep = self.fc(rep)
 
             # rep = self.fc(rep)
             representations.append(rep)
         # The representations are summed together before the ReLU
-        x = torch.stack(representations, dim=0) # Should be right shape? TODO Check
+        x = torch.stack(representations, dim=0)  # Should be right shape? TODO Check
         # Should be [Batch, N, 1]
-        x = torch.sum(x, keepdim = True, dim=1)
+        x = torch.sum(x, keepdim=True, dim=1)
         return x
 
 

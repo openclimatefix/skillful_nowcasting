@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+from torch.nn.utils import spectral_norm
 
 
 class ConvGRUCell(torch.nn.Module):
@@ -15,28 +16,24 @@ class ConvGRUCell(torch.nn.Module):
         super().__init__()
         self._kernel_size = kernel_size
         self._sn_eps = sn_eps
-        # TODO Spectrally Normalize Convolutions here
-        self.read_gate_conv = torch.nn.Conv2d(
+        self.read_gate_conv = spectral_norm(torch.nn.Conv2d(
             in_channels=input_channels,
             out_channels=output_channels,
             kernel_size=(kernel_size, kernel_size),
             padding=1,
-        )  # TODO check if
-        # padding needed
-        self.update_gate_conv = torch.nn.Conv2d(
+        ))
+        self.update_gate_conv = spectral_norm(torch.nn.Conv2d(
             in_channels=input_channels,
             out_channels=output_channels,
             kernel_size=(kernel_size, kernel_size),
             padding=1,
-        )  # TODO check if
-        # padding needed
-        self.output_conv = torch.nn.Conv2d(
+        ) )
+        self.output_conv = spectral_norm(torch.nn.Conv2d(
             in_channels=input_channels,
             out_channels=output_channels,
             kernel_size=(kernel_size, kernel_size),
             padding=1,
-        )  # TODO check if
-        # padding needed
+        ) )
 
     def forward(self, x, prev_state):
         """

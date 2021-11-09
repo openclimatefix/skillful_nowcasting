@@ -17,7 +17,7 @@ def test_conv_gru():
         input_channels=768 + 384,
         output_channels=384,
         kernel_size=3,
-        )
+    )
     init_states = [torch.rand((2, 384, 32, 32)) for _ in range(4)]
     # Expand latent dim to match batch size
     x = torch.rand((2, 768, 32, 32))
@@ -27,6 +27,7 @@ def test_conv_gru():
         out = model(hidden_states, init_states[3])
     assert out.size() == (18, 2, 384, 32, 32)
     assert not torch.isnan(out).any(), "Output included NaNs"
+
 
 def test_latent_conditioning_stack():
     model = LatentConditioningStack()
@@ -79,9 +80,10 @@ def test_discriminator():
     assert out.shape == (2, 2, 1)
     assert not torch.isnan(out).any()
 
+
 def test_generator():
     input_channels = 1
-    conv_type = 'standard'
+    conv_type = "standard"
     context_channels = 384
     latent_channels = 768
     forecast_steps = 18
@@ -90,19 +92,19 @@ def test_generator():
         input_channels=input_channels,
         conv_type=conv_type,
         output_channels=context_channels,
-        )
+    )
     latent_stack = LatentConditioningStack(
         shape=(8 * input_channels, output_shape // 32, output_shape // 32),
         output_channels=latent_channels,
-        )
+    )
     sampler = Sampler(
         forecast_steps=forecast_steps,
         latent_channels=latent_channels,
         context_channels=context_channels,
-        )
-    model = Generator(conditioning_stack = conditioning_stack,
-                      latent_stack = latent_stack,
-                      sampler = sampler)
+    )
+    model = Generator(
+        conditioning_stack=conditioning_stack, latent_stack=latent_stack, sampler=sampler
+    )
     x = torch.rand((2, 4, 1, 256, 256))
     model.eval()
     with torch.no_grad():

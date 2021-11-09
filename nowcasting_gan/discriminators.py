@@ -44,7 +44,7 @@ class TemporalDiscriminator(torch.nn.Module):
             conv_type: Type of 2d convolutions to use, see satflow/models/utils.py for options
         """
         super().__init__()
-        self.downsample = torch.nn.AvgPool3d(kernel_size = (1,2,2), stride = (1,2,2))
+        self.downsample = torch.nn.AvgPool3d(kernel_size=(1, 2, 2), stride=(1, 2, 2))
         self.space2depth = PixelUnshuffle(downscale_factor=2)
         internal_chn = 48
         self.d1 = DBlock(

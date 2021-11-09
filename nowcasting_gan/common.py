@@ -170,11 +170,11 @@ class DBlock(torch.nn.Module):
         self.keep_same_output = keep_same_output
         self.conv_type = conv_type
         conv2d = get_conv_layer(conv_type)
-        if conv_type == '3d':
+        if conv_type == "3d":
             # 3D Average pooling
-            self.pooling = torch.nn.AvgPool3d(kernel_size =2, stride = 2)
+            self.pooling = torch.nn.AvgPool3d(kernel_size=2, stride=2)
         else:
-            self.pooling = torch.nn.AvgPool2d(kernel_size = 2, stride = 2)
+            self.pooling = torch.nn.AvgPool2d(kernel_size=2, stride=2)
         self.conv_1x1 = spectral_norm(
             conv2d(
                 in_channels=input_channels,

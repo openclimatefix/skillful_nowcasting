@@ -420,9 +420,9 @@ class LatentConditioningStack(torch.nn.Module):
         self.use_attention = use_attention
         self.distribution = normal.Normal(loc=torch.Tensor([0.0]), scale=torch.Tensor([1.0]))
 
-        self.conv_3x3 = torch.nn.Conv2d(
+        self.conv_3x3 = spectral_norm(torch.nn.Conv2d(
             in_channels=shape[0], out_channels=shape[0], kernel_size=(3, 3), padding=1
-        )
+        ))
         self.l_block1 = LBlock(input_channels=shape[0], output_channels=output_channels // 32)
         self.l_block2 = LBlock(
             input_channels=output_channels // 32, output_channels=output_channels // 16

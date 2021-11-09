@@ -289,7 +289,6 @@ class ContextConditioningStack(torch.nn.Module):
         # Process each observation processed separately with 4 downsample blocks
         # Concatenate across channel dimension, and for each output, 3x3 spectrally normalized convolution to reduce
         # number of channels by 2, followed by ReLU
-        # TODO Not sure if a different block for each timestep, or same block used separately
         self.d1 = DBlock(
             input_channels=4 * input_channels,
             output_channels=((output_channels // 4) * input_channels) // num_context_steps,
@@ -352,6 +351,7 @@ class ContextConditioningStack(torch.nn.Module):
         self, x: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         # Each timestep processed separately
+        print(x.shape)
         x = self.space2depth(x)
         steps = x.size(1)  # Number of timesteps
         scale_1 = []
@@ -367,11 +367,12 @@ class ContextConditioningStack(torch.nn.Module):
             scale_2.append(s2)
             scale_3.append(s3)
             scale_4.append(s4)
-        scale_1 = torch.cat(scale_1, dim=1)  # B, T, C, H, W and want along C dimension
-        scale_2 = torch.cat(scale_2, dim=1)  # B, T, C, H, W and want along C dimension
-        scale_3 = torch.cat(scale_3, dim=1)  # B, T, C, H, W and want along C dimension
-        scale_4 = torch.cat(scale_4, dim=1)  # B, T, C, H, W and want along C dimension
+        scale_1 = torch.stack(scale_1, dim=1)  # B, T, C, H, W and want along C dimension
+        scale_2 = torch.stack(scale_2, dim=1)  # B, T, C, H, W and want along C dimension
+        scale_3 = torch.stack(scale_3, dim=1)  # B, T, C, H, W and want along C dimension
+        scale_4 = torch.stack(scale_4, dim=1)  # B, T, C, H, W and want along C dimension
         # Mixing layer
+        print(scale_1.shape)
         scale_1 = self._mixing_layer(scale_1, self.conv1)
         scale_2 = self._mixing_layer(scale_2, self.conv2)
         scale_3 = self._mixing_layer(scale_3, self.conv3)
@@ -382,7 +383,7 @@ class ContextConditioningStack(torch.nn.Module):
     def _mixing_layer(self, inputs, conv_block):
         # Convert from [batch_size, time, h, w, c] -> [batch_size, h, w, c * time]
         # then perform convolution on the output while preserving number of c.
-        stacked_inputs = einops.rearrange(inputs, "b t h w c -> b h w (c t)")
+        stacked_inputs = einops.rearrange(inputs, "b t c h w -> b (c t) h w")
         return F.relu(conv_block(stacked_inputs))
 
 

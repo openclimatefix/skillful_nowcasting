@@ -9,6 +9,7 @@ from nowcasting_gan import (
     LatentConditioningStack,
     ContextConditioningStack,
 )
+from nowcasting_gan.layers import ConvGRU
 
 
 def test_conv_gru():
@@ -17,10 +18,15 @@ def test_conv_gru():
         output_channels=384,
         kernel_size=3,
         )
-    x = torch.rand((2, 4, 1, 128, 128))
+    init_states = [torch.rand((2, 384, 32, 32)) for _ in range(4)]
+    # Expand latent dim to match batch size
+    x = torch.rand((2, 768, 32, 32))
+    hidden_states = [x] * 18
     model.eval()
     with torch.no_grad():
-        out = model(x)
+        out = model(hidden_states, init_states[3])
+    assert out.size() == (18, 2, 384, 32, 32)
+    assert not torch.isnan(out).any(), "Output included NaNs"
 
 def test_latent_conditioning_stack():
     model = LatentConditioningStack()

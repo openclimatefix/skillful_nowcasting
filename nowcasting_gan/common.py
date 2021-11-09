@@ -28,37 +28,31 @@ class GBlock(torch.nn.Module):
             conv_type: Type of convolution desired, see satflow/models/utils.py for options
         """
         super().__init__()
-        # TODO Add this to the spectrally normalized layers
-        self.spectral_normalized_eps = spectral_normalized_eps
         self.output_channels = output_channels
         self.bn1 = torch.nn.BatchNorm2d(input_channels)
         self.bn2 = torch.nn.BatchNorm2d(input_channels)
         self.relu = torch.nn.ReLU()
         # Upsample in the 1x1
         conv2d = get_conv_layer(conv_type)
-        self.conv_1x1 = conv2d(
+        self.conv_1x1 = spectral_norm(conv2d(
             in_channels=input_channels,
             out_channels=output_channels,
             kernel_size=1,
-        )
+        ), eps = spectral_normalized_eps)
         # Upsample 2D conv
-        self.first_conv_3x3 = conv2d(
+        self.first_conv_3x3 = spectral_norm(conv2d(
             in_channels=input_channels,
             out_channels=input_channels,
             kernel_size=3,
             padding=1,
-        )
-        self.last_conv_3x3 = conv2d(
+        ), eps = spectral_normalized_eps)
+        self.last_conv_3x3 = spectral_norm(conv2d(
             in_channels=input_channels, out_channels=output_channels, kernel_size=3, padding=1
-        )
+        ), eps = spectral_normalized_eps)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Optionally spectrally normalized 1x1 convolution
         if x.shape[1] != self.output_channels:
-            # TODO Make spectrally normalized, in pseudocode
-            # conv_1x1 = layers.SNConv2D(
-            #           self._output_channels, kernel_size=1, sn_eps=self._sn_eps)
-            #       sc = conv_1x1(inputs)
             sc = self.conv_1x1(x)
         else:
             sc = x
@@ -92,8 +86,6 @@ class UpsampleGBlock(torch.nn.Module):
             conv_type: Type of convolution desired, see satflow/models/utils.py for options
         """
         super().__init__()
-        # TODO Add this to the spectrally normalized layers
-        self.spectral_normalized_eps = spectral_normalized_eps
         self.output_channels = output_channels
         self.bn1 = torch.nn.BatchNorm2d(input_channels)
         self.bn2 = torch.nn.BatchNorm2d(input_channels)
@@ -169,31 +161,26 @@ class DBlock(torch.nn.Module):
         self.keep_same_output = keep_same_output
         self.conv_type = conv_type
         conv2d = get_conv_layer(conv_type)
-        self.conv_1x1 = conv2d(
+        self.conv_1x1 = spectral_norm(conv2d(
             in_channels=input_channels,
             out_channels=output_channels,
             kernel_size=1,
-        )
+        ))
         self.avg_pool_1x1 = torch.nn.AvgPool2d(kernel_size=2, stride=2)
-        self.first_conv_3x3 = conv2d(
+        self.first_conv_3x3 = spectral_norm(conv2d(
             in_channels=input_channels,
             out_channels=output_channels,
             kernel_size=3,
             padding=1,
-        )
-        self.last_conv_3x3 = conv2d(
+        ))
+        self.last_conv_3x3 = spectral_norm(conv2d(
             in_channels=output_channels,
             out_channels=output_channels,
             kernel_size=3,
             padding=1,
             stride=1,
-        )
+        ))
         self.avg_pool_3x3 = torch.nn.AvgPool2d(kernel_size=2, stride=2)
-        if conv_type == "3d":
-            # Need spectrally normalized convolutions
-            self.conv_1x1 = spectral_norm(self.conv_1x1)
-            self.first_conv_3x3 = spectral_norm(self.first_conv_3x3)
-            self.last_conv_3x3 = spectral_norm(self.last_conv_3x3)
         # Downsample at end of 3x3
         self.relu = torch.nn.ReLU()
         # Concatenate to double final channels and keep reduced spatial extent

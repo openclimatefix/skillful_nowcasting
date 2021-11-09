@@ -2,7 +2,6 @@ import torch
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
 from torch.nn.utils import spectral_norm
 import torch.nn.functional as F
-from torchvision.transforms import RandomCrop
 from nowcasting_gan.common import DBlock
 
 
@@ -11,7 +10,6 @@ class Discriminator(torch.nn.Module):
         self,
         input_channels: int = 12,
         num_spatial_frames: int = 8,
-        num_temporal_crop_size: int = 128,
         conv_type: str = "standard",
     ):
         super().__init__()
@@ -19,7 +17,7 @@ class Discriminator(torch.nn.Module):
             input_channels=input_channels, num_timesteps=num_spatial_frames, conv_type=conv_type
         )
         self.temporal_discriminator = TemporalDiscriminator(
-            input_channels=input_channels, crop_size=num_temporal_crop_size, conv_type=conv_type
+            input_channels=input_channels, conv_type=conv_type
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -33,7 +31,6 @@ class TemporalDiscriminator(torch.nn.Module):
     def __init__(
         self,
         input_channels: int = 12,
-        crop_size: int = 128,
         num_layers: int = 3,
         conv_type: str = "standard",
     ):
@@ -47,7 +44,7 @@ class TemporalDiscriminator(torch.nn.Module):
             conv_type: Type of 2d convolutions to use, see satflow/models/utils.py for options
         """
         super().__init__()
-        self.transform = RandomCrop(crop_size)
+        self.downsample = torch.nn.AvgPool3d(kernel_size = (1,2,2), stride = (1,2,2))
         self.space2depth = PixelUnshuffle(downscale_factor=2)
         internal_chn = 48
         self.d1 = DBlock(
@@ -81,9 +78,10 @@ class TemporalDiscriminator(torch.nn.Module):
 
         self.fc = spectral_norm(torch.nn.Linear(2 * internal_chn * input_channels, 1))
         self.relu = torch.nn.ReLU()
+        self.bn = torch.nn.BatchNorm1d(2 * internal_chn * input_channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.transform(x)
+        x = self.downsample(x)
 
         x = self.space2depth(x)
         # Have to move time and channels
@@ -106,14 +104,14 @@ class TemporalDiscriminator(torch.nn.Module):
             # One more D Block without downsampling or increase number of channels
             rep = self.d_last(rep)
 
-            rep = torch.sum(F.relu(rep), dim=[1, 2])
+            rep = torch.sum(F.relu(rep), dim=[2, 3])
             rep = self.bn(rep)
             rep = self.fc(rep)
 
             # rep = self.fc(rep)
             representations.append(rep)
         # The representations are summed together before the ReLU
-        x = torch.stack(representations, dim=0)  # Should be right shape? TODO Check
+        x = torch.stack(representations, dim=1)
         # Should be [Batch, N, 1]
         x = torch.sum(x, keepdim=True, dim=1)
         return x
@@ -169,7 +167,7 @@ class SpatialDiscriminator(torch.nn.Module):
         # Spectrally normalized linear layer for binary classification
         self.fc = spectral_norm(torch.nn.Linear(2 * internal_chn * input_channels, 1))
         self.relu = torch.nn.ReLU()
-        self.bn = torch.nn.BatchNorm1d(1)
+        self.bn = torch.nn.BatchNorm1d(2 * internal_chn * input_channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x should be the chosen 8 or so
@@ -183,8 +181,7 @@ class SpatialDiscriminator(torch.nn.Module):
             for d in self.intermediate_dblocks:
                 rep = d(rep)
             rep = self.d6(rep)  # 2x2
-
-            rep = torch.sum(F.relu(rep), dim=[1, 2])
+            rep = torch.sum(F.relu(rep), dim=[2, 3])
             rep = self.bn(rep)
             rep = self.fc(rep)
             """
@@ -201,12 +198,10 @@ class SpatialDiscriminator(torch.nn.Module):
             output = tf.reduce_sum(output, keepdims=True, axis=1)
             return output
             """
-            # Sum-pool along width and height all 8 representations, pretty sure only the last output
-            # rep = torch.sum(rep.view(rep.size(0), rep.size(1), -1), dim=2)
             representations.append(rep)
 
         # The representations are summed together before the ReLU
-        x = torch.stack(representations, dim=0)  # Should be right shape? TODO Check
+        x = torch.stack(representations, dim=1)
         # Should be [Batch, N, 1]
         x = torch.sum(x, keepdim=True, dim=1)
         return x

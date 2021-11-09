@@ -170,6 +170,11 @@ class DBlock(torch.nn.Module):
         self.keep_same_output = keep_same_output
         self.conv_type = conv_type
         conv2d = get_conv_layer(conv_type)
+        if conv_type == '3d':
+            # 3D Average pooling
+            self.pooling = torch.nn.AvgPool3d(kernel_size =2, stride = 2)
+        else:
+            self.pooling = torch.nn.AvgPool2d(kernel_size = 2, stride = 2)
         self.conv_1x1 = spectral_norm(
             conv2d(
                 in_channels=input_channels,
@@ -177,7 +182,6 @@ class DBlock(torch.nn.Module):
                 kernel_size=1,
             )
         )
-        self.avg_pool_1x1 = torch.nn.AvgPool2d(kernel_size=2, stride=2)
         self.first_conv_3x3 = spectral_norm(
             conv2d(
                 in_channels=input_channels,
@@ -195,7 +199,6 @@ class DBlock(torch.nn.Module):
                 stride=1,
             )
         )
-        self.avg_pool_3x3 = torch.nn.AvgPool2d(kernel_size=2, stride=2)
         # Downsample at end of 3x3
         self.relu = torch.nn.ReLU()
         # Concatenate to double final channels and keep reduced spatial extent
@@ -204,7 +207,7 @@ class DBlock(torch.nn.Module):
         if self.input_channels != self.output_channels:
             x1 = self.conv_1x1(x)
             if not self.keep_same_output:
-                x1 = self.avg_pool_1x1(x1)
+                x1 = self.pooling(x1)
         else:
             x1 = x
 
@@ -215,7 +218,7 @@ class DBlock(torch.nn.Module):
         x = self.last_conv_3x3(x)
 
         if not self.keep_same_output:
-            x = self.avg_pool_3x3(x)
+            x = self.pooling(x)
         x = x1 + x  # Sum the outputs should be half spatial and double channels
         return x
 

@@ -100,22 +100,31 @@ class UpsampleGBlock(torch.nn.Module):
         self.relu = torch.nn.ReLU()
         # Upsample in the 1x1
         conv2d = get_conv_layer(conv_type)
-        self.conv_1x1 = spectral_norm(conv2d(
-            in_channels=input_channels,
-            out_channels=output_channels,
-            kernel_size=1,
-        ), eps = spectral_normalized_eps)
+        self.conv_1x1 = spectral_norm(
+            conv2d(
+                in_channels=input_channels,
+                out_channels=output_channels,
+                kernel_size=1,
+            ),
+            eps=spectral_normalized_eps,
+        )
         self.upsample = torch.nn.Upsample(scale_factor=2, mode="nearest")
         # Upsample 2D conv
-        self.first_conv_3x3 = spectral_norm(conv2d(
-            in_channels=input_channels,
-            out_channels=input_channels,
-            kernel_size=3,
-            padding=1,
-        ), eps = spectral_normalized_eps)
-        self.last_conv_3x3 = spectral_norm(conv2d(
-            in_channels=input_channels, out_channels=output_channels, kernel_size=3, padding=1
-        ), eps = spectral_normalized_eps)
+        self.first_conv_3x3 = spectral_norm(
+            conv2d(
+                in_channels=input_channels,
+                out_channels=input_channels,
+                kernel_size=3,
+                padding=1,
+            ),
+            eps=spectral_normalized_eps,
+        )
+        self.last_conv_3x3 = spectral_norm(
+            conv2d(
+                in_channels=input_channels, out_channels=output_channels, kernel_size=3, padding=1
+            ),
+            eps=spectral_normalized_eps,
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Spectrally normalized 1x1 convolution
@@ -239,7 +248,11 @@ class LBlock(torch.nn.Module):
         )
 
         self.first_conv_3x3 = conv2d(
-            input_channels, out_channels=output_channels, kernel_size=kernel_size, padding=1, stride=1
+            input_channels,
+            out_channels=output_channels,
+            kernel_size=kernel_size,
+            padding=1,
+            stride=1,
         )
         self.relu = torch.nn.ReLU()
         self.last_conv_3x3 = conv2d(
@@ -403,7 +416,7 @@ class LatentConditioningStack(torch.nn.Module):
         self.distribution = normal.Normal(loc=torch.Tensor([0.0]), scale=torch.Tensor([1.0]))
 
         self.conv_3x3 = torch.nn.Conv2d(
-            in_channels=shape[0], out_channels=shape[0], kernel_size=(3,3), padding=1
+            in_channels=shape[0], out_channels=shape[0], kernel_size=(3, 3), padding=1
         )
         self.l_block1 = LBlock(input_channels=shape[0], output_channels=output_channels // 32)
         self.l_block2 = LBlock(

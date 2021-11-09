@@ -113,8 +113,9 @@ class Sampler(torch.nn.Module):
         # Initialize with conditioning state for first one, output for second one
         init_states = conditioning_states
         # Expand latent dim to match batch size
-        latent_dim = einops.repeat(latent_dim, 'b c h w -> (repeat b) c h w', repeat=init_states[
-            0].shape[0])
+        latent_dim = einops.repeat(
+            latent_dim, "b c h w -> (repeat b) c h w", repeat=init_states[0].shape[0]
+        )
         hidden_states = [latent_dim] * self.forecast_steps
 
         # Layer 4 (bottom most)

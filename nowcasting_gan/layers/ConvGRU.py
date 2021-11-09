@@ -16,24 +16,33 @@ class ConvGRUCell(torch.nn.Module):
         super().__init__()
         self._kernel_size = kernel_size
         self._sn_eps = sn_eps
-        self.read_gate_conv = spectral_norm(torch.nn.Conv2d(
-            in_channels=input_channels,
-            out_channels=output_channels,
-            kernel_size=(kernel_size, kernel_size),
-            padding=1,
-        ), eps = sn_eps)
-        self.update_gate_conv = spectral_norm(torch.nn.Conv2d(
-            in_channels=input_channels,
-            out_channels=output_channels,
-            kernel_size=(kernel_size, kernel_size),
-            padding=1,
-        ), eps = sn_eps )
-        self.output_conv = spectral_norm(torch.nn.Conv2d(
-            in_channels=input_channels,
-            out_channels=output_channels,
-            kernel_size=(kernel_size, kernel_size),
-            padding=1,
-        ), eps = sn_eps )
+        self.read_gate_conv = spectral_norm(
+            torch.nn.Conv2d(
+                in_channels=input_channels,
+                out_channels=output_channels,
+                kernel_size=(kernel_size, kernel_size),
+                padding=1,
+            ),
+            eps=sn_eps,
+        )
+        self.update_gate_conv = spectral_norm(
+            torch.nn.Conv2d(
+                in_channels=input_channels,
+                out_channels=output_channels,
+                kernel_size=(kernel_size, kernel_size),
+                padding=1,
+            ),
+            eps=sn_eps,
+        )
+        self.output_conv = spectral_norm(
+            torch.nn.Conv2d(
+                in_channels=input_channels,
+                out_channels=output_channels,
+                kernel_size=(kernel_size, kernel_size),
+                padding=1,
+            ),
+            eps=sn_eps,
+        )
 
     def forward(self, x, prev_state):
         """

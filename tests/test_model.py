@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 from nowcasting_gan import (
     DGMR,
     Generator,
@@ -10,6 +11,7 @@ from nowcasting_gan import (
     ContextConditioningStack,
 )
 from nowcasting_gan.layers import ConvGRU
+import einops
 
 
 def test_conv_gru():
@@ -79,6 +81,89 @@ def test_discriminator():
         out = model(x)
     assert out.shape == (2, 2, 1)
     assert not torch.isnan(out).any()
+
+def test_sampler():
+    input_channels = 1
+    conv_type = "standard"
+    context_channels = 384
+    latent_channels = 768
+    forecast_steps = 18
+    output_shape = 256
+    conditioning_stack = ContextConditioningStack(
+        input_channels=input_channels,
+        conv_type=conv_type,
+        output_channels=context_channels,
+        )
+    latent_stack = LatentConditioningStack(
+        shape=(8 * input_channels, output_shape // 32, output_shape // 32),
+        output_channels=latent_channels,
+        )
+    sampler = Sampler(
+        forecast_steps=forecast_steps,
+        latent_channels=latent_channels,
+        context_channels=context_channels,
+        )
+    latent_stack.eval()
+    conditioning_stack.eval()
+    sampler.eval()
+    x = torch.rand((2, 4, 1, 256, 256))
+    with torch.no_grad():
+        latent_dim = latent_stack(x)
+        assert not torch.isnan(latent_dim).any()
+        init_states = conditioning_stack(x)
+        assert not all(torch.isnan(init_states[i]).any() for i in range(len(init_states)))
+        # Expand latent dim to match batch size
+        latent_dim = einops.repeat(
+            latent_dim, "b c h w -> (repeat b) c h w", repeat=init_states[0].shape[0]
+            )
+        assert not torch.isnan(latent_dim).any()
+        hidden_states = [latent_dim] * forecast_steps
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = sampler.convGRU1(hidden_states, init_states[3])
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.gru_conv_1x1(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.g1(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.up_g1(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        # Layer 3.
+        hidden_states = sampler.convGRU2(hidden_states, init_states[2])
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.gru_conv_1x1_2(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.g2(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.up_g2(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+
+        # Layer 2.
+        hidden_states = sampler.convGRU3(hidden_states, init_states[1])
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.gru_conv_1x1_3(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.g3(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.up_g3(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+
+        # Layer 1 (top-most).
+        hidden_states = sampler.convGRU4(hidden_states, init_states[0])
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.gru_conv_1x1_4(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.g4(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.up_g4(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+
+        # Output layer.
+        hidden_states = [F.relu(sampler.bn(h)) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.conv_1x1(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
+        hidden_states = [sampler.depth2space(h) for h in hidden_states]
+        assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))
 
 
 def test_generator():

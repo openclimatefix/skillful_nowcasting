@@ -133,36 +133,36 @@ class Sampler(torch.nn.Module):
         hidden_states = [latent_dim] * self.forecast_steps
 
         # Layer 4 (bottom most)
-        hs = self.convGRU1(hidden_states, init_states[3])
-        hs = [self.gru_conv_1x1(h) for h in hs]
-        hs = [self.g1(h) for h in hs]
-        hs = [self.up_g1(h) for h in hs]
+        hidden_states = self.convGRU1(hidden_states, init_states[3])
+        hidden_states = [self.gru_conv_1x1(h) for h in hidden_states]
+        hidden_states = [self.g1(h) for h in hidden_states]
+        hidden_states = [self.up_g1(h) for h in hidden_states]
 
         # Layer 3.
-        hs = self.convGRU2(hs, init_states[2])
-        hs = [self.gru_conv_1x1_2(h) for h in hs]
-        hs = [self.g2(h) for h in hs]
-        hs = [self.up_g2(h) for h in hs]
+        hidden_states = self.convGRU2(hidden_states, init_states[2])
+        hidden_states = [self.gru_conv_1x1_2(h) for h in hidden_states]
+        hidden_states = [self.g2(h) for h in hidden_states]
+        hidden_states = [self.up_g2(h) for h in hidden_states]
 
         # Layer 2.
-        hs = self.convGRU3(hs, init_states[1])
-        hs = [self.gru_conv_1x1_3(h) for h in hs]
-        hs = [self.g3(h) for h in hs]
-        hs = [self.up_g3(h) for h in hs]
+        hidden_states = self.convGRU3(hidden_states, init_states[1])
+        hidden_states = [self.gru_conv_1x1_3(h) for h in hidden_states]
+        hidden_states = [self.g3(h) for h in hidden_states]
+        hidden_states = [self.up_g3(h) for h in hidden_states]
 
         # Layer 1 (top-most).
-        hs = self.convGRU4(hs, init_states[0])
-        hs = [self.gru_conv_1x1_4(h) for h in hs]
-        hs = [self.g4(h) for h in hs]
-        hs = [self.up_g4(h) for h in hs]
+        hidden_states = self.convGRU4(hidden_states, init_states[0])
+        hidden_states = [self.gru_conv_1x1_4(h) for h in hidden_states]
+        hidden_states = [self.g4(h) for h in hidden_states]
+        hidden_states = [self.up_g4(h) for h in hidden_states]
 
         # Output layer.
-        hs = [F.relu(self.bn(h)) for h in hs]
-        hs = [self.conv_1x1(h) for h in hs]
-        hs = [self.depth2space(h) for h in hs]
+        hidden_states = [F.relu(self.bn(h)) for h in hidden_states]
+        hidden_states = [self.conv_1x1(h) for h in hidden_states]
+        hidden_states = [self.depth2space(h) for h in hidden_states]
 
         # Convert forecasts to a torch Tensor
-        forecasts = torch.stack(hs, dim=1)
+        forecasts = torch.stack(hidden_states, dim=1)
         return forecasts
 
 

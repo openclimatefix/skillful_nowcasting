@@ -1,7 +1,7 @@
 import tensorflow as tf
 import tensorflow_hub
 import torch
-from nowcasting_gan import NowcastingGAN
+from nowcasting_gan import DGMR
 import os
 import fsspec
 

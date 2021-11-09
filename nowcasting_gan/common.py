@@ -100,35 +100,32 @@ class UpsampleGBlock(torch.nn.Module):
         self.relu = torch.nn.ReLU()
         # Upsample in the 1x1
         conv2d = get_conv_layer(conv_type)
-        self.conv_1x1 = conv2d(
+        self.conv_1x1 = spectral_norm(conv2d(
             in_channels=input_channels,
             out_channels=output_channels,
             kernel_size=1,
-        )
+        ), eps = spectral_normalized_eps)
         self.upsample = torch.nn.Upsample(scale_factor=2, mode="nearest")
         # Upsample 2D conv
-        self.first_conv_3x3 = torch.nn.ConvTranspose2d(
+        self.first_conv_3x3 = spectral_norm(conv2d(
             in_channels=input_channels,
             out_channels=input_channels,
             kernel_size=3,
-            stride=2,
             padding=1,
-        )
-        self.last_conv_3x3 = conv2d(
+        ), eps = spectral_normalized_eps)
+        self.last_conv_3x3 = spectral_norm(conv2d(
             in_channels=input_channels, out_channels=output_channels, kernel_size=3, padding=1
-        )
+        ), eps = spectral_normalized_eps)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Spectrally normalized 1x1 convolution
         sc = self.upsample(x)
-        # TODO Make spectrally normalized, in pseudocode
-        # conv_1x1 = layers.SNConv2D(
-        #           self._output_channels, kernel_size=1, sn_eps=self._sn_eps)
-        #       sc = conv_1x1(inputs)
         sc = self.conv_1x1(sc)
 
         x2 = self.bn1(x)
         x2 = self.relu(x2)
+        # Upsample
+        x2 = self.upsample(x2)
         x2 = self.first_conv_3x3(x2)  # Make sure size is doubled
         x2 = self.bn2(x2)
         x2 = self.relu(x2)

@@ -37,9 +37,11 @@ class Sampler(torch.nn.Module):
             output_channels=context_channels,
             kernel_size=3,
         )
-        self.gru_conv_1x1 = spectral_norm(torch.nn.Conv2d(
-            in_channels=context_channels, out_channels=latent_channels, kernel_size=(1, 1)
-        ))
+        self.gru_conv_1x1 = spectral_norm(
+            torch.nn.Conv2d(
+                in_channels=context_channels, out_channels=latent_channels, kernel_size=(1, 1)
+            )
+        )
         self.g1 = GBlock(input_channels=latent_channels, output_channels=latent_channels)
         self.up_g1 = UpsampleGBlock(
             input_channels=latent_channels, output_channels=latent_channels // 2
@@ -50,9 +52,13 @@ class Sampler(torch.nn.Module):
             output_channels=context_channels // 2,
             kernel_size=3,
         )
-        self.gru_conv_1x1_2 = spectral_norm(torch.nn.Conv2d(
-            in_channels=context_channels // 2, out_channels=latent_channels // 2, kernel_size=(1, 1)
-        ))
+        self.gru_conv_1x1_2 = spectral_norm(
+            torch.nn.Conv2d(
+                in_channels=context_channels // 2,
+                out_channels=latent_channels // 2,
+                kernel_size=(1, 1),
+            )
+        )
         self.g2 = GBlock(input_channels=latent_channels // 2, output_channels=latent_channels // 2)
         self.up_g2 = UpsampleGBlock(
             input_channels=latent_channels // 2, output_channels=latent_channels // 4
@@ -63,9 +69,13 @@ class Sampler(torch.nn.Module):
             output_channels=context_channels // 4,
             kernel_size=3,
         )
-        self.gru_conv_1x1_3 = spectral_norm(torch.nn.Conv2d(
-            in_channels=context_channels // 4, out_channels=latent_channels // 4, kernel_size=(1, 1)
-        ))
+        self.gru_conv_1x1_3 = spectral_norm(
+            torch.nn.Conv2d(
+                in_channels=context_channels // 4,
+                out_channels=latent_channels // 4,
+                kernel_size=(1, 1),
+            )
+        )
         self.g3 = GBlock(input_channels=latent_channels // 4, output_channels=latent_channels // 4)
         self.up_g3 = UpsampleGBlock(
             input_channels=latent_channels // 4, output_channels=latent_channels // 8
@@ -76,9 +86,13 @@ class Sampler(torch.nn.Module):
             output_channels=context_channels // 8,
             kernel_size=3,
         )
-        self.gru_conv_1x1_4 = spectral_norm(torch.nn.Conv2d(
-            in_channels=context_channels // 8, out_channels=latent_channels // 8, kernel_size=(1, 1)
-        ))
+        self.gru_conv_1x1_4 = spectral_norm(
+            torch.nn.Conv2d(
+                in_channels=context_channels // 8,
+                out_channels=latent_channels // 8,
+                kernel_size=(1, 1),
+            )
+        )
         self.g4 = GBlock(input_channels=latent_channels // 8, output_channels=latent_channels // 8)
         self.up_g4 = UpsampleGBlock(
             input_channels=latent_channels // 8, output_channels=latent_channels // 16

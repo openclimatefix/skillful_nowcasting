@@ -115,7 +115,7 @@ class AttentionLayer(torch.nn.Module):
         )
 
         # Learnable gain parameter
-        self.gamma = torch.zeros(1)
+        self.gamma = nn.Parameter(torch.zeros(1))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Compute query, key and value using 1x1 convolutions.
@@ -129,7 +129,7 @@ class AttentionLayer(torch.nn.Module):
             # Apply to each in batch
             out.append(attention_einsum(query[b], key[b], value[b]))
         out = torch.stack(out, dim=0)
-        out = self._gamma * self.last_conv(out)
+        out = self.gamma * self.last_conv(out)
 
         # Residual connection.
         return out + x

@@ -232,39 +232,40 @@ class LBlock(torch.nn.Module):
         """
         super().__init__()
         # Output size should be channel_out - channel_in
+        self.input_channels = input_channels
+        self.output_channels = output_channels
         conv2d = get_conv_layer(conv_type)
         self.conv_1x1 = conv2d(
             in_channels=input_channels,
             out_channels=output_channels - input_channels,
-            kernel_size=kernel_size,
+            kernel_size=1,
         )
 
         self.first_conv_3x3 = conv2d(
-            input_channels, out_channels=output_channels, kernel_size=3, padding=1, stride=1
+            input_channels, out_channels=output_channels, kernel_size=kernel_size, padding=1, stride=1
         )
         self.relu = torch.nn.ReLU()
         self.last_conv_3x3 = conv2d(
             in_channels=output_channels,
             out_channels=output_channels,
-            kernel_size=3,
+            kernel_size=kernel_size,
             padding=1,
             stride=1,
         )
 
     def forward(self, x) -> torch.Tensor:
 
-        h0 = self.relu(x)
-
-        h1 = self.conv_1x1
-
-        x1 = self.conv_1x1(x)
+        if self.input_channels < self.output_channels:
+            sc = self.conv_1x1(x)
+            sc = torch.cat([x, sc], dim=1)
+        else:
+            sc = x
 
         x2 = self.relu(x)
         x2 = self.first_conv_3x3(x2)
         x2 = self.relu(x2)
         x2 = self.last_conv_3x3(x2)
-        x = x2 + (torch.cat((x, x1), dim=1))
-        return x
+        return x2 + sc
 
 
 class ContextConditioningStack(torch.nn.Module):
@@ -351,7 +352,6 @@ class ContextConditioningStack(torch.nn.Module):
         self, x: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         # Each timestep processed separately
-        print(x.shape)
         x = self.space2depth(x)
         steps = x.size(1)  # Number of timesteps
         scale_1 = []
@@ -372,7 +372,6 @@ class ContextConditioningStack(torch.nn.Module):
         scale_3 = torch.stack(scale_3, dim=1)  # B, T, C, H, W and want along C dimension
         scale_4 = torch.stack(scale_4, dim=1)  # B, T, C, H, W and want along C dimension
         # Mixing layer
-        print(scale_1.shape)
         scale_1 = self._mixing_layer(scale_1, self.conv1)
         scale_2 = self._mixing_layer(scale_2, self.conv2)
         scale_3 = self._mixing_layer(scale_3, self.conv3)

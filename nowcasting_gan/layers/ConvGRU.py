@@ -21,19 +21,19 @@ class ConvGRUCell(torch.nn.Module):
             out_channels=output_channels,
             kernel_size=(kernel_size, kernel_size),
             padding=1,
-        ))
+        ), eps = sn_eps)
         self.update_gate_conv = spectral_norm(torch.nn.Conv2d(
             in_channels=input_channels,
             out_channels=output_channels,
             kernel_size=(kernel_size, kernel_size),
             padding=1,
-        ) )
+        ), eps = sn_eps )
         self.output_conv = spectral_norm(torch.nn.Conv2d(
             in_channels=input_channels,
             out_channels=output_channels,
             kernel_size=(kernel_size, kernel_size),
             padding=1,
-        ) )
+        ), eps = sn_eps )
 
     def forward(self, x, prev_state):
         """
@@ -77,9 +77,9 @@ class ConvGRU(torch.nn.Module):
 
     def forward(self, x: torch.Tensor, hidden_state=None) -> torch.Tensor:
         outputs = []
-        for step in range(x.size(1)):
+        for step in range(len(x)):
             # Compute current timestep
-            output, hidden_state = self.cell(x[:, step, :, :, :], hidden_state)
+            output, hidden_state = self.cell(x[step], hidden_state)
             outputs.append(output)
         # Stack outputs to return as tensor
         outputs = torch.stack(outputs, dim=0)

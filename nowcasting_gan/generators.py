@@ -111,29 +111,32 @@ class Sampler(torch.nn.Module):
         """
         # Iterate through each forecast step
         # Initialize with conditioning state for first one, output for second one
-        init_states = [torch.unsqueeze(c, dim=0) for c in conditioning_states]
+        init_states = conditioning_states
+        # Expand latent dim to match batch size
+        latent_dim = einops.repeat(latent_dim, 'b c h w -> (repeat b) c h w', repeat=init_states[
+            0].shape[0])
         hidden_states = [latent_dim] * self.forecast_steps
 
         # Layer 4 (bottom most)
-        hs = self.convGRU1(hidden_states, init_states[4])
+        hs = self.convGRU1(hidden_states, init_states[3])
         hs = [self.gru_conv_1x1(h) for h in hs]
         hs = [self.g1(h) for h in hs]
         hs = [self.up_g1(h) for h in hs]
 
         # Layer 3.
-        hs = self.convGRU2(hs, init_states[3])
+        hs = self.convGRU2(hs, init_states[2])
         hs = [self.gru_conv_1x1_2(h) for h in hs]
         hs = [self.g2(h) for h in hs]
         hs = [self.up_g2(h) for h in hs]
 
         # Layer 2.
-        hs = self.convGRU3(hs, init_states[2])
+        hs = self.convGRU3(hs, init_states[1])
         hs = [self.gru_conv_1x1_3(h) for h in hs]
         hs = [self.g3(h) for h in hs]
         hs = [self.up_g3(h) for h in hs]
 
         # Layer 1 (top-most).
-        hs = self.convGRU4(hs, init_states[1])
+        hs = self.convGRU4(hs, init_states[0])
         hs = [self.gru_conv_1x1_4(h) for h in hs]
         hs = [self.g4(h) for h in hs]
         hs = [self.up_g4(h) for h in hs]

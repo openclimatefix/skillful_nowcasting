@@ -7,7 +7,7 @@ from torch.distributions import normal
 from torch.nn.utils import spectral_norm
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
 from nowcasting_gan.layers.utils import get_conv_layer
-from nowcasting_gan.layers import SelfAttention2d, AttentionLayer
+from nowcasting_gan.layers import AttentionLayer
 
 
 class GBlock(torch.nn.Module):
@@ -376,7 +376,6 @@ class ContextConditioningStack(torch.nn.Module):
         scale_2 = self._mixing_layer(scale_2, self.conv2)
         scale_3 = self._mixing_layer(scale_3, self.conv3)
         scale_4 = self._mixing_layer(scale_4, self.conv4)
-
         return scale_1, scale_2, scale_3, scale_4
 
     def _mixing_layer(self, inputs, conv_block):
@@ -407,7 +406,7 @@ class LatentConditioningStack(torch.nn.Module):
         self.distribution = normal.Normal(loc=torch.Tensor([0.0]), scale=torch.Tensor([1.0]))
 
         self.conv_3x3 = torch.nn.Conv2d(
-            in_channels=shape[0], out_channels=shape[0], kernel_size=3, padding=1
+            in_channels=shape[0], out_channels=shape[0], kernel_size=(3,3), padding=1
         )
         self.l_block1 = LBlock(input_channels=shape[0], output_channels=output_channels // 32)
         self.l_block2 = LBlock(

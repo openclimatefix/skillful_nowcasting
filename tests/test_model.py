@@ -82,6 +82,7 @@ def test_discriminator():
     assert out.shape == (2, 2, 1)
     assert not torch.isnan(out).any()
 
+
 def test_sampler():
     input_channels = 1
     conv_type = "standard"
@@ -93,16 +94,16 @@ def test_sampler():
         input_channels=input_channels,
         conv_type=conv_type,
         output_channels=context_channels,
-        )
+    )
     latent_stack = LatentConditioningStack(
         shape=(8 * input_channels, output_shape // 32, output_shape // 32),
         output_channels=latent_channels,
-        )
+    )
     sampler = Sampler(
         forecast_steps=forecast_steps,
         latent_channels=latent_channels,
         context_channels=context_channels,
-        )
+    )
     latent_stack.eval()
     conditioning_stack.eval()
     sampler.eval()
@@ -115,7 +116,7 @@ def test_sampler():
         # Expand latent dim to match batch size
         latent_dim = einops.repeat(
             latent_dim, "b c h w -> (repeat b) c h w", repeat=init_states[0].shape[0]
-            )
+        )
         assert not torch.isnan(latent_dim).any()
         hidden_states = [latent_dim] * forecast_steps
         assert not all(torch.isnan(hidden_states[i]).any() for i in range(len(hidden_states)))

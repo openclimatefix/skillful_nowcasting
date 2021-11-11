@@ -1,15 +1,36 @@
 import torch
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
 from torch.nn.utils import spectral_norm
-from torchvision.transforms import RandomCrop
+import torch.nn.functional as F
 from nowcasting_gan.common import DBlock
 
 
-class NowcastingTemporalDiscriminator(torch.nn.Module):
+class Discriminator(torch.nn.Module):
     def __init__(
         self,
         input_channels: int = 12,
-        crop_size: int = 128,
+        num_spatial_frames: int = 8,
+        conv_type: str = "standard",
+    ):
+        super().__init__()
+        self.spatial_discriminator = SpatialDiscriminator(
+            input_channels=input_channels, num_timesteps=num_spatial_frames, conv_type=conv_type
+        )
+        self.temporal_discriminator = TemporalDiscriminator(
+            input_channels=input_channels, conv_type=conv_type
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        spatial_loss = self.spatial_discriminator(x)
+        temporal_loss = self.temporal_discriminator(x)
+
+        return torch.cat([spatial_loss, temporal_loss], dim=1)
+
+
+class TemporalDiscriminator(torch.nn.Module):
+    def __init__(
+        self,
+        input_channels: int = 12,
         num_layers: int = 3,
         conv_type: str = "standard",
     ):
@@ -23,7 +44,7 @@ class NowcastingTemporalDiscriminator(torch.nn.Module):
             conv_type: Type of 2d convolutions to use, see satflow/models/utils.py for options
         """
         super().__init__()
-        self.transform = RandomCrop(crop_size)
+        self.downsample = torch.nn.AvgPool3d(kernel_size=(1, 2, 2), stride=(1, 2, 2))
         self.space2depth = PixelUnshuffle(downscale_factor=2)
         internal_chn = 48
         self.d1 = DBlock(
@@ -57,12 +78,16 @@ class NowcastingTemporalDiscriminator(torch.nn.Module):
 
         self.fc = spectral_norm(torch.nn.Linear(2 * internal_chn * input_channels, 1))
         self.relu = torch.nn.ReLU()
+        self.bn = torch.nn.BatchNorm1d(2 * internal_chn * input_channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.transform(x)
+        x = self.downsample(x)
+
         x = self.space2depth(x)
         # Have to move time and channels
         x = torch.permute(x, dims=(0, 2, 1, 3, 4))
+        # 2 residual 3D blocks to halve resolution if image, double number of channels and reduce
+        # number of time steps
         x = self.d1(x)
         x = self.d2(x)
         # Convert back to T x C x H x W
@@ -71,23 +96,28 @@ class NowcastingTemporalDiscriminator(torch.nn.Module):
         representations = []
         for idx in range(x.size(1)):
             # Intermediate DBlocks
+            # Three residual D Blocks to halve the resolution of the image and double
+            # the number of channels.
             rep = x[:, idx, :, :, :]
             for d in self.intermediate_dblocks:
                 rep = d(rep)
+            # One more D Block without downsampling or increase number of channels
             rep = self.d_last(rep)
-            # Sum-pool along width and height all 8 representations, pretty sure only the last output
-            rep = torch.sum(rep.view(rep.size(0), rep.size(1), -1), dim=2)
+
+            rep = torch.sum(F.relu(rep), dim=[2, 3])
+            rep = self.bn(rep)
+            rep = self.fc(rep)
+
             # rep = self.fc(rep)
             representations.append(rep)
         # The representations are summed together before the ReLU
-        x = torch.stack(representations, dim=0).sum(dim=0)  # Should be right shape? TODO Check
-        # ReLU the output
-        x = self.fc(x)
-        # x = self.relu(x)
+        x = torch.stack(representations, dim=1)
+        # Should be [Batch, N, 1]
+        x = torch.sum(x, keepdim=True, dim=1)
         return x
 
 
-class NowcastingSpatialDiscriminator(torch.nn.Module):
+class SpatialDiscriminator(torch.nn.Module):
     def __init__(
         self,
         input_channels: int = 12,
@@ -137,6 +167,7 @@ class NowcastingSpatialDiscriminator(torch.nn.Module):
         # Spectrally normalized linear layer for binary classification
         self.fc = spectral_norm(torch.nn.Linear(2 * internal_chn * input_channels, 1))
         self.relu = torch.nn.ReLU()
+        self.bn = torch.nn.BatchNorm1d(2 * internal_chn * input_channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x should be the chosen 8 or so
@@ -150,14 +181,27 @@ class NowcastingSpatialDiscriminator(torch.nn.Module):
             for d in self.intermediate_dblocks:
                 rep = d(rep)
             rep = self.d6(rep)  # 2x2
+            rep = torch.sum(F.relu(rep), dim=[2, 3])
+            rep = self.bn(rep)
+            rep = self.fc(rep)
+            """
+            Pseudocode from DeepMind
+            # Sum-pool the representations and feed to spectrally normalized lin. layer.
+            y = tf.reduce_sum(tf.nn.relu(y), axis=[1, 2])
+            y = layers.BatchNorm(calc_sigma=False)(y)
+            output_layer = layers.Linear(output_size=1)
+            output = output_layer(y)
 
-            # Sum-pool along width and height all 8 representations, pretty sure only the last output
-            rep = torch.sum(rep.view(rep.size(0), rep.size(1), -1), dim=2)
+            # Take the sum across the t samples. Note: we apply the ReLU to
+            # (1 - score_real) and (1 + score_generated) in the loss.
+            output = tf.reshape(output, [b, n, 1])
+            output = tf.reduce_sum(output, keepdims=True, axis=1)
+            return output
+            """
             representations.append(rep)
 
         # The representations are summed together before the ReLU
-        x = torch.stack(representations, dim=0).sum(dim=0)  # Should be right shape? TODO Check
-        # ReLU the output
-        x = self.fc(x)
-        # x = self.relu(x)
+        x = torch.stack(representations, dim=1)
+        # Should be [Batch, N, 1]
+        x = torch.sum(x, keepdim=True, dim=1)
         return x

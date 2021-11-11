@@ -1,0 +1,111 @@
+"""Pseudocode for the training loop, assuming the UK data.
+
+This code presents, as clearly as possible, the algorithmic logic behind
+the generative method. It does not include some control dependencies and
+initialization ops that are specific to the hardware architecture on which it is
+run as well as specific dataset storage choices.
+"""
+
+from . import discriminator
+from . import generator
+import tensorflow.compat.v1 as tf
+
+
+def get_data_batch(batch_size):
+  """Returns data batch.
+
+  This function should return a pair of (input sequence, target unroll sequence)
+  of image frames for a given batch size, with the following dimensions:
+  batch_inputs are of size [batch_size, 4, 256, 256, 1],
+  batch_targets are of size [batch_size, 18, 256, 256, 1].
+
+  Args:
+    batch_size: The batch size, int.
+
+  Returns:
+    batch_inputs:
+    batch_targets: Data for training.
+  """
+  del batch_size
+  # TO BE IMPLEMENTED
+  return None, None
+
+
+def loss_hinge_disc(score_generated, score_real):
+  """Discriminator hinge loss."""
+  l1 = tf.nn.relu(1. - score_real)
+  loss = tf.reduce_mean(l1)
+  l2 = tf.nn.relu(1. + score_generated)
+  loss += tf.reduce_mean(l2)
+  return loss
+
+
+def loss_hinge_gen(score_generated):
+  """Generator hinge loss."""
+  loss = -tf.reduce_mean(score_generated)
+  return loss
+
+
+def grid_cell_regularizer(generated_samples, batch_targets):
+  """Grid cell regularizer.
+
+  Args:
+    generated_samples: Tensor of size [n_samples, batch_size, 18, 256, 256, 1].
+    batch_targets: Tensor of size [batch_size, 18, 256, 256, 1].
+
+  Returns:
+    loss: A tensor of shape [batch_size].
+  """
+  gen_mean = tf.reduce_mean(generated_samples, axis=0)
+  weights = tf.clip_by_value(batch_targets, 0.0, 24.0)
+  loss = tf.reduce_mean(tf.math.abs(gen_mean - batch_targets) * weights)
+  return loss
+
+
+def train():
+  """Pseudocode of training loop for the generative method."""
+  batch_size = 16
+  batch_inputs, batch_targets = get_data_batch(batch_size)
+  generator_obj = generator.Generator(lead_time=90, time_delta=5)
+  # the discriminator combines the spatial and temporal discriminators.
+  discriminator_obj = discriminator.Discriminator()
+
+  # calculate samples and targets for discriminator steps
+  batch_predictions = generator_obj(batch_inputs)
+  gen_sequence = tf.concat([batch_inputs, batch_predictions], axis=1)
+  real_sequence = tf.concat([batch_inputs, batch_targets], axis=1)
+  # Concatenate the real and generated samples along the batch dimension
+  concat_inputs = tf.concat([real_sequence, gen_sequence], axis=0)
+  concat_outputs = discriminator_obj(concat_inputs)
+  # And split back to scores for real and generated samples
+  score_real, score_generated = tf.split(concat_outputs, 2, axis=0)
+  disc_loss = loss_hinge_disc(score_generated, score_real)
+  disc_optimizer = tf.train.AdamOptimizer(
+      learning_rate=2E-4, beta1=0.0, beta2=0.999)
+  disc_step = disc_optimizer.minimize(
+      disc_loss, var_list=discriminator_obj.get_variables())
+
+  # make generator loss
+  num_samples_per_input = 6
+  gen_samples = [
+      generator_obj(batch_inputs) for _ in range(num_samples_per_input)]
+  grid_cell_reg = grid_cell_regularizer(tf.stack(gen_samples, axis=0),
+                                        batch_targets)
+  gen_sequences = [tf.concat([batch_inputs, x], axis=1) for x in gen_samples]
+  gen_disc_loss = loss_hinge_gen(tf.concat(gen_sequences, axis=0))
+  gen_loss = gen_disc_loss + 20.0 * grid_cell_reg
+  gen_optimizer = tf.train.AdamOptimizer(
+      learning_rate=5E-5, beta1=0.0, beta2=0.999)
+  gen_step = gen_optimizer.minimize(
+      gen_loss, var_list=generator_obj.get_variables())
+
+  num_training_steps = 500000
+  with tf.Session() as sess:
+    for _ in range(num_training_steps):
+      for _ in range(2):
+        sess.run(disc_step)
+      sess.run(gen_step)
+
+
+if __name__ == "__main__":
+  train()

@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from nowcasting_gan import (
+from skillful_nowcasting import (
     DGMR,
     Generator,
     Discriminator,
@@ -10,7 +10,7 @@ from nowcasting_gan import (
     LatentConditioningStack,
     ContextConditioningStack,
 )
-from nowcasting_gan.layers import ConvGRU
+from skillful_nowcasting.layers import ConvGRU
 import einops
 
 

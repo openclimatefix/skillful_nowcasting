@@ -6,8 +6,8 @@ import torch.nn.functional as F
 from torch.distributions import normal
 from torch.nn.utils import spectral_norm
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
-from nowcasting_gan.layers.utils import get_conv_layer
-from nowcasting_gan.layers import AttentionLayer
+from skillful_nowcasting.layers.utils import get_conv_layer
+from skillful_nowcasting.layers import AttentionLayer
 
 
 class GBlock(torch.nn.Module):

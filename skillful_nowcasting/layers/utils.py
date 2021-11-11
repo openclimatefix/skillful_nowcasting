@@ -1,5 +1,5 @@
 import torch
-from nowcasting_gan.layers import CoordConv
+from skillful_nowcasting.layers import CoordConv
 
 
 def get_conv_layer(conv_type: str = "standard") -> torch.nn.Module:

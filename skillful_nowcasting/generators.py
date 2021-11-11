@@ -4,8 +4,8 @@ import torch.nn.functional as F
 from torch.nn.modules.pixelshuffle import PixelShuffle
 from torch.nn.utils import spectral_norm
 from typing import List
-from nowcasting_gan.common import GBlock, UpsampleGBlock
-from nowcasting_gan.layers import ConvGRU
+from skillful_nowcasting.common import GBlock, UpsampleGBlock
+from skillful_nowcasting.layers import ConvGRU
 import logging
 
 logger = logging.getLogger(__name__)

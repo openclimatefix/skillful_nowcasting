@@ -2,7 +2,7 @@ import torch
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
 from torch.nn.utils import spectral_norm
 import torch.nn.functional as F
-from nowcasting_gan.common import DBlock
+from skillful_nowcasting.common import DBlock
 
 
 class Discriminator(torch.nn.Module):

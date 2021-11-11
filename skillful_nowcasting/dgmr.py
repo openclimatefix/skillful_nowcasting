@@ -1,5 +1,5 @@
 import torch
-from nowcasting_gan.losses import (
+from skillful_nowcasting.losses import (
     NowcastingLoss,
     GridCellLoss,
     loss_hinge_disc,
@@ -8,9 +8,9 @@ from nowcasting_gan.losses import (
 )
 import pytorch_lightning as pl
 import torchvision
-from nowcasting_gan.common import LatentConditioningStack, ContextConditioningStack
-from nowcasting_gan.generators import Sampler, Generator
-from nowcasting_gan.discriminators import Discriminator
+from skillful_nowcasting.common import LatentConditioningStack, ContextConditioningStack
+from skillful_nowcasting.generators import Sampler, Generator
+from skillful_nowcasting.discriminators import Discriminator
 
 
 class DGMR(pl.LightningModule):

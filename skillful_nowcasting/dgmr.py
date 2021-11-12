@@ -124,7 +124,16 @@ class DGMR(pl.LightningModule):
         grid_cell_reg = grid_cell_regularizer(torch.stack(predictions, dim=0), future_images)
         # Concat along time dimension
         generated_sequence = [torch.cat([images, x], dim=2) for x in predictions]
-        generator_disc_loss = loss_hinge_gen(torch.cat(generated_sequence, dim=0))
+        real_sequence = torch.cat([images, future_images], dim=2)
+        # Cat long batch for the real+generated, for each example in the range
+        # For each of the 6 examples
+        generated_scores = []
+        for g_seq in generated_sequence:
+            concatenated_inputs = torch.cat([real_sequence, g_seq], dim=0)
+            concatenated_outputs = self.discriminator(concatenated_inputs)
+            score_real, score_generated = torch.split(concatenated_outputs, 2, dim=0)
+            generated_scores.append(score_generated)
+        generator_disc_loss = loss_hinge_gen(torch.cat(generated_scores, dim=0))
         generator_loss = generator_disc_loss + self.grid_lambda * grid_cell_reg
         g_opt.zero_grad()
         self.manual_backward(generator_loss)

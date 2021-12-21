@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from torch.nn.utils import spectral_norm
+from torch.nn.utils.parametrizations import spectral_norm
 
 
 class ConvGRUCell(torch.nn.Module):

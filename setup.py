@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="skillful_nowcasting",
-    version="1.2.0",
+    version="1.2.1",
     packages=find_packages(),
     url="https://github.com/openclimatefix/skillful_nowcasting",
     license="MIT License",

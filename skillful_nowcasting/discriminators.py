@@ -1,6 +1,6 @@
 import torch
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
-from torch.nn.utils import spectral_norm
+from torch.nn.utils.parametrizations import spectral_norm
 import torch.nn.functional as F
 from skillful_nowcasting.common import DBlock
 

@@ -4,7 +4,7 @@ import einops
 import torch
 import torch.nn.functional as F
 from torch.distributions import normal
-from torch.nn.utils import spectral_norm
+from torch.nn.utils.parametrizations import spectral_norm
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
 from skillful_nowcasting.layers.utils import get_conv_layer
 from skillful_nowcasting.layers import AttentionLayer

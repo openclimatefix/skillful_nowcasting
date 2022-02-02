@@ -11,7 +11,12 @@ import torchvision
 from skillful_nowcasting.common import LatentConditioningStack, ContextConditioningStack
 from skillful_nowcasting.generators import Sampler, Generator
 from skillful_nowcasting.discriminators import Discriminator
-
+try:
+    from huggingface_hub import hf_hub_download
+    _HAS_HF = True
+except ImportError:
+    print("HuggingFace Hub not installed, cannot pull weights from there")
+    _HAS_HF = False
 
 class DGMR(pl.LightningModule):
     """Deep Generative Model of Radar"""
@@ -88,6 +93,14 @@ class DGMR(pl.LightningModule):
         # Important: This property activates manual optimization.
         self.automatic_optimization = False
         torch.autograd.set_detect_anomaly(True)
+
+        # Download pre-trained weights from HF and use those if wanted
+        if pretrained and _HAS_HF:
+            self.generator.load_state_dict(hf_hub_download(repo_id = "openclimatefix/dgmr", filename = "generator.pth"), strict = True)
+            self.conditioning_stack.load_state_dict(hf_hub_download(repo_id = "openclimatefix/dgmr", filename = "context_conditioning_stack.pth"), strict = True)
+            self.latent_stack.load_state_dict(hf_hub_download(repo_id = "openclimatefix/dgmr", filename = "latent_conditioning_stack.pth"), strict = True)
+            self.sampler.load_state_dict(hf_hub_download(repo_id = "openclimatefix/dgmr", filename = "sampler.pth"), strict = True)
+            self.discriminator.load_state_dict(hf_hub_download(repo_id = "openclimatefix/dgmr", filename = "discriminator.pth"), strict = True)
 
     def forward(self, x):
         x = self.generator(x)

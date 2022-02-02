@@ -220,3 +220,7 @@ def test_nowcasting_gan_creation():
         128,
     )
     assert not torch.isnan(out).any(), "Output included NaNs"
+
+
+def test_load_dgmr_from_hf():
+    model = DGMR().from_pretrained("openclimatefix/dgmr")

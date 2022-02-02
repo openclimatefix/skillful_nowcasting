@@ -31,10 +31,12 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         beta2: float = 0.999,
         latent_channels: int = 768,
         context_channels: int = 384,
+        **kwargs,
     ):
         """
         Nowcasting GAN is an attempt to recreate DeepMind's Skillful Nowcasting GAN from https://arxiv.org/abs/2104.00954
         but slightly modified for multiple satellite channels
+
         Args:
             forecast_steps: Number of steps to predict in the future
             input_channels: Number of input channels per image
@@ -52,6 +54,23 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             pretrained:
         """
         super(DGMR, self).__init__()
+        config = locals()
+        config.pop("__self__")
+        config.pop("self")
+        self.config = kwargs.get("config", config)
+        input_channels = self.config["input_channels"]
+        forecast_steps = self.config["forecast_steps"]
+        output_shape = self.config["output_shape"]
+        gen_lr = self.config["gen_lr"]
+        disc_lr = self.config["disc_lr"]
+        conv_type = self.config["conv_type"]
+        num_samples = self.config["num_samples"]
+        grid_lambda = self.config["grid_lambda"]
+        beta1 = self.config["beta1"]
+        beta2 = self.config["beta2"]
+        latent_channels = self.config["latent_channels"]
+        context_channels = self.config["context_channels"]
+        visualize = self.config["visualize"]
         self.gen_lr = gen_lr
         self.disc_lr = disc_lr
         self.beta1 = beta1

@@ -8,4 +8,4 @@ jobs:
       # 0 means don't use pytest-xdist
       pytest_numcpus: "2"
       # pytest-cov looks at this folder
-      pytest_cov_dir: "skillful_nowcasting"
+      pytest_cov_dir: "dgmr"

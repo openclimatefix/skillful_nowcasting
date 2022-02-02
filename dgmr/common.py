@@ -6,8 +6,8 @@ import torch.nn.functional as F
 from torch.distributions import normal
 from torch.nn.utils.parametrizations import spectral_norm
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
-from skillful_nowcasting.layers.utils import get_conv_layer
-from skillful_nowcasting.layers import AttentionLayer
+from dgmr.layers.utils import get_conv_layer
+from dgmr.layers import AttentionLayer
 from huggingface_hub import PyTorchModelHubMixin
 
 
@@ -291,6 +291,7 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         output_channels: int = 768,
         num_context_steps: int = 4,
         conv_type: str = "standard",
+        **kwargs
     ):
         """
         Conditioning Stack using the context images from Skillful Nowcasting, , see https://arxiv.org/pdf/2104.00954.pdf
@@ -301,6 +302,15 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
             conv_type: Type of 2D convolution to use, see satflow/models/utils.py for options
         """
         super().__init__()
+        config = locals()
+        config.pop("__class__")
+        config.pop("self")
+        self.config = kwargs.get("config", config)
+        input_channels = self.config["input_channels"]
+        output_channels = self.config["output_channels"]
+        num_context_steps = self.config["num_context_steps"]
+        conv_type = self.config["conv_type"]
+
         conv2d = get_conv_layer(conv_type)
         self.space2depth = PixelUnshuffle(downscale_factor=2)
         # Process each observation processed separately with 4 downsample blocks
@@ -407,16 +417,25 @@ class LatentConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         shape: (int, int, int) = (8, 8, 8),
         output_channels: int = 768,
         use_attention: bool = True,
+        **kwargs
     ):
         """
         Latent conditioning stack from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
-        Converst
+
         Args:
             shape: Shape of the latent space, Should be (H/32,W/32,x) of the final image shape
             output_channels: Number of output channels for the conditioning stack
             use_attention: Whether to have a self-attention block or not
         """
         super().__init__()
+        config = locals()
+        config.pop("__class__")
+        config.pop("self")
+        self.config = kwargs.get("config", config)
+        shape = self.config["shape"]
+        output_channels = self.config["output_channels"]
+        use_attention = self.config["use_attention"]
+
         self.shape = shape
         self.use_attention = use_attention
         self.distribution = normal.Normal(loc=torch.Tensor([0.0]), scale=torch.Tensor([1.0]))

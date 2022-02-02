@@ -6,7 +6,7 @@ install_requires = (this_directory / "requirements.txt").read_text().splitlines(
 long_description = (this_directory / "README.md").read_text()
 
 setup(
-    name="skillful_nowcasting",
+    name="dgmr",
     version="1.2.3",
     packages=find_packages(),
     url="https://github.com/openclimatefix/skillful_nowcasting",

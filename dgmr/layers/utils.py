@@ -1,5 +1,5 @@
 import torch
-from skillful_nowcasting.layers import CoordConv
+from dgmr.layers import CoordConv
 
 
 def get_conv_layer(conv_type: str = "standard") -> torch.nn.Module:

@@ -1,5 +1,5 @@
 import torch
-from skillful_nowcasting.losses import (
+from dgmr.losses import (
     NowcastingLoss,
     GridCellLoss,
     loss_hinge_disc,
@@ -8,10 +8,10 @@ from skillful_nowcasting.losses import (
 )
 import pytorch_lightning as pl
 import torchvision
-from skillful_nowcasting.common import LatentConditioningStack, ContextConditioningStack
-from skillful_nowcasting.generators import Sampler, Generator
-from skillful_nowcasting.discriminators import Discriminator
-from skillful_nowcasting.hub import NowcastingModelHubMixin
+from dgmr.common import LatentConditioningStack, ContextConditioningStack
+from dgmr.generators import Sampler, Generator
+from dgmr.discriminators import Discriminator
+from dgmr.hub import NowcastingModelHubMixin
 
 class DGMR(pl.LightningModule, NowcastingModelHubMixin):
     """Deep Generative Model of Radar"""
@@ -55,8 +55,9 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         """
         super(DGMR, self).__init__()
         config = locals()
-        config.pop("__self__")
+        config.pop("__class__")
         config.pop("self")
+        print(config)
         self.config = kwargs.get("config", config)
         input_channels = self.config["input_channels"]
         forecast_steps = self.config["forecast_steps"]

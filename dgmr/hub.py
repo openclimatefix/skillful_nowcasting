@@ -81,7 +81,7 @@ class NowcastingModelHubMixin(ModelHubMixin):
 
         Example::
 
-            >>> from skillful_nowcasting.hub import NowcastingModelHubMixin
+            >>> from dgmr.hub import NowcastingModelHubMixin
 
             >>> class MyModel(nn.Module, NowcastingModelHubMixin):
             ...    def __init__(self, **kwargs):

@@ -58,9 +58,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         config = locals()
         config.pop("__class__")
         config.pop("self")
-        print(config)
         self.config = kwargs.get("config", config)
-        print(config)
         input_channels = self.config["input_channels"]
         forecast_steps = self.config["forecast_steps"]
         output_shape = self.config["output_shape"]

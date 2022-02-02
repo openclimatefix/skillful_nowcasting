@@ -3,9 +3,10 @@ from torch.nn.modules.pixelshuffle import PixelUnshuffle
 from torch.nn.utils.parametrizations import spectral_norm
 import torch.nn.functional as F
 from skillful_nowcasting.common import DBlock
+from huggingface_hub import PyTorchModelHubMixin
 
 
-class Discriminator(torch.nn.Module):
+class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         input_channels: int = 12,
@@ -27,7 +28,7 @@ class Discriminator(torch.nn.Module):
         return torch.cat([spatial_loss, temporal_loss], dim=1)
 
 
-class TemporalDiscriminator(torch.nn.Module):
+class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         input_channels: int = 12,
@@ -117,7 +118,7 @@ class TemporalDiscriminator(torch.nn.Module):
         return x
 
 
-class SpatialDiscriminator(torch.nn.Module):
+class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         input_channels: int = 12,

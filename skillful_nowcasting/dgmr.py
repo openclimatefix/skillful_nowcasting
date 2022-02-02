@@ -13,6 +13,7 @@ from skillful_nowcasting.generators import Sampler, Generator
 from skillful_nowcasting.discriminators import Discriminator
 from skillful_nowcasting.hub import NowcastingModelHubMixin
 
+
 class DGMR(pl.LightningModule, NowcastingModelHubMixin):
     """Deep Generative Model of Radar"""
 

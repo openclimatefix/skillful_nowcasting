@@ -39,11 +39,7 @@ class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
 
 class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
     def __init__(
-        self,
-        input_channels: int = 12,
-        num_layers: int = 3,
-        conv_type: str = "standard",
-        **kwargs
+        self, input_channels: int = 12, num_layers: int = 3, conv_type: str = "standard", **kwargs
     ):
         """
         Temporal Discriminator from the Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf

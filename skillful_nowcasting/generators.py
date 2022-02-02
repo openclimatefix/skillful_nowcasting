@@ -6,13 +6,14 @@ from torch.nn.utils.parametrizations import spectral_norm
 from typing import List
 from skillful_nowcasting.common import GBlock, UpsampleGBlock
 from skillful_nowcasting.layers import ConvGRU
+from huggingface_hub import PyTorchModelHubMixin
 import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARN)
 
 
-class Sampler(torch.nn.Module):
+class Sampler(torch.nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         forecast_steps: int = 18,
@@ -166,7 +167,7 @@ class Sampler(torch.nn.Module):
         return forecasts
 
 
-class Generator(torch.nn.Module):
+class Generator(torch.nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         conditioning_stack: torch.nn.Module,

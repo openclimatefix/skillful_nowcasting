@@ -8,6 +8,7 @@ from torch.nn.utils.parametrizations import spectral_norm
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
 from skillful_nowcasting.layers.utils import get_conv_layer
 from skillful_nowcasting.layers import AttentionLayer
+from huggingface_hub import PyTorchModelHubMixin
 
 
 class GBlock(torch.nn.Module):
@@ -283,7 +284,7 @@ class LBlock(torch.nn.Module):
         return x2 + sc
 
 
-class ContextConditioningStack(torch.nn.Module):
+class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         input_channels: int = 1,
@@ -400,7 +401,7 @@ class ContextConditioningStack(torch.nn.Module):
         return F.relu(conv_block(stacked_inputs))
 
 
-class LatentConditioningStack(torch.nn.Module):
+class LatentConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
     def __init__(
         self,
         shape: (int, int, int) = (8, 8, 8),

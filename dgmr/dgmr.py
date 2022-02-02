@@ -54,12 +54,13 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
                 input dimension into ConvGRU, also affects the number of channels for other linked inputs/outputs
             pretrained:
         """
-        super(DGMR, self).__init__()
+        super().__init__()
         config = locals()
         config.pop("__class__")
         config.pop("self")
         print(config)
         self.config = kwargs.get("config", config)
+        print(config)
         input_channels = self.config["input_channels"]
         forecast_steps = self.config["forecast_steps"]
         output_shape = self.config["output_shape"]
@@ -108,6 +109,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         # Important: This property activates manual optimization.
         self.automatic_optimization = False
         torch.autograd.set_detect_anomaly(True)
+        print(self.hparams)
 
     def forward(self, x):
         x = self.generator(x)

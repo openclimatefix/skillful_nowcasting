@@ -67,6 +67,7 @@ tags:
 
 _logger = logging.getLogger(__name__)
 
+
 class NowcastingModelHubMixin(ModelHubMixin):
     """
     HuggingFace ModelHubMixin containing specific adaptions for Nowcasting models

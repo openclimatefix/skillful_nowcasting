@@ -13,6 +13,7 @@ from dgmr.generators import Sampler, Generator
 from dgmr.discriminators import Discriminator
 from dgmr.hub import NowcastingModelHubMixin
 
+
 class DGMR(pl.LightningModule, NowcastingModelHubMixin):
     """Deep Generative Model of Radar"""
 

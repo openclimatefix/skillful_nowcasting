@@ -70,7 +70,6 @@ class AttentionLayer(torch.nn.Module):
         key = self.key(x)
         value = self.value(x)
         # Apply the attention operation.
-        # TODO See can speed this up, ApplyAlongAxis isn't defined in the pseudocode
         out = []
         for b in range(x.shape[0]):
             # Apply to each in batch

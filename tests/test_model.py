@@ -12,7 +12,7 @@ from dgmr import (
 )
 from dgmr.layers import ConvGRU
 from dgmr.layers.ConvGRU import ConvGRUCell
-from dgmr.common import DBlock, LBlock, GBlock
+from dgmr.common import DBlock, GBlock
 import einops
 from pytorch_lightning import Trainer
 
@@ -45,7 +45,6 @@ def test_conv_gru_cell():
         output_channels=384,
         kernel_size=3,
     )
-    torch.autograd.set_detect_anomaly(True)
     x = torch.rand((2, 768, 32, 32))
     out, hidden = model(x, torch.rand((2, 384, 32, 32)))
     y = torch.rand((2, 384, 32, 32))
@@ -102,9 +101,7 @@ def test_context_conditioning_stack():
 def test_temporal_discriminator():
     model = TemporalDiscriminator(input_channels=1)
     x = torch.rand((2, 8, 1, 256, 256))
-    model.eval()
-    with torch.no_grad():
-        out = model(x)
+    out = model(x)
     assert out.shape == (2, 1, 1)
     y = torch.rand((2, 1, 1))
     loss = F.mse_loss(y, out)
@@ -115,8 +112,6 @@ def test_temporal_discriminator():
 def test_spatial_discriminator():
     model = SpatialDiscriminator(input_channels=1)
     x = torch.rand((2, 18, 1, 128, 128))
-    # model.eval()
-    # with torch.no_grad():
     out = model(x)
     assert out.shape == (2, 1, 1)
     y = torch.rand((2, 1, 1))
@@ -128,9 +123,6 @@ def test_spatial_discriminator():
 def test_discriminator():
     model = Discriminator(input_channels=1)
     x = torch.rand((2, 18, 1, 256, 256))
-    torch.autograd.set_detect_anomaly(True)
-    # model.eval()
-    # with torch.no_grad():
     out = model(x)
     assert out.shape == (2, 2, 1)
     y = torch.rand((2, 2, 1))
@@ -250,8 +242,6 @@ def test_generator():
         sampler=sampler,
     )
     x = torch.rand((2, 4, 1, 256, 256))
-    # model.eval()
-    # with torch.no_grad():
     out = model(x)
     assert out.shape == (2, 18, 1, 256, 256)
     y = torch.rand((2, 18, 1, 256, 256))
@@ -285,23 +275,23 @@ def test_nowcasting_gan_creation():
 
 def test_nowcasting_gan_backward():
     model = DGMR(
-        forecast_steps=18,
+        forecast_steps=4,
         input_channels=1,
         output_shape=128,
-        latent_channels=768,
-        context_channels=384,
+        latent_channels=384,
+        context_channels=192,
         num_samples=3,
     )
     x = torch.rand((2, 4, 1, 128, 128))
     out = model(x)
     assert out.size() == (
         2,
-        18,
+        4,
         1,
         128,
         128,
     )
-    y = torch.rand((2, 18, 1, 128, 128))
+    y = torch.rand((2, 4, 1, 128, 128))
     loss = F.mse_loss(y, out)
     loss.backward()
     assert not torch.isnan(out).any(), "Output included NaNs"
@@ -311,8 +301,9 @@ def test_load_dgmr_from_hf():
     model = DGMR().from_pretrained("openclimatefix/dgmr")
 
 
+
 def test_train_dgmr():
-    forecast_steps = 18
+    forecast_steps = 8
 
     class DS(torch.utils.data.Dataset):
         def __init__(self, bs=2):

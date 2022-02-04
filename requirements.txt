@@ -1,8 +1,8 @@
 torch
 antialiased_cnns
 pytorch_msssim
-numpy~=1.19.5
-torchvision~=0.10.0
+numpy
+torchvision>=0.11.0
 pytorch_lightning
 einops
 huggingface_hub

@@ -34,8 +34,7 @@ class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
         spatial_loss = self.spatial_discriminator(x)
         temporal_loss = self.temporal_discriminator(x)
 
-        return torch.cat([spatial_loss, temporal_loss], dim=1)
-
+        return torch.cat([spatial_loss, temporal_loss], dim = 1)
 
 class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
     def __init__(
@@ -133,13 +132,13 @@ class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
 
 class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
     def __init__(
-        self,
-        input_channels: int = 12,
-        num_timesteps: int = 8,
-        num_layers: int = 4,
-        conv_type: str = "standard",
-        **kwargs
-    ):
+            self,
+            input_channels: int = 12,
+            num_timesteps: int = 8,
+            num_layers: int = 4,
+            conv_type: str = "standard",
+            **kwargs
+            ):
         """
         Spatial discriminator from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
 
@@ -162,30 +161,30 @@ class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
         self.num_timesteps = num_timesteps
         # First step is mean pooling 2x2 to reduce input by half
         self.mean_pool = torch.nn.AvgPool2d(2)
-        self.space2depth = PixelUnshuffle(downscale_factor=2)
+        self.space2depth = PixelUnshuffle(downscale_factor = 2)
         internal_chn = 24
         self.d1 = DBlock(
-            input_channels=4 * input_channels,
-            output_channels=2 * internal_chn * input_channels,
-            first_relu=False,
-            conv_type=conv_type,
-        )
+            input_channels = 4 * input_channels,
+            output_channels = 2 * internal_chn * input_channels,
+            first_relu = False,
+            conv_type = conv_type,
+            )
         self.intermediate_dblocks = torch.nn.ModuleList()
         for _ in range(num_layers):
             internal_chn *= 2
             self.intermediate_dblocks.append(
                 DBlock(
-                    input_channels=internal_chn * input_channels,
-                    output_channels=2 * internal_chn * input_channels,
-                    conv_type=conv_type,
+                    input_channels = internal_chn * input_channels,
+                    output_channels = 2 * internal_chn * input_channels,
+                    conv_type = conv_type,
+                    )
                 )
-            )
         self.d6 = DBlock(
-            input_channels=2 * internal_chn * input_channels,
-            output_channels=2 * internal_chn * input_channels,
-            keep_same_output=True,
-            conv_type=conv_type,
-        )
+            input_channels = 2 * internal_chn * input_channels,
+            output_channels = 2 * internal_chn * input_channels,
+            keep_same_output = True,
+            conv_type = conv_type,
+            )
 
         # Spectrally normalized linear layer for binary classification
         self.fc = spectral_norm(torch.nn.Linear(2 * internal_chn * input_channels, 1))
@@ -194,7 +193,7 @@ class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x should be the chosen 8 or so
-        idxs = torch.randint(low=0, high=x.size()[1], size=(self.num_timesteps,))
+        idxs = torch.randint(low = 0, high = x.size()[1], size = (self.num_timesteps,))
         representations = []
         for idx in idxs:
             rep = self.mean_pool(x[:, idx, :, :, :])  # 128x128
@@ -204,7 +203,7 @@ class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
             for d in self.intermediate_dblocks:
                 rep = d(rep)
             rep = self.d6(rep)  # 2x2
-            rep = torch.sum(F.relu(rep), dim=[2, 3])
+            rep = torch.sum(F.relu(rep), dim = [2, 3])
             rep = self.bn(rep)
             rep = self.fc(rep)
             """
@@ -224,7 +223,7 @@ class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
             representations.append(rep)
 
         # The representations are summed together before the ReLU
-        x = torch.stack(representations, dim=1)
+        x = torch.stack(representations, dim = 1)
         # Should be [Batch, N, 1]
-        x = torch.sum(x, keepdim=True, dim=1)
+        x = torch.sum(x, keepdim = True, dim = 1)
         return x

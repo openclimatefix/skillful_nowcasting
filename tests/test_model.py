@@ -190,7 +190,9 @@ def test_generator():
         context_channels=context_channels,
     )
     model = Generator(
-        conditioning_stack=conditioning_stack, latent_stack=latent_stack, sampler=sampler
+        conditioning_stack=conditioning_stack,
+        latent_stack=latent_stack,
+        sampler=sampler,
     )
     x = torch.rand((2, 4, 1, 256, 256))
     model.eval()
@@ -226,19 +228,19 @@ def test_nowcasting_gan_creation():
 def test_load_dgmr_from_hf():
     model = DGMR().from_pretrained("openclimatefix/dgmr")
 
+
 def test_train_dgmr():
     forecast_steps = 18
-    
+
     class DS(torch.utils.data.Dataset):
         def __init__(self, bs=2):
-            self.ds = torch.rand((bs, forecast_steps+4, 1, 256, 256))
+            self.ds = torch.rand((bs, forecast_steps + 4, 1, 256, 256))
 
         def __len__(self):
             return len(self.ds)
 
         def __getitem__(self, idx):
-            return (self.ds[idx, 0:4, :, :], self.ds[idx, 4:4+forecast_steps, :, :])
-
+            return (self.ds[idx, 0:4, :, :], self.ds[idx, 4 : 4 + forecast_steps, :, :])
 
     train_loader = torch.utils.data.DataLoader(DS(), batch_size=1)
     val_loader = torch.utils.data.DataLoader(DS(), batch_size=1)

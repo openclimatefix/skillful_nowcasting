@@ -83,19 +83,16 @@ class ConvGRU(torch.nn.Module):
         input_channels: int,
         output_channels: int,
         kernel_size: int = 3,
-        num_layers: int = 18,
         sn_eps=0.0001,
     ):
         super().__init__()
-        self.cell_list = torch.nn.ModuleList()
-        for i in range(0, num_layers):
-            self.cell_list.append(ConvGRUCell(input_channels, output_channels, kernel_size, sn_eps))
+        self.cell = ConvGRUCell(input_channels, output_channels, kernel_size, sn_eps)
 
     def forward(self, x: torch.Tensor, hidden_state=None) -> torch.Tensor:
         outputs = []
         for step in range(len(x)):
             # Compute current timestep
-            output, hidden_state = self.cell_list[step](x[step], hidden_state)
+            output, hidden_state = self.cell(x[step], hidden_state)
             outputs.append(output)
         # Stack outputs to return as tensor
         outputs = torch.stack(outputs, dim=0)

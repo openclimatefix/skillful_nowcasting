@@ -1,7 +1,7 @@
 # Skillful Nowcasting with Deep Generative Model of Radar (DGMR)
 Implementation of DeepMind's Skillful Nowcasting GAN Deep Generative Model of Radar (DGMR) (https://arxiv.org/abs/2104.00954) in PyTorch Lightning.
 
-This implementation matches as much as possible the pseudocode released by DeepMind. Each of the components (Sampler, Context conditioning stack, Latent conditioning stack, Discriminator, and Generator) are normal PyTorch modules, as the training is a bit complicated, that is wrapped in PyTorch Lightning. 
+This implementation matches as much as possible the pseudocode released by DeepMind. Each of the components (Sampler, Context conditioning stack, Latent conditioning stack, Discriminator, and Generator) are normal PyTorch modules, as the training is a bit complicated, that is wrapped in PyTorch Lightning.
 
 The default parameters match what is written in the paper.
 

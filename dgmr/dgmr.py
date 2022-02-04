@@ -107,7 +107,6 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         # Important: This property activates manual optimization.
         self.automatic_optimization = False
         torch.autograd.set_detect_anomaly(True)
-        print(self.hparams)
 
     def forward(self, x):
         x = self.generator(x)

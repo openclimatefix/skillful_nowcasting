@@ -123,7 +123,6 @@ class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
             rep = self.bn(rep)
             rep = self.fc(rep)
 
-            # rep = self.fc(rep)
             representations.append(rep)
         # The representations are summed together before the ReLU
         x = torch.stack(representations, dim=1)

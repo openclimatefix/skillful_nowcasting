@@ -11,9 +11,46 @@ from dgmr import (
     ContextConditioningStack,
 )
 from dgmr.layers import ConvGRU
+from dgmr.layers.ConvGRU import ConvGRUCell
+from dgmr.common import DBlock, LBlock, GBlock
 import einops
 from pytorch_lightning import Trainer
 
+
+def test_dblock():
+    model = DBlock(keep_same_output = True)
+    x = torch.rand((2, 12, 128, 128))
+    out = model(x)
+    y = torch.rand((2, 12, 128, 128))
+    loss = F.mse_loss(y, out)
+    loss.backward()
+    assert out.size() == (2, 12, 128, 128)
+    assert not torch.isnan(out).any(), "Output included NaNs"
+
+def test_gblock():
+    model = GBlock()
+    x = torch.rand((2, 12, 128, 128))
+    out = model(x)
+    y = torch.rand((2, 12, 128, 128))
+    loss = F.mse_loss(y, out)
+    loss.backward()
+    assert out.size() == (2, 12, 128, 128)
+    assert not torch.isnan(out).any(), "Output included NaNs"
+
+def test_conv_gru_cell():
+    model = ConvGRUCell(
+        input_channels=768 + 384,
+        output_channels=384,
+        kernel_size=3,
+        )
+    torch.autograd.set_detect_anomaly(True)
+    x = torch.rand((2, 768, 32, 32))
+    out, hidden = model(x, torch.rand((2, 384, 32, 32)))
+    y = torch.rand((2, 384, 32, 32))
+    loss = F.mse_loss(y, out)
+    loss.backward()
+    assert out.size() == (2, 384, 32, 32)
+    assert not torch.isnan(out).any(), "Output included NaNs"
 
 def test_conv_gru():
     model = ConvGRU(
@@ -25,9 +62,10 @@ def test_conv_gru():
     # Expand latent dim to match batch size
     x = torch.rand((2, 768, 32, 32))
     hidden_states = [x] * 18
-    model.eval()
-    with torch.no_grad():
-        out = model(hidden_states, init_states[3])
+    out = model(hidden_states, init_states[3])
+    y = torch.rand((18, 2, 384, 32, 32))
+    loss = F.mse_loss(y, out)
+    loss.backward()
     assert out.size() == (18, 2, 384, 32, 32)
     assert not torch.isnan(out).any(), "Output included NaNs"
 
@@ -37,15 +75,19 @@ def test_latent_conditioning_stack():
     x = torch.rand((2, 4, 1, 128, 128))
     out = model(x)
     assert out.size() == (1, 768, 8, 8)
+    y = torch.rand((1, 768, 8, 8))
+    loss = F.mse_loss(y, out)
+    loss.backward()
     assert not torch.isnan(out).any(), "Output included NaNs"
 
 
 def test_context_conditioning_stack():
     model = ContextConditioningStack()
     x = torch.rand((2, 4, 1, 128, 128))
-    model.eval()
-    with torch.no_grad():
-        out = model(x)
+    out = model(x)
+    y = torch.rand((2, 96, 32, 32))
+    loss = F.mse_loss(y, out[0])
+    loss.backward()
     assert len(out) == 4
     assert out[0].size() == (2, 96, 32, 32)
     assert out[1].size() == (2, 192, 16, 16)
@@ -61,26 +103,36 @@ def test_temporal_discriminator():
     with torch.no_grad():
         out = model(x)
     assert out.shape == (2, 1, 1)
+    y = torch.rand((2, 1, 1))
+    loss = F.mse_loss(y, out)
+    loss.backward()
     assert not torch.isnan(out).any()
 
 
 def test_spatial_discriminator():
     model = SpatialDiscriminator(input_channels=1)
     x = torch.rand((2, 18, 1, 128, 128))
-    model.eval()
-    with torch.no_grad():
-        out = model(x)
+    #model.eval()
+    #with torch.no_grad():
+    out = model(x)
     assert out.shape == (2, 1, 1)
+    y = torch.rand((2, 1, 1))
+    loss = F.mse_loss(y, out)
+    loss.backward()
     assert not torch.isnan(out).any()
 
 
 def test_discriminator():
     model = Discriminator(input_channels=1)
     x = torch.rand((2, 18, 1, 256, 256))
-    model.eval()
-    with torch.no_grad():
-        out = model(x)
+    torch.autograd.set_detect_anomaly(True)
+    #model.eval()
+    #with torch.no_grad():
+    out = model(x)
     assert out.shape == (2, 2, 1)
+    y = torch.rand((2, 2, 1))
+    loss = F.mse_loss(y, out)
+    loss.backward()
     assert not torch.isnan(out).any()
 
 
@@ -195,10 +247,13 @@ def test_generator():
         sampler=sampler,
     )
     x = torch.rand((2, 4, 1, 256, 256))
-    model.eval()
-    with torch.no_grad():
-        out = model(x)
+    #model.eval()
+    #with torch.no_grad():
+    out = model(x)
     assert out.shape == (2, 18, 1, 256, 256)
+    y = torch.rand((2, 18, 1, 256, 256))
+    loss = F.mse_loss(y, out)
+    loss.backward()
     assert not torch.isnan(out).any()
 
 
@@ -224,6 +279,29 @@ def test_nowcasting_gan_creation():
     )
     assert not torch.isnan(out).any(), "Output included NaNs"
 
+def test_nowcasting_gan_backward():
+    model = DGMR(
+        forecast_steps=18,
+        input_channels=1,
+        output_shape=128,
+        latent_channels=768,
+        context_channels=384,
+        num_samples=3,
+        )
+    x = torch.rand((2, 4, 1, 128, 128))
+    out = model(x)
+    assert out.size() == (
+        2,
+        18,
+        1,
+        128,
+        128,
+        )
+    y = torch.rand((2, 18, 1, 128, 128))
+    loss = F.mse_loss(y, out)
+    loss.backward()
+    assert not torch.isnan(out).any(), "Output included NaNs"
+
 
 def test_load_dgmr_from_hf():
     model = DGMR().from_pretrained("openclimatefix/dgmr")
@@ -245,7 +323,7 @@ def test_train_dgmr():
     train_loader = torch.utils.data.DataLoader(DS(), batch_size=1)
     val_loader = torch.utils.data.DataLoader(DS(), batch_size=1)
 
-    trainer = Trainer(gpus=1, max_epochs=1)
+    trainer = Trainer(gpus=0, max_epochs=1)
     model = DGMR(forecast_steps=forecast_steps)
 
     trainer.fit(model, train_loader, val_loader)

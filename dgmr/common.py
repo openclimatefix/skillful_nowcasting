@@ -291,6 +291,7 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         output_channels: int = 768,
         num_context_steps: int = 4,
         conv_type: str = "standard",
+        num_layers: int = 4,
         **kwargs
     ):
         """

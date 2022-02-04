@@ -115,6 +115,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
 
     def training_step(self, batch, batch_idx):
         images, future_images = batch
+
         self.global_iteration += 1
         g_opt, d_opt = self.optimizers()
         ##########################
@@ -123,15 +124,15 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         # Two discriminator steps per generator step
         for _ in range(2):
             predictions = self(images)
-            # Cat along time dimension [B, C, T, H, W]
-            generated_sequence = torch.cat([images, predictions], dim=2)
-            real_sequence = torch.cat([images, future_images], dim=2)
+            # Cat along time dimension [B, T, C, H, W]
+            generated_sequence = torch.cat([images, predictions], dim=1)
+            real_sequence = torch.cat([images, future_images], dim=1)
             # Cat long batch for the real+generated
             concatenated_inputs = torch.cat([real_sequence, generated_sequence], dim=0)
 
             concatenated_outputs = self.discriminator(concatenated_inputs)
 
-            score_real, score_generated = torch.split(concatenated_outputs, 2, dim=0)
+            score_real, score_generated = torch.split(concatenated_outputs, 1, dim=1)
             discriminator_loss = loss_hinge_disc(score_generated, score_real)
             d_opt.zero_grad()
             self.manual_backward(discriminator_loss)
@@ -143,15 +144,15 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         predictions = [self(images) for _ in range(6)]
         grid_cell_reg = grid_cell_regularizer(torch.stack(predictions, dim=0), future_images)
         # Concat along time dimension
-        generated_sequence = [torch.cat([images, x], dim=2) for x in predictions]
-        real_sequence = torch.cat([images, future_images], dim=2)
+        generated_sequence = [torch.cat([images, x], dim=1) for x in predictions]
+        real_sequence = torch.cat([images, future_images], dim=1)
         # Cat long batch for the real+generated, for each example in the range
         # For each of the 6 examples
         generated_scores = []
         for g_seq in generated_sequence:
             concatenated_inputs = torch.cat([real_sequence, g_seq], dim=0)
             concatenated_outputs = self.discriminator(concatenated_inputs)
-            score_real, score_generated = torch.split(concatenated_outputs, 2, dim=0)
+            score_real, score_generated = torch.split(concatenated_outputs, 1, dim=1)
             generated_scores.append(score_generated)
         generator_disc_loss = loss_hinge_gen(torch.cat(generated_scores, dim=0))
         generator_loss = generator_disc_loss + self.grid_lambda * grid_cell_reg

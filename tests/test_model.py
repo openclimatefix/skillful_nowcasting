@@ -18,7 +18,7 @@ from pytorch_lightning import Trainer
 
 
 def test_dblock():
-    model = DBlock(keep_same_output = True)
+    model = DBlock(keep_same_output=True)
     x = torch.rand((2, 12, 128, 128))
     out = model(x)
     y = torch.rand((2, 12, 128, 128))
@@ -26,6 +26,7 @@ def test_dblock():
     loss.backward()
     assert out.size() == (2, 12, 128, 128)
     assert not torch.isnan(out).any(), "Output included NaNs"
+
 
 def test_gblock():
     model = GBlock()
@@ -37,12 +38,13 @@ def test_gblock():
     assert out.size() == (2, 12, 128, 128)
     assert not torch.isnan(out).any(), "Output included NaNs"
 
+
 def test_conv_gru_cell():
     model = ConvGRUCell(
         input_channels=768 + 384,
         output_channels=384,
         kernel_size=3,
-        )
+    )
     torch.autograd.set_detect_anomaly(True)
     x = torch.rand((2, 768, 32, 32))
     out, hidden = model(x, torch.rand((2, 384, 32, 32)))
@@ -51,6 +53,7 @@ def test_conv_gru_cell():
     loss.backward()
     assert out.size() == (2, 384, 32, 32)
     assert not torch.isnan(out).any(), "Output included NaNs"
+
 
 def test_conv_gru():
     model = ConvGRU(
@@ -112,8 +115,8 @@ def test_temporal_discriminator():
 def test_spatial_discriminator():
     model = SpatialDiscriminator(input_channels=1)
     x = torch.rand((2, 18, 1, 128, 128))
-    #model.eval()
-    #with torch.no_grad():
+    # model.eval()
+    # with torch.no_grad():
     out = model(x)
     assert out.shape == (2, 1, 1)
     y = torch.rand((2, 1, 1))
@@ -126,8 +129,8 @@ def test_discriminator():
     model = Discriminator(input_channels=1)
     x = torch.rand((2, 18, 1, 256, 256))
     torch.autograd.set_detect_anomaly(True)
-    #model.eval()
-    #with torch.no_grad():
+    # model.eval()
+    # with torch.no_grad():
     out = model(x)
     assert out.shape == (2, 2, 1)
     y = torch.rand((2, 2, 1))
@@ -247,8 +250,8 @@ def test_generator():
         sampler=sampler,
     )
     x = torch.rand((2, 4, 1, 256, 256))
-    #model.eval()
-    #with torch.no_grad():
+    # model.eval()
+    # with torch.no_grad():
     out = model(x)
     assert out.shape == (2, 18, 1, 256, 256)
     y = torch.rand((2, 18, 1, 256, 256))
@@ -279,6 +282,7 @@ def test_nowcasting_gan_creation():
     )
     assert not torch.isnan(out).any(), "Output included NaNs"
 
+
 def test_nowcasting_gan_backward():
     model = DGMR(
         forecast_steps=18,
@@ -287,7 +291,7 @@ def test_nowcasting_gan_backward():
         latent_channels=768,
         context_channels=384,
         num_samples=3,
-        )
+    )
     x = torch.rand((2, 4, 1, 128, 128))
     out = model(x)
     assert out.size() == (
@@ -296,7 +300,7 @@ def test_nowcasting_gan_backward():
         1,
         128,
         128,
-        )
+    )
     y = torch.rand((2, 18, 1, 128, 128))
     loss = F.mse_loss(y, out)
     loss.backward()

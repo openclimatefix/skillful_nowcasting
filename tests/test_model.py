@@ -12,6 +12,7 @@ from dgmr import (
 )
 from dgmr.layers import ConvGRU
 import einops
+from pytorch_lightning import Trainer
 
 
 def test_conv_gru():
@@ -224,3 +225,25 @@ def test_nowcasting_gan_creation():
 
 def test_load_dgmr_from_hf():
     model = DGMR().from_pretrained("openclimatefix/dgmr")
+
+def test_train_dgmr():
+    forecast_steps = 18
+    
+    class DS(torch.utils.data.Dataset):
+        def __init__(self, bs=2):
+            self.ds = torch.rand((bs, forecast_steps+4, 1, 256, 256))
+
+        def __len__(self):
+            return len(self.ds)
+
+        def __getitem__(self, idx):
+            return (self.ds[idx, 0:4, :, :], self.ds[idx, 4:4+forecast_steps, :, :])
+
+
+    train_loader = torch.utils.data.DataLoader(DS(), batch_size=1)
+    val_loader = torch.utils.data.DataLoader(DS(), batch_size=1)
+
+    trainer = Trainer(gpus=1, max_epochs=1)
+    model = DGMR(forecast_steps=forecast_steps)
+
+    trainer.fit(model, train_loader, val_loader)

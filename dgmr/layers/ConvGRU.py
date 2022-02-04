@@ -79,7 +79,12 @@ class ConvGRU(torch.nn.Module):
     """ConvGRU Cell wrapper to replace tf.static_rnn in TF implementation"""
 
     def __init__(
-        self, input_channels: int, output_channels: int, kernel_size: int = 3, num_layers: int = 18, sn_eps=0.0001,
+        self,
+        input_channels: int,
+        output_channels: int,
+        kernel_size: int = 3,
+        num_layers: int = 18,
+        sn_eps=0.0001,
     ):
         super().__init__()
         self.cell_list = torch.nn.ModuleList()

@@ -301,7 +301,6 @@ def test_load_dgmr_from_hf():
     model = DGMR().from_pretrained("openclimatefix/dgmr")
 
 
-
 def test_train_dgmr():
     forecast_steps = 8
 

@@ -49,3 +49,22 @@ discriminator = Discriminator().from_pretrained("openclimagefix/dgmr-discriminat
 latent_stack = LatentConditioningStack().from_pretrained("openclimatefix/dgmr-latent-conditioning-stack")
 context_stack = ContextConditioningStack().from_pretrained("openclimatefix/dgmr-context-conditioning-stack")
 ```
+
+## Example Usage
+
+```python
+from dgmr import DGMR
+model = DGMR(
+        forecast_steps=4,
+        input_channels=1,
+        output_shape=128,
+        latent_channels=384,
+        context_channels=192,
+        num_samples=3,
+    )
+x = torch.rand((2, 4, 1, 128, 128))
+out = model(x)
+y = torch.rand((2, 4, 1, 128, 128))
+loss = F.mse_loss(y, out)
+loss.backward()
+```

@@ -301,6 +301,7 @@ def test_nowcasting_gan_backward():
 def test_load_dgmr_from_hf():
     model = DGMR().from_pretrained("openclimatefix/dgmr")
 
+
 @pytest.mark.skip("Takes too long")
 def test_train_dgmr():
     forecast_steps = 8

@@ -3,7 +3,7 @@ from datasets import load_dataset
 from torch.utils.data import DataLoader
 from pytorch_lightning import (
     LightningDataModule,
-    )
+)
 from pytorch_lightning.callbacks import ModelCheckpoint
 import wandb
 from pathlib import Path
@@ -19,7 +19,7 @@ def get_wandb_logger(trainer: Trainer) -> WandbLogger:
     if trainer.fast_dev_run:
         raise Exception(
             "Cannot use wandb callbacks since pytorch lightning disables loggers in `fast_dev_run=true` mode."
-            )
+        )
 
     if isinstance(trainer.logger, WandbLogger):
         return trainer.logger
@@ -31,7 +31,7 @@ def get_wandb_logger(trainer: Trainer) -> WandbLogger:
 
     raise Exception(
         "You are using wandb related callback, but WandbLogger was not found for some reason..."
-        )
+    )
 
 
 class WatchModel(Callback):
@@ -120,10 +120,10 @@ class DGMRDataModule(LightningDataModule):
     """
 
     def __init__(
-            self,
-            num_workers: int = 1,
-            pin_memory: bool = True,
-            ):
+        self,
+        num_workers: int = 1,
+        pin_memory: bool = True,
+    ):
         """
         fake_data: random data is created and used instead. This is useful for testing
         """
@@ -140,32 +140,38 @@ class DGMRDataModule(LightningDataModule):
             # Disable automatic batching because dataset
             # returns complete batches.
             batch_size=None,
-            )
+        )
 
     def train_dataloader(self):
-        train_dataset = load_dataset('nimrod-uk-1km','crops', split='train', streaming = True)
-        train_dataset.set_format(type='torch', columns=['radar_frames', 'radar_mask', 'sample_prob'])
+        train_dataset = load_dataset("nimrod-uk-1km", "crops", split="train", streaming=True)
+        train_dataset.set_format(
+            type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
+        )
         dataloader = DataLoader(train_dataset, batch_size=1)
         return dataloader
 
     def val_dataloader(self):
-        train_dataset = load_dataset('nimrod-uk-1km','crops', split='val', streaming = True)
-        train_dataset.set_format(type='torch', columns=['radar_frames', 'radar_mask', 'sample_prob'])
+        train_dataset = load_dataset("nimrod-uk-1km", "crops", split="val", streaming=True)
+        train_dataset.set_format(
+            type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
+        )
         dataloader = DataLoader(train_dataset, batch_size=1)
         return dataloader
 
 
-wandb_logger = WandbLogger(logger='dgmr')
+wandb_logger = WandbLogger(logger="dgmr")
 model_checkpoint = ModelCheckpoint(
     monitor="val_loss",
     dirpath="./",
     filename="best",
-    )
+)
 
-trainer = Trainer(max_epochs = 1000,
-                  logger=wandb_logger,
-                  callbacks = [model_checkpoint, UploadCheckpointsAsArtifact(), WatchModel()],
-                  gpus=0)
+trainer = Trainer(
+    max_epochs=1000,
+    logger=wandb_logger,
+    callbacks=[model_checkpoint, UploadCheckpointsAsArtifact(), WatchModel()],
+    gpus=0,
+)
 model = DGMR()
 datamodule = DGMRDataModule()
 trainer.fit(model, datamodule)

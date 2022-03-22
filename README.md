@@ -17,7 +17,7 @@ Alternatively, you can also install through ```pip install dgmr```
 
 ## Training Data
 
-The open-sourced UK training dataset is being added to [HuggingFace Datasets!](https://huggingface.co/datasets/openclimatefix/nimrod-uk-1km) This should enable training the original architecture on the original data for reproducing the results from the paper. Once the dataset is fully added, correctly pre-trained weights will be uploaded to the HF Hub too.
+The open-sourced UK training dataset has been mirrored to [HuggingFace Datasets!](https://huggingface.co/datasets/openclimatefix/nimrod-uk-1km) This should enable training the original architecture on the original data for reproducing the results from the paper. The full dataset is roughly 1TB in size, and unfortunately, streaming the data from HF Datasets doesn't seem to work, so it has to be cached locally. We have added the sample dataset as well though, which can be directly streamed from GCP without costs.
 
 The dataset can be loaded with
 
@@ -27,12 +27,12 @@ from datasets import load_dataset
 dataset = load_dataset("openclimatefix/nimrod-uk-1km")
 ```
 
-It is roughly 1Tb of space, so if you want to stream in the data instead of downloading it to disk, you can do
+For now, only the sample dataset support streaming in, as its data files are hosted on GCP, not HF, so it can be used with:
 
 ```python
 from datasets import load_dataset
 
-dataset = load_dataset("openclimatefix/nimrod-uk-1km", streaming=True)
+dataset = load_dataset("openclimatefix/nimrod-uk-1km", "sample", streaming=True)
 ```
 
 

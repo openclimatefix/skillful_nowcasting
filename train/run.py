@@ -5,7 +5,8 @@ from pytorch_lightning import (
     LightningDataModule,
 )
 from pytorch_lightning.callbacks import ModelCheckpoint
-import wandb
+#import wandb
+#wandb.init(project="dgmr")
 from pathlib import Path
 
 from pytorch_lightning import Callback, Trainer
@@ -143,7 +144,7 @@ class DGMRDataModule(LightningDataModule):
         )
 
     def train_dataloader(self):
-        train_dataset = load_dataset("nimrod-uk-1km", "crops", split="train", streaming=True)
+        train_dataset = load_dataset("openclimatefix/nimrod-uk-1km", "sample", split="train", streaming=False)
         train_dataset.set_format(
             type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
         )
@@ -151,7 +152,7 @@ class DGMRDataModule(LightningDataModule):
         return dataloader
 
     def val_dataloader(self):
-        train_dataset = load_dataset("nimrod-uk-1km", "crops", split="val", streaming=True)
+        train_dataset = load_dataset("openclimatefix/nimrod-uk-1km", "sample", split="val", streaming=False)
         train_dataset.set_format(
             type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
         )
@@ -159,18 +160,18 @@ class DGMRDataModule(LightningDataModule):
         return dataloader
 
 
-wandb_logger = WandbLogger(logger="dgmr")
+#wandb_logger = WandbLogger(logger="dgmr")
 model_checkpoint = ModelCheckpoint(
-    monitor="val_loss",
+    monitor="loss",
     dirpath="./",
     filename="best",
 )
 
 trainer = Trainer(
     max_epochs=1000,
-    logger=wandb_logger,
-    callbacks=[model_checkpoint, UploadCheckpointsAsArtifact(), WatchModel()],
-    gpus=0,
+    #logger=wandb_logger,
+    callbacks=[model_checkpoint],
+    accelerator="tpu", devices=8
 )
 model = DGMR()
 datamodule = DGMRDataModule()

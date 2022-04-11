@@ -243,7 +243,7 @@ class TFDataset(torch.utils.data.dataset.Dataset):
             self.iter_reader = iter(self.reader)
             row = next(self.iter_reader)
         input_frames, target_frames = extract_input_and_target_frames(row["radar_frames"])
-        return input_frames, target_frames
+        return input_frames.numpy(), target_frames.numpy()
 
 class DGMRDataModule(LightningDataModule):
     """

@@ -227,15 +227,23 @@ def extract_input_and_target_frames(radar_frames):
     target_frames = radar_frames[-NUM_TARGET_FRAMES : ]
     return input_frames, target_frames
 
-class TFDataset(torch.utils.data.dataset.IterableDataset):
+class TFDataset(torch.utils.data.dataset.Dataset):
     def __init__(self, split, variant):
         super().__init__()
-        self.reader = iter(reader(split,variant))
+        self.reader = reader(split,variant)
+        self.iter_reader = iter(self.reader)
 
-    def __iter__(self):
-        row = next(self.reader)
+    def __len__(self):
+        return 1000
+
+    def __getitem__(self, item):
+        try:
+            row = next(self.iter_reader)
+        except:
+            self.iter_reader = iter(self.reader)
+            row = next(self.iter_reader)
         input_frames, target_frames = extract_input_and_target_frames(row["radar_frames"])
-        yield input_frames, target_frames
+        return input_frames, target_frames
 
 class DGMRDataModule(LightningDataModule):
     """

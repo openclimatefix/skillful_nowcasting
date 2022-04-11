@@ -27,12 +27,12 @@ from datasets import load_dataset
 dataset = load_dataset("openclimatefix/nimrod-uk-1km")
 ```
 
-It is roughly 1Tb of space, so if you want to stream in the data instead of downloading it to disk, you can do
+It is roughly 1Tb of space, so if you want to stream in the data instead of downloading it to disk, you can use the sample dataset and stream that through:
 
 ```python
 from datasets import load_dataset
 
-dataset = load_dataset("openclimatefix/nimrod-uk-1km", streaming=True)
+dataset = load_dataset("openclimatefix/nimrod-uk-1km", "sample", streaming=True)
 ```
 
 

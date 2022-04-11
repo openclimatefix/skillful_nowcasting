@@ -244,7 +244,7 @@ class TFDataset(torch.utils.data.dataset.Dataset):
             self.iter_reader = iter(self.reader)
             row = next(self.iter_reader)
         input_frames, target_frames = extract_input_and_target_frames(row["radar_frames"])
-        return np.moveaxis(input_frames.numpy(), [0,1,2,3], [1,2,3,0]), np.moveaxis(target_frames.numpy(), [0,1,2,3], [1,2,3,0])
+        return np.moveaxis(input_frames.numpy(), [0,1,2,3], [0,2,3,1]), np.moveaxis(target_frames.numpy(), [0,1,2,3], [0,2,3,1])
 
 
 class DGMRDataModule(LightningDataModule):

@@ -291,7 +291,7 @@ class DGMRDataModule(LightningDataModule):
         #train_dataset.set_format(
         #    type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
         #)
-        dataloader = DataLoader(train_dataset, batch_size=1)
+        dataloader = DataLoader(train_dataset, batch_size=4, num_workers=2)
         return dataloader
 
     def val_dataloader(self):
@@ -300,7 +300,7 @@ class DGMRDataModule(LightningDataModule):
         #    type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
         #)
         train_dataset = TFDataset(split="valid", variant="subsampled_tiles_256_20min_stride")
-        dataloader = DataLoader(train_dataset, batch_size=1)
+        dataloader = DataLoader(train_dataset, batch_size=4, num_workers=2)
         return dataloader
 
 

@@ -6,8 +6,9 @@ from pytorch_lightning import (
     LightningDataModule,
 )
 from pytorch_lightning.callbacks import ModelCheckpoint
-#import wandb
-#wandb.init(project="dgmr")
+
+# import wandb
+# wandb.init(project="dgmr")
 import os
 import numpy as np
 from pathlib import Path
@@ -107,13 +108,19 @@ class UploadCheckpointsAsArtifact(Callback):
 
         experiment.log_artifact(ckpts)
 
-_FEATURES = {name: tf.io.FixedLenFeature([], dtype)
-             for name, dtype in [
-                 ("radar", tf.string), ("sample_prob", tf.float32),
-                 ("osgb_extent_top", tf.int64), ("osgb_extent_left", tf.int64),
-                 ("osgb_extent_bottom", tf.int64), ("osgb_extent_right", tf.int64),
-                 ("end_time_timestamp", tf.int64),
-             ]}
+
+_FEATURES = {
+    name: tf.io.FixedLenFeature([], dtype)
+    for name, dtype in [
+        ("radar", tf.string),
+        ("sample_prob", tf.float32),
+        ("osgb_extent_top", tf.int64),
+        ("osgb_extent_left", tf.int64),
+        ("osgb_extent_bottom", tf.int64),
+        ("osgb_extent_right", tf.int64),
+        ("end_time_timestamp", tf.int64),
+    ]
+}
 
 _SHAPE_BY_SPLIT_VARIANT = {
     ("train", "random_crops_256"): (24, 256, 256, 1),
@@ -122,8 +129,8 @@ _SHAPE_BY_SPLIT_VARIANT = {
     ("test", "subsampled_overlapping_padded_tiles_512_20min_stride"): (24, 512, 512, 1),
 }
 
-_MM_PER_HOUR_INCREMENT = 1/32.
-_MAX_MM_PER_HOUR = 128.
+_MM_PER_HOUR_INCREMENT = 1 / 32.0
+_MAX_MM_PER_HOUR = 128.0
 _INT16_MASK_VALUE = -1
 
 
@@ -134,8 +141,7 @@ def parse_and_preprocess_row(row, split, variant):
     radar_int16 = tf.reshape(tf.io.decode_raw(radar_bytes, tf.int16), shape)
     mask = tf.not_equal(radar_int16, _INT16_MASK_VALUE)
     radar = tf.cast(radar_int16, tf.float32) * _MM_PER_HOUR_INCREMENT
-    radar = tf.clip_by_value(
-        radar, _INT16_MASK_VALUE * _MM_PER_HOUR_INCREMENT, _MAX_MM_PER_HOUR)
+    radar = tf.clip_by_value(radar, _INT16_MASK_VALUE * _MM_PER_HOUR_INCREMENT, _MAX_MM_PER_HOUR)
     result["radar_frames"] = radar
     result["radar_mask"] = mask
     return result
@@ -211,27 +217,34 @@ def reader(split="train", variant="random_crops_256", shuffle_files=False):
     if shuffle_files:
         shards_dataset = shards_dataset.shuffle(buffer_size=len(shard_paths))
     return (
-        shards_dataset
-            .interleave(lambda x: tf.data.TFRecordDataset(x, compression_type="GZIP"),
-                        num_parallel_calls=tf.data.AUTOTUNE,
-                        deterministic=not shuffle_files)
-            .map(lambda row: parse_and_preprocess_row(row, split, variant),
-                 num_parallel_calls=tf.data.AUTOTUNE)
+        shards_dataset.interleave(
+            lambda x: tf.data.TFRecordDataset(x, compression_type="GZIP"),
+            num_parallel_calls=tf.data.AUTOTUNE,
+            deterministic=not shuffle_files,
+        ).map(
+            lambda row: parse_and_preprocess_row(row, split, variant),
+            num_parallel_calls=tf.data.AUTOTUNE,
+        )
         # Do your own subsequent repeat, shuffle, batch, prefetch etc as required.
     )
+
+
 NUM_INPUT_FRAMES = 4
 NUM_TARGET_FRAMES = 18
+
+
 def extract_input_and_target_frames(radar_frames):
     """Extract input and target frames from a dataset row's radar_frames."""
     # We align our targets to the end of the window, and inputs precede targets.
-    input_frames = radar_frames[-NUM_TARGET_FRAMES-NUM_INPUT_FRAMES : -NUM_TARGET_FRAMES]
-    target_frames = radar_frames[-NUM_TARGET_FRAMES : ]
+    input_frames = radar_frames[-NUM_TARGET_FRAMES - NUM_INPUT_FRAMES : -NUM_TARGET_FRAMES]
+    target_frames = radar_frames[-NUM_TARGET_FRAMES:]
     return input_frames, target_frames
+
 
 class TFDataset(torch.utils.data.dataset.Dataset):
     def __init__(self, split, variant):
         super().__init__()
-        self.reader = reader(split,variant)
+        self.reader = reader(split, variant)
         self.iter_reader = iter(self.reader)
 
     def __len__(self):
@@ -244,7 +257,9 @@ class TFDataset(torch.utils.data.dataset.Dataset):
             self.iter_reader = iter(self.reader)
             row = next(self.iter_reader)
         input_frames, target_frames = extract_input_and_target_frames(row["radar_frames"])
-        return np.moveaxis(input_frames.numpy(), [0,1,2,3], [0,2,3,1]), np.moveaxis(target_frames.numpy(), [0,1,2,3], [0,2,3,1])
+        return np.moveaxis(input_frames.numpy(), [0, 1, 2, 3], [0, 2, 3, 1]), np.moveaxis(
+            target_frames.numpy(), [0, 1, 2, 3], [0, 2, 3, 1]
+        )
 
 
 class DGMRDataModule(LightningDataModule):
@@ -287,24 +302,24 @@ class DGMRDataModule(LightningDataModule):
 
     def train_dataloader(self):
         train_dataset = TFDataset(split="train", variant="random_crops_256")
-        #train_dataset = load_dataset("openclimatefix/nimrod-uk-1km", "sample", split="train", streaming=False)
-        #train_dataset.set_format(
+        # train_dataset = load_dataset("openclimatefix/nimrod-uk-1km", "sample", split="train", streaming=False)
+        # train_dataset.set_format(
         #    type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
-        #)
+        # )
         dataloader = DataLoader(train_dataset, batch_size=4, num_workers=2)
         return dataloader
 
     def val_dataloader(self):
-        #train_dataset = load_dataset("openclimatefix/nimrod-uk-1km", "sample", split="val", streaming=False)
-        #train_dataset.set_format(
+        # train_dataset = load_dataset("openclimatefix/nimrod-uk-1km", "sample", split="val", streaming=False)
+        # train_dataset.set_format(
         #    type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
-        #)
+        # )
         train_dataset = TFDataset(split="valid", variant="subsampled_tiles_256_20min_stride")
         dataloader = DataLoader(train_dataset, batch_size=4, num_workers=2)
         return dataloader
 
 
-#wandb_logger = WandbLogger(logger="dgmr")
+# wandb_logger = WandbLogger(logger="dgmr")
 model_checkpoint = ModelCheckpoint(
     monitor="loss",
     dirpath="./",
@@ -313,9 +328,10 @@ model_checkpoint = ModelCheckpoint(
 
 trainer = Trainer(
     max_epochs=1000,
-    #logger=wandb_logger,
+    # logger=wandb_logger,
     callbacks=[model_checkpoint],
-    accelerator="tpu", devices=8
+    accelerator="tpu",
+    devices=8,
 )
 model = DGMR()
 datamodule = DGMRDataModule()

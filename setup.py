@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="dgmr",
-    version="1.2.21",
+    version="1.2.22",
     packages=find_packages(),
     url="https://github.com/openclimatefix/skillful_nowcasting",
     license="MIT License",

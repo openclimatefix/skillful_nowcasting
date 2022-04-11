@@ -9,6 +9,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 #import wandb
 #wandb.init(project="dgmr")
 import os
+import numpy as np
 from pathlib import Path
 import tensorflow as tf
 from pytorch_lightning import Callback, Trainer
@@ -243,7 +244,8 @@ class TFDataset(torch.utils.data.dataset.Dataset):
             self.iter_reader = iter(self.reader)
             row = next(self.iter_reader)
         input_frames, target_frames = extract_input_and_target_frames(row["radar_frames"])
-        return input_frames.numpy(), target_frames.numpy()
+        return np.moveaxis(input_frames.numpy(), [0,1,2,3], [1,2,3,0]), np.moveaxis(target_frames.numpy(), [0,1,2,3], [1,2,3,0])
+
 
 class DGMRDataModule(LightningDataModule):
     """

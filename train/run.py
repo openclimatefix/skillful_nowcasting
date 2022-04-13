@@ -178,7 +178,7 @@ class DGMRDataModule(LightningDataModule):
         #    type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
         #)
 
-        dataloader = DataLoader(TFDataset(split="train"), batch_size=2, num_workers=8)
+        dataloader = DataLoader(TFDataset(split="train"), batch_size=8, num_workers=4)
         return dataloader
 
     def val_dataloader(self):
@@ -202,9 +202,9 @@ trainer = Trainer(
     max_epochs=1000,
     #logger=wandb_logger,
     callbacks=[model_checkpoint],
-    gpus=1,
-    precision=16,
-    #accelerator="tpu", devices=8
+    #gpus=1,
+    precision=32,
+    accelerator="tpu", devices=8
 )
 model = DGMR()
 datamodule = DGMRDataModule()

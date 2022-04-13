@@ -114,8 +114,8 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
 
     def training_step(self, batch, batch_idx):
         images, future_images = batch
-        images = images.half()
-        future_images = future_images.half()
+        images = images.float()
+        future_images = future_images.float()
         self.global_iteration += 1
         g_opt, d_opt = self.optimizers()
         ##########################

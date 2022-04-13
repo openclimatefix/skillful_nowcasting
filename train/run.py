@@ -122,7 +122,7 @@ class TFDataset(torch.utils.data.dataset.Dataset):
         self.reader = load_dataset('openclimatefix/nimrod-uk-1km', 'sample', split=split, streaming=True)
         self.iter_reader = iter(self.reader)
     def __len__(self):
-        return 1000
+        return 10000
 
     def __getitem__(self, item):
         try:
@@ -178,7 +178,7 @@ class DGMRDataModule(LightningDataModule):
         #    type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
         #)
 
-        dataloader = DataLoader(TFDataset(split="train"), batch_size=8, num_workers=4)
+        dataloader = DataLoader(TFDataset(split="train"), batch_size=2, num_workers=8)
         return dataloader
 
     def val_dataloader(self):

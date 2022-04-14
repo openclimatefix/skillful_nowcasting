@@ -131,7 +131,8 @@ class TFDataset(torch.utils.data.dataset.Dataset):
         try:
             row = next(self.iter_reader)
         except Exception as e:
-            self.iter_reader = iter(self.reader.shuffle(seed=default_rng().randint(100000), buffer_size=1000))
+            rng = default_rng()
+            self.iter_reader = iter(self.reader.shuffle(seed=rng.integers(low=0, high=100000), buffer_size=1000))
             row = next(self.iter_reader)
         input_frames, target_frames = extract_input_and_target_frames(row["radar_frames"])
         return np.moveaxis(input_frames, [0,1,2,3], [0,2,3,1]), np.moveaxis(target_frames, [0,1,2,3], [0,2,3,1])

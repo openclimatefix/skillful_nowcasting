@@ -8,6 +8,7 @@ from pytorch_lightning import (
 from pytorch_lightning.callbacks import ModelCheckpoint
 #import wandb
 #wandb.init(project="dgmr")
+from numpy.random import default_rng
 import os
 import numpy as np
 from pathlib import Path
@@ -116,19 +117,21 @@ def extract_input_and_target_frames(radar_frames):
     target_frames = radar_frames[-NUM_TARGET_FRAMES : ]
     return input_frames, target_frames
 
+
 class TFDataset(torch.utils.data.dataset.Dataset):
     def __init__(self, split):
         super().__init__()
         self.reader = load_dataset('openclimatefix/nimrod-uk-1km', 'sample', split=split, streaming=True)
-        self.iter_reader = iter(self.reader)
+        self.iter_reader = self.reader
+
     def __len__(self):
-        return 10000
+        return 1000
 
     def __getitem__(self, item):
         try:
             row = next(self.iter_reader)
         except Exception as e:
-            self.iter_reader = iter(self.reader)
+            self.iter_reader = iter(self.reader.shuffle(seed=default_rng().randint(100000), buffer_size=1000))
             row = next(self.iter_reader)
         input_frames, target_frames = extract_input_and_target_frames(row["radar_frames"])
         return np.moveaxis(input_frames, [0,1,2,3], [0,2,3,1]), np.moveaxis(target_frames, [0,1,2,3], [0,2,3,1])
@@ -178,7 +181,7 @@ class DGMRDataModule(LightningDataModule):
         #    type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
         #)
 
-        dataloader = DataLoader(TFDataset(split="train"), batch_size=2, num_workers=8)
+        dataloader = DataLoader(TFDataset(split="train"), batch_size=4, num_workers=8)
         return dataloader
 
     def val_dataloader(self):
@@ -193,7 +196,7 @@ class DGMRDataModule(LightningDataModule):
 
 #wandb_logger = WandbLogger(logger="dgmr")
 model_checkpoint = ModelCheckpoint(
-    monitor="loss",
+    monitor="train/g_loss",
     dirpath="./",
     filename="best",
 )
@@ -202,9 +205,9 @@ trainer = Trainer(
     max_epochs=1000,
     #logger=wandb_logger,
     callbacks=[model_checkpoint],
-    #gpus=1,
+    gpus=1,
     precision=32,
-    accelerator="tpu", devices=8
+    #accelerator="tpu", devices=8
 )
 model = DGMR()
 datamodule = DGMRDataModule()

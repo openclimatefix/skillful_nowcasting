@@ -42,12 +42,12 @@ Pretrained weights will be available soon through [HuggingFace Hub](https://hugg
 
 ```python
 from dgmr import DGMR, Sampler, Generator, Discriminator, LatentConditioningStack, ContextConditioningStack
-model = DGMR().from_pretrained("openclimatefix/dgmr")
-sampler = Sampler().from_pretrained("openclimatefix/dgmr-sampler")
-generator = Generator().from_pretrained("openclimatefix/dgmr-generator")
-discriminator = Discriminator().from_pretrained("openclimagefix/dgmr-discriminator")
-latent_stack = LatentConditioningStack().from_pretrained("openclimatefix/dgmr-latent-conditioning-stack")
-context_stack = ContextConditioningStack().from_pretrained("openclimatefix/dgmr-context-conditioning-stack")
+model = DGMR.from_pretrained("openclimatefix/dgmr")
+sampler = Sampler.from_pretrained("openclimatefix/dgmr-sampler")
+discriminator = Discriminator.from_pretrained("openclimagefix/dgmr-discriminator")
+latent_stack = LatentConditioningStack.from_pretrained("openclimatefix/dgmr-latent-conditioning-stack")
+context_stack = ContextConditioningStack.from_pretrained("openclimatefix/dgmr-context-conditioning-stack")
+generator = Generator(conditioning_stack=context_stack, latent_stack=latent_stack, sampler=sampler)
 ```
 
 ## Example Usage

@@ -299,8 +299,12 @@ def test_nowcasting_gan_backward():
 
 
 def test_load_dgmr_from_hf():
-    model = DGMR().from_pretrained("openclimatefix/dgmr")
-
+    _ = DGMR.from_pretrained("openclimatefix/dgmr")
+    _ = Discriminator.from_pretrained("openclimatefix/dgmr-discriminator")
+    sam = Sampler.from_pretrained("openclimatefix/dgmr-sampler")
+    ctz = ContextConditioningStack.from_pretrained("openclimatefix/dgmr-context-conditioning-stack")
+    lat = LatentConditioningStack.from_pretrained("openclimatefix/dgmr-latent-conditioning-stack")
+    _ = Generator(conditioning_stack=ctz, latent_stack=lat, sampler=sam)
 
 @pytest.mark.skip("Takes too long")
 def test_train_dgmr():

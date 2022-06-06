@@ -132,8 +132,11 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
 
             concatenated_outputs = self.discriminator(concatenated_inputs)
 
-            score_real, score_generated = torch.split(concatenated_outputs, 1, dim=1)
-            discriminator_loss = loss_hinge_disc(score_generated, score_real)
+            B = concatenated_outputs.shape[0]
+            score_real, score_generated = torch.split(concatenated_outputs, B, dim=0)
+            score_real_spatial, score_real_temporal = torch.split(score_real, 1, dim=1)
+            score_generated_spatial, score_generated_temporal = torch.split(score_generated, 1, dim=1)
+            discriminator_loss = loss_hinge_disc(score_generated_spatial, score_real_spatial)+loss_hinge_disc(score_generated_temporal, score_real_temporal)
             d_opt.zero_grad()
             self.manual_backward(discriminator_loss)
             d_opt.step()
@@ -152,7 +155,11 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         for g_seq in generated_sequence:
             concatenated_inputs = torch.cat([real_sequence, g_seq], dim=0)
             concatenated_outputs = self.discriminator(concatenated_inputs)
-            score_real, score_generated = torch.split(concatenated_outputs, 1, dim=1)
+            B = concatenated_outputs.shape[0]
+            score_real, score_generated = torch.split(concatenated_outputs, B, dim=0)
+            score_real_spatial, score_real_temporal = torch.split(score_real, 1, dim=1)
+            score_generated_spatial, score_generated_temporal = torch.split(score_generated, 1, dim=1)
+            score_generated = loss_hinge_disc(score_generated_spatial, score_real_spatial)+loss_hinge_disc(score_generated_temporal, score_real_temporal)
             generated_scores.append(score_generated)
         generator_disc_loss = loss_hinge_gen(torch.cat(generated_scores, dim=0))
         generator_loss = generator_disc_loss + self.grid_lambda * grid_cell_reg

@@ -35,6 +35,21 @@ from datasets import load_dataset
 dataset = load_dataset("openclimatefix/nimrod-uk-1km", "sample", streaming=True)
 ```
 
+The authors also used [MRMS](https://www.nssl.noaa.gov/projects/mrms/) US precipitation radar data as another comparison. While that dataset was not released, the MRMS data is publicly available, and we have made that data available on HuggingFace Datasets as well [here](https://huggingface.co/datasets/openclimatefix/mrms). This dataset is the raw 3500x7000 contiguous US MRMS data for 2016 through May 2022, is a few hundred GBs in size, with sporadic updates to more recent data planned. This dataset is in Zarr format, and can be streamed without caching locally through 
+
+```python
+from datasets import load_dataset
+
+dataset = load_dataset("openclimatefix/mrms", "default_sequence", streaming=True)
+```
+
+This steams the data with 24 timesteps per example, just like the UK DGMR dataset. To get individual MRMS frames, instead of a sequence, this can be achieved through 
+
+```python
+from datasets import load_dataset
+
+dataset = load_dataset("openclimatefix/mrms", "default", streaming=True)
+```
 
 ## Pretrained Weights
 
@@ -44,7 +59,7 @@ Pretrained weights will be available soon through [HuggingFace Hub](https://hugg
 from dgmr import DGMR, Sampler, Generator, Discriminator, LatentConditioningStack, ContextConditioningStack
 model = DGMR.from_pretrained("openclimatefix/dgmr")
 sampler = Sampler.from_pretrained("openclimatefix/dgmr-sampler")
-discriminator = Discriminator.from_pretrained("openclimagefix/dgmr-discriminator")
+discriminator = Discriminator.from_pretrained("openclimatefix/dgmr-discriminator")
 latent_stack = LatentConditioningStack.from_pretrained("openclimatefix/dgmr-latent-conditioning-stack")
 context_stack = ContextConditioningStack.from_pretrained("openclimatefix/dgmr-context-conditioning-stack")
 generator = Generator(conditioning_stack=context_stack, latent_stack=latent_stack, sampler=sampler)

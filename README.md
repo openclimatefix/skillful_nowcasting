@@ -53,7 +53,7 @@ dataset = load_dataset("openclimatefix/mrms", "default", streaming=True)
 
 ## Pretrained Weights
 
-Pretrained weights will be available soon through [HuggingFace Hub](https://huggingface.co/openclimatefix), currently random weights are available. The whole DGMR model or different components can be loaded as the following:
+Pretrained weights are be available through [HuggingFace Hub](https://huggingface.co/openclimatefix), currently weights trained on the sample dataset. The whole DGMR model or different components can be loaded as the following:
 
 ```python
 from dgmr import DGMR, Sampler, Generator, Discriminator, LatentConditioningStack, ContextConditioningStack

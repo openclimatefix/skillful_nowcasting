@@ -32,6 +32,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         beta2: float = 0.999,
         latent_channels: int = 768,
         context_channels: int = 384,
+        grad_accumulate_steps: int = 1,
         **kwargs,
     ):
         """
@@ -72,6 +73,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         latent_channels = self.config["latent_channels"]
         context_channels = self.config["context_channels"]
         visualize = self.config["visualize"]
+        self.grad_accumulate_steps = grad_accumulate_steps
         self.gen_lr = gen_lr
         self.disc_lr = disc_lr
         self.beta1 = beta1
@@ -123,7 +125,6 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         ##########################
         # Two discriminator steps per generator step
         for _ in range(2):
-            d_opt.zero_grad()
             predictions = self(images)
             # Cat along time dimension [B, T, C, H, W]
             generated_sequence = torch.cat([images, predictions], dim=1)
@@ -138,7 +139,9 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             score_generated_spatial, score_generated_temporal = torch.split(score_generated, 1, dim=1)
             discriminator_loss = loss_hinge_disc(score_generated_spatial, score_real_spatial)+loss_hinge_disc(score_generated_temporal, score_real_temporal)
             self.manual_backward(discriminator_loss)
-            d_opt.step()
+            if (batch_idx + 1) % self.grad_accumulate_steps == 0:
+                d_opt.step()
+                d_opt.zero_grad()
 
         ######################
         # Optimize Generator #
@@ -159,9 +162,10 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             generated_scores.append(score_generated)
         generator_disc_loss = loss_hinge_gen(torch.cat(generated_scores, dim=0))
         generator_loss = generator_disc_loss + self.grid_lambda * grid_cell_reg
-        g_opt.zero_grad()
         self.manual_backward(generator_loss)
-        g_opt.step()
+        if (batch_idx + 1) % self.grad_accumulate_steps == 0:
+            g_opt.step()
+            g_opt.zero_grad()
 
         self.log_dict(
             {

@@ -110,6 +110,15 @@ class UploadCheckpointsAsArtifact(Callback):
 
 NUM_INPUT_FRAMES = 4
 NUM_TARGET_FRAMES = 18
+
+features = datasets.Features(
+                {
+                    "input": datasets.Array4D(shape=(4,256,256,1), dtype="float32"),
+                    "output": datasets.Array4D(shape=(18,256,256,1), dtype="float32"),
+                    "mask": datasets.Array4D(shape=(18,256,256,1), dtype="bool"),
+                    }
+                )
+
 def extract_input_and_target_frames(radar_frames):
     """Extract input and target frames from a dataset row's radar_frames."""
     # We align our targets to the end of the window, and inputs precede targets.
@@ -117,25 +126,10 @@ def extract_input_and_target_frames(radar_frames):
     target_frames = radar_frames[-NUM_TARGET_FRAMES : ]
     return input_frames, target_frames
 
-
-class TFDataset(torch.utils.data.dataset.Dataset):
-    def __init__(self, split):
-        super().__init__()
-        self.reader = load_dataset('openclimatefix/nimrod-uk-1km', 'sample', split=split, streaming=True)
-        self.iter_reader = self.reader
-
-    def __len__(self):
-        return 1000
-
-    def __getitem__(self, item):
-        try:
-            row = next(self.iter_reader)
-        except Exception as e:
-            rng = default_rng()
-            self.iter_reader = iter(self.reader.shuffle(seed=rng.integers(low=0, high=100000), buffer_size=1000))
-            row = next(self.iter_reader)
-        input_frames, target_frames = extract_input_and_target_frames(row["radar_frames"])
-        return np.moveaxis(input_frames, [0,1,2,3], [0,2,3,1]), np.moveaxis(target_frames, [0,1,2,3], [0,2,3,1])
+def process_data(example):
+    input_frames, target_frames = extract_input_and_target_frames(example["radar_frames"])
+    return {"input": np.moveaxis(input_frames, [0, 1, 2, 3], [0, 2, 3, 1]), "target": np.moveaxis(target_frames, [0, 1, 2, 3], [0, 2, 3, 1]),
+            "mask": np.moveaxis(example["radar_mask"][-NUM_TARGET_FRAMES : ], [0, 1, 2, 3], [0, 2, 3, 1]),}
 
 class DGMRDataModule(LightningDataModule):
     """
@@ -176,18 +170,22 @@ class DGMRDataModule(LightningDataModule):
         )
 
     def train_dataloader(self):
-        dataloader = DataLoader(TFDataset(split="train"), batch_size=12, num_workers=6)
+        train_dset = datasets.load_dataset("openclimatefix/nimrod-uk-1km", "crops", split="train", streaming=True)
+        train_dset = train_dset.map(process_data, features=features, remove_columns=train_dset.column_names).with_format("torch")
+        dataloader = DataLoader(train_dset, batch_size=12, num_workers=1)
         return dataloader
 
     def val_dataloader(self):
-        train_dataset = TFDataset(split="validation",)
-        dataloader = DataLoader(train_dataset, batch_size=6, num_workers=6)
+        val_dset = datasets.load_dataset("openclimatefix/nimrod-uk-1km", "crops", split="validation", streaming=True)
+        val_dset = val_dset.map(process_data, features=features,
+                                    remove_columns=val_dset.column_names).with_format("torch")
+        dataloader = DataLoader(val_dset, batch_size=6, num_workers=1)
         return dataloader
 
 
 wandb_logger = WandbLogger(logger="dgmr")
 model_checkpoint = ModelCheckpoint(
-    monitor="train/g_loss",
+    monitor="val/g_loss",
     dirpath="./",
     filename="best",
 )

@@ -6,8 +6,8 @@ from pytorch_lightning import (
     LightningDataModule,
 )
 from pytorch_lightning.callbacks import ModelCheckpoint
-#import wandb
-#wandb.init(project="dgmr")
+import wandb
+wandb.init(project="dgmr")
 from numpy.random import default_rng
 import os
 import numpy as np
@@ -176,26 +176,16 @@ class DGMRDataModule(LightningDataModule):
         )
 
     def train_dataloader(self):
-        #train_dataset = TFDataset(split="train", variant="random_crops_256")
-        #train_dataset = load_dataset("openclimatefix/nimrod-uk-1km", "sample", split="train", streaming=True)
-        #train_dataset.set_format(
-        #    type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
-        #)
-
-        dataloader = DataLoader(TFDataset(split="train"), batch_size=4, num_workers=8)
+        dataloader = DataLoader(TFDataset(split="train"), batch_size=12, num_workers=6)
         return dataloader
 
     def val_dataloader(self):
-        #train_dataset = load_dataset("openclimatefix/nimrod-uk-1km", "sample", split="val", streaming=False)
-        #train_dataset.set_format(
-        #    type="torch", columns=["radar_frames", "radar_mask", "sample_prob"]
-        #)
-        train_dataset = TFDataset(split="valid",)
-        dataloader = DataLoader(train_dataset, batch_size=1, num_workers=1)
+        train_dataset = TFDataset(split="validation",)
+        dataloader = DataLoader(train_dataset, batch_size=6, num_workers=6)
         return dataloader
 
 
-#wandb_logger = WandbLogger(logger="dgmr")
+wandb_logger = WandbLogger(logger="dgmr")
 model_checkpoint = ModelCheckpoint(
     monitor="train/g_loss",
     dirpath="./",
@@ -204,9 +194,9 @@ model_checkpoint = ModelCheckpoint(
 
 trainer = Trainer(
     max_epochs=1000,
-    #logger=wandb_logger,
+    logger=wandb_logger,
     callbacks=[model_checkpoint],
-    gpus=1,
+    gpus=6,
     precision=32,
     #accelerator="tpu", devices=8
 )

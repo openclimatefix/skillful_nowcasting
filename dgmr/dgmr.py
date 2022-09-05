@@ -133,10 +133,16 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
 
             concatenated_outputs = self.discriminator(concatenated_inputs)
             # This is now at
-            score_real, score_generated = torch.split(concatenated_outputs, [real_sequence.shape[0], generated_sequence.shape[0]], dim=0)
+            score_real, score_generated = torch.split(
+                concatenated_outputs, [real_sequence.shape[0], generated_sequence.shape[0]], dim=0
+            )
             score_real_spatial, score_real_temporal = torch.split(score_real, 1, dim=1)
-            score_generated_spatial, score_generated_temporal = torch.split(score_generated, 1, dim=1)
-            discriminator_loss = loss_hinge_disc(score_generated_spatial, score_real_spatial)+loss_hinge_disc(score_generated_temporal, score_real_temporal)
+            score_generated_spatial, score_generated_temporal = torch.split(
+                score_generated, 1, dim=1
+            )
+            discriminator_loss = loss_hinge_disc(
+                score_generated_spatial, score_real_spatial
+            ) + loss_hinge_disc(score_generated_temporal, score_real_temporal)
             self.manual_backward(discriminator_loss)
             d_opt.step()
 
@@ -155,7 +161,9 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             concatenated_inputs = torch.cat([real_sequence, g_seq], dim=0)
             concatenated_outputs = self.discriminator(concatenated_inputs)
             # Split along the concatenated dimension, as discrimnator concatenates along dim=1
-            score_real, score_generated = torch.split(concatenated_outputs, [real_sequence.shape[0], g_seq.shape[0]], dim=0)
+            score_real, score_generated = torch.split(
+                concatenated_outputs, [real_sequence.shape[0], g_seq.shape[0]], dim=0
+            )
             generated_scores.append(score_generated)
         generator_disc_loss = loss_hinge_gen(torch.cat(generated_scores, dim=0))
         generator_loss = generator_disc_loss + self.grid_lambda * grid_cell_reg
@@ -198,10 +206,16 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
 
             concatenated_outputs = self.discriminator(concatenated_inputs)
             # This is now at
-            score_real, score_generated = torch.split(concatenated_outputs, [real_sequence.shape[0], generated_sequence.shape[0]], dim=0)
+            score_real, score_generated = torch.split(
+                concatenated_outputs, [real_sequence.shape[0], generated_sequence.shape[0]], dim=0
+            )
             score_real_spatial, score_real_temporal = torch.split(score_real, 1, dim=1)
-            score_generated_spatial, score_generated_temporal = torch.split(score_generated, 1, dim=1)
-            discriminator_loss = loss_hinge_disc(score_generated_spatial, score_real_spatial)+loss_hinge_disc(score_generated_temporal, score_real_temporal)
+            score_generated_spatial, score_generated_temporal = torch.split(
+                score_generated, 1, dim=1
+            )
+            discriminator_loss = loss_hinge_disc(
+                score_generated_spatial, score_real_spatial
+            ) + loss_hinge_disc(score_generated_temporal, score_real_temporal)
 
         ######################
         # Optimize Generator #
@@ -218,7 +232,9 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             concatenated_inputs = torch.cat([real_sequence, g_seq], dim=0)
             concatenated_outputs = self.discriminator(concatenated_inputs)
             # Split along the concatenated dimension, as discrimnator concatenates along dim=1
-            score_real, score_generated = torch.split(concatenated_outputs, [real_sequence.shape[0], g_seq.shape[0]], dim=0)
+            score_real, score_generated = torch.split(
+                concatenated_outputs, [real_sequence.shape[0], g_seq.shape[0]], dim=0
+            )
             generated_scores.append(score_generated)
         generator_disc_loss = loss_hinge_gen(torch.cat(generated_scores, dim=0))
         generator_loss = generator_disc_loss + self.grid_lambda * grid_cell_reg

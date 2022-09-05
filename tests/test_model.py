@@ -306,6 +306,7 @@ def test_load_dgmr_from_hf():
     lat = LatentConditioningStack.from_pretrained("openclimatefix/dgmr-latent-conditioning-stack")
     _ = Generator(conditioning_stack=ctz, latent_stack=lat, sampler=sam)
 
+
 @pytest.mark.skip("Takes too long")
 def test_train_dgmr():
     forecast_steps = 8

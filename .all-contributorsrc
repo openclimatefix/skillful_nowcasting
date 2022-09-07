@@ -22,6 +22,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "ZHANGZ1YUE",
+      "name": "Z1YUE",
+      "avatar_url": "https://avatars.githubusercontent.com/u/93907996?v=4",
+      "profile": "https://github.com/ZHANGZ1YUE",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,

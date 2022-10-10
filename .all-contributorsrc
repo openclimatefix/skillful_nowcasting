@@ -40,6 +40,15 @@
       "contributions": [
         "question"
       ]
+    },
+    {
+      "login": "hedaobaishui",
+      "name": "Taisanai",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20534146?v=4",
+      "profile": "https://github.com/hedaobaishui",
+      "contributions": [
+        "question"
+      ]
     }
   ],
   "contributorsPerLine": 7,
@@ -47,5 +56,6 @@
   "projectOwner": "openclimatefix",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "skipCi": true
+  "skipCi": true,
+  "commitConvention": "angular"
 }

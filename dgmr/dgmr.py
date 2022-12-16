@@ -32,6 +32,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         beta2: float = 0.999,
         latent_channels: int = 768,
         context_channels: int = 384,
+        generation_steps: int = 6,
         **kwargs,
     ):
         """
@@ -50,6 +51,8 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             num_samples: Number of samples of the latent space to sample for training/validation
             grid_lambda: Lambda for the grid regularization loss
             output_shape: Shape of the output predictions, generally should be same as the input shape
+            generation_steps: Number of generation steps to use in forward pass, in paper is 6 and the best is chosen for the loss
+                this results in huge amounts of GPU memory though, so less might work better for training.
             latent_channels: Number of channels that the latent space should be reshaped to,
                 input dimension into ConvGRU, also affects the number of channels for other linked inputs/outputs
             pretrained:
@@ -84,6 +87,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         self.latent_channels = latent_channels
         self.context_channels = context_channels
         self.input_channels = input_channels
+        self.generation_steps = generation_steps
         self.conditioning_stack = ContextConditioningStack(
             input_channels=input_channels,
             conv_type=conv_type,
@@ -149,7 +153,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         ######################
         # Optimize Generator #
         ######################
-        predictions = [self(images) for _ in range(6)]
+        predictions = [self(images) for _ in range(self.generation_steps)]
         grid_cell_reg = grid_cell_regularizer(torch.stack(predictions, dim=0), future_images)
         # Concat along time dimension
         generated_sequence = [torch.cat([images, x], dim=1) for x in predictions]

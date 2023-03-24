@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from pytorch_msssim import SSIM, MS_SSIM
+from pytorch_msssim import MS_SSIM, SSIM
 from torch.nn import functional as F
 
 
@@ -9,6 +9,7 @@ class SSIMLoss(nn.Module):
     def __init__(self, convert_range: bool = False, **kwargs):
         """
         SSIM Loss, optionally converting input range from [-1,1] to [0,1]
+
         Args:
             convert_range:
             **kwargs:
@@ -28,6 +29,7 @@ class MS_SSIMLoss(nn.Module):
     def __init__(self, convert_range: bool = False, **kwargs):
         """
         Multi-Scale SSIM Loss, optionally converting input range from [-1,1] to [0,1]
+
         Args:
             convert_range:
             **kwargs:
@@ -78,6 +80,7 @@ def tv_loss(img, tv_weight):
     Inputs:
     - img: PyTorch Variable of shape (1, 3, H, W) holding an input image.
     - tv_weight: Scalar giving the weight w_t to use for the TV loss.
+
     Returns:
     - loss: PyTorch Variable holding a scalar giving the total variation loss
       for img weighted by tv_weight.
@@ -138,6 +141,7 @@ class GridCellLoss(nn.Module):
         """
         Calculates the grid cell regularizer value, assumes generated images are the mean predictions from
         6 calls to the generater (Monte Carlo estimation of the expectations for the latent variable)
+
         Args:
             generated_images: Mean generated images from the generator
             targets: Ground truth future frames

@@ -3,12 +3,13 @@ from typing import Tuple
 import einops
 import torch
 import torch.nn.functional as F
-from torch.distributions import normal
-from torch.nn.utils.parametrizations import spectral_norm
-from torch.nn.modules.pixelshuffle import PixelUnshuffle
-from dgmr.layers.utils import get_conv_layer
-from dgmr.layers import AttentionLayer
 from huggingface_hub import PyTorchModelHubMixin
+from torch.distributions import normal
+from torch.nn.modules.pixelshuffle import PixelUnshuffle
+from torch.nn.utils.parametrizations import spectral_norm
+
+from dgmr.layers import AttentionLayer
+from dgmr.layers.utils import get_conv_layer
 
 
 class GBlock(torch.nn.Module):

@@ -67,6 +67,15 @@
       "contributions": [
         "question"
       ]
+    },
+    {
+      "login": "najeeb-kazmi",
+      "name": "Najeeb Kazmi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/14131235?v=4",
+      "profile": "https://github.com/najeeb-kazmi",
+      "contributions": [
+        "question"
+      ]
     }
   ],
   "contributorsPerLine": 7,

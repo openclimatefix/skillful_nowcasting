@@ -1,6 +1,6 @@
 # Skillful Nowcasting with Deep Generative Model of Radar (DGMR)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 Implementation of DeepMind's Skillful Nowcasting GAN Deep Generative Model of Radar (DGMR) (https://arxiv.org/abs/2104.00954) in PyTorch Lightning.
 
@@ -115,6 +115,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/GreenLimeSia"><img src="https://avatars.githubusercontent.com/u/28706611?v=4?s=100" width="100px;" alt="Nan.Y"/><br /><sub><b>Nan.Y</b></sub></a><br /><a href="#question-GreenLimeSia" title="Answering Questions">💬</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/hedaobaishui"><img src="https://avatars.githubusercontent.com/u/20534146?v=4?s=100" width="100px;" alt="Taisanai"/><br /><sub><b>Taisanai</b></sub></a><br /><a href="#question-hedaobaishui" title="Answering Questions">💬</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/primeoc"><img src="https://avatars.githubusercontent.com/u/75205487?v=4?s=100" width="100px;" alt="cameron"/><br /><sub><b>cameron</b></sub></a><br /><a href="#question-primeoc" title="Answering Questions">💬</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zhrli"><img src="https://avatars.githubusercontent.com/u/11074703?v=4?s=100" width="100px;" alt="zhrli"/><br /><sub><b>zhrli</b></sub></a><br /><a href="#question-zhrli" title="Answering Questions">💬</a></td>
     </tr>
   </tbody>
 </table>

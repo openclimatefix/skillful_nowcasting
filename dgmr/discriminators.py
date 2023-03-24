@@ -1,9 +1,10 @@
 import torch
+import torch.nn.functional as F
+from huggingface_hub import PyTorchModelHubMixin
 from torch.nn.modules.pixelshuffle import PixelUnshuffle
 from torch.nn.utils.parametrizations import spectral_norm
-import torch.nn.functional as F
+
 from dgmr.common import DBlock
-from huggingface_hub import PyTorchModelHubMixin
 
 
 class Discriminator(torch.nn.Module, PyTorchModelHubMixin):

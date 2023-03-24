@@ -1,7 +1,7 @@
+import einops
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-import einops
 
 
 def attention_einsum(q, k, v):

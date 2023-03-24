@@ -1,13 +1,15 @@
+import logging
+from typing import List
+
 import einops
 import torch
 import torch.nn.functional as F
+from huggingface_hub import PyTorchModelHubMixin
 from torch.nn.modules.pixelshuffle import PixelShuffle
 from torch.nn.utils.parametrizations import spectral_norm
-from typing import List
+
 from dgmr.common import GBlock, UpsampleGBlock
 from dgmr.layers import ConvGRU
-from huggingface_hub import PyTorchModelHubMixin
-import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARN)
@@ -27,6 +29,7 @@ class Sampler(torch.nn.Module, PyTorchModelHubMixin):
 
         The sampler takes the output from the Latent and Context conditioning stacks and
         creates one stack of ConvGRU layers per future timestep.
+
         Args:
             forecast_steps: Number of forecast steps
             latent_channels: Number of input channels to the lowest ConvGRU layer

@@ -1,6 +1,6 @@
 # Skillful Nowcasting with Deep Generative Model of Radar (DGMR)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 Implementation of DeepMind's Skillful Nowcasting GAN Deep Generative Model of Radar (DGMR) (https://arxiv.org/abs/2104.00954) in PyTorch Lightning.
 
@@ -119,6 +119,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/najeeb-kazmi"><img src="https://avatars.githubusercontent.com/u/14131235?v=4?s=100" width="100px;" alt="Najeeb Kazmi"/><br /><sub><b>Najeeb Kazmi</b></sub></a><br /><a href="#question-najeeb-kazmi" title="Answering Questions">💬</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/TQRTQ"><img src="https://avatars.githubusercontent.com/u/29155385?v=4?s=100" width="100px;" alt="TQRTQ"/><br /><sub><b>TQRTQ</b></sub></a><br /><a href="#question-TQRTQ" title="Answering Questions">💬</a></td>
     </tr>
   </tbody>
 </table>

@@ -12,7 +12,6 @@ from functools import partial
 
 import torch
 
-
 try:
     from huggingface_hub import cached_download, hf_hub_url
 

@@ -1,19 +1,19 @@
 import torch.utils.data.dataset
-from dgmr import DGMR
+import wandb
 from datasets import load_dataset
-from torch.utils.data import DataLoader
 from pytorch_lightning import (
     LightningDataModule,
 )
 from pytorch_lightning.callbacks import ModelCheckpoint
-import wandb
+from torch.utils.data import DataLoader
+
+from dgmr import DGMR
 
 wandb.init(project="dgmr")
-from numpy.random import default_rng
-import os
-import numpy as np
 from pathlib import Path
-import tensorflow as tf
+
+import numpy as np
+from numpy.random import default_rng
 from pytorch_lightning import Callback, Trainer
 from pytorch_lightning.loggers import LoggerCollection, WandbLogger
 from pytorch_lightning.utilities import rank_zero_only
@@ -136,7 +136,7 @@ class TFDataset(torch.utils.data.dataset.Dataset):
     def __getitem__(self, item):
         try:
             row = next(self.iter_reader)
-        except Exception as e:
+        except Exception:
             rng = default_rng()
             self.iter_reader = iter(
                 self.reader.shuffle(seed=rng.integers(low=0, high=100000), buffer_size=1000)

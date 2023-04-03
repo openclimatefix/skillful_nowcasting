@@ -271,7 +271,6 @@ class LBlock(torch.nn.Module):
         )
 
     def forward(self, x) -> torch.Tensor:
-
         if self.input_channels < self.output_channels:
             sc = self.conv_1x1(x)
             sc = torch.cat([x, sc], dim=1)

@@ -4,7 +4,6 @@ import torch
 
 
 def test_ssim_loss():
-
     x = torch.rand((2, 3, 32, 32))
     y = torch.rand((2, 3, 32, 32))
 
@@ -17,7 +16,6 @@ def test_ssim_loss():
 
 
 def test_ms_ssim_loss():
-
     x = torch.rand((2, 3, 256, 256))
     y = torch.rand((2, 3, 256, 256))
 
@@ -30,7 +28,6 @@ def test_ms_ssim_loss():
 
 
 def test_ssim_loss_dynamic():
-
     x = torch.rand((2, 3, 256, 256))
     y = torch.rand((2, 3, 256, 256))
     curr_image = torch.rand((2, 3, 256, 256))
@@ -44,7 +41,6 @@ def test_ssim_loss_dynamic():
 
 
 def test_tv_loss():
-
     x = torch.ones((2, 3, 256, 256))
     x[0, 0, 0, 0] = 2.5
 

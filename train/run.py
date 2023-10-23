@@ -15,12 +15,11 @@ from pathlib import Path
 import numpy as np
 from numpy.random import default_rng
 from pytorch_lightning import Callback, Trainer
-from pytorch_lightning.loggers import LoggerCollection, WandbLogger
+from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.utilities import rank_zero_only
 
 
 def get_wandb_logger(trainer: Trainer) -> WandbLogger:
-    """Safely get Weights&Biases logger from Trainer."""
 
     if trainer.fast_dev_run:
         raise Exception(
@@ -41,7 +40,6 @@ def get_wandb_logger(trainer: Trainer) -> WandbLogger:
 
 
 class WatchModel(Callback):
-    """Make wandb watch model at the beginning of the run."""
 
     def __init__(self, log: str = "gradients", log_freq: int = 100):
         self.log = log
@@ -54,7 +52,6 @@ class WatchModel(Callback):
 
 
 class UploadCheckpointsAsArtifact(Callback):
-    """Upload checkpoints to wandb as an artifact, at the end of run."""
 
     def __init__(self, ckpt_dir: str = "checkpoints/", upload_best_only: bool = False):
         self.ckpt_dir = ckpt_dir
@@ -209,7 +206,7 @@ trainer = Trainer(
     max_epochs=1000,
     logger=wandb_logger,
     callbacks=[model_checkpoint],
-    gpus=6,
+    accelerator="auto",
     precision=32,
     # accelerator="tpu", devices=8
 )

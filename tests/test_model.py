@@ -307,7 +307,7 @@ def test_load_dgmr_from_hf():
     _ = Generator(conditioning_stack=ctz, latent_stack=lat, sampler=sam)
 
 
-@pytest.mark.skip("Takes too long")
+#@pytest.mark.skip("Takes too long")
 def test_train_dgmr():
     forecast_steps = 8
 
@@ -324,7 +324,7 @@ def test_train_dgmr():
     train_loader = torch.utils.data.DataLoader(DS(), batch_size=1)
     val_loader = torch.utils.data.DataLoader(DS(), batch_size=1)
 
-    trainer = Trainer(gpus=0, max_epochs=1)
+    trainer = Trainer(accelerator="cpu", max_epochs=1)
     model = DGMR(forecast_steps=forecast_steps)
 
     trainer.fit(model, train_loader, val_loader)

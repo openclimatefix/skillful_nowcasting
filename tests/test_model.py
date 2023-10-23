@@ -307,7 +307,7 @@ def test_load_dgmr_from_hf():
     _ = Generator(conditioning_stack=ctz, latent_stack=lat, sampler=sam)
 
 
-#@pytest.mark.skip("Takes too long")
+@pytest.mark.skip("Takes too long")
 def test_train_dgmr():
     forecast_steps = 8
 

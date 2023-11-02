@@ -85,6 +85,15 @@
       "contributions": [
         "question"
       ]
+    },
+    {
+      "login": "victor30608",
+      "name": "Viktor Bordiuzha",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43813476?v=4",
+      "profile": "https://www.linkedin.com/in/viktor-bordiuzha-93b078211",
+      "contributions": [
+        "example"
+      ]
     }
   ],
   "contributorsPerLine": 7,
@@ -93,5 +102,6 @@
   "repoType": "github",
   "repoHost": "https://github.com",
   "skipCi": true,
-  "commitConvention": "angular"
+  "commitConvention": "angular",
+  "commitType": "docs"
 }

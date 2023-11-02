@@ -72,6 +72,9 @@ generator = Generator(conditioning_stack=context_stack, latent_stack=latent_stac
 
 ```python
 from dgmr import DGMR
+import torch.nn.functional as F
+import torch
+
 model = DGMR(
         forecast_steps=4,
         input_channels=1,

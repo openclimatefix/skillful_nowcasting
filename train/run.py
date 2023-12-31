@@ -18,6 +18,7 @@ from pytorch_lightning import Callback, Trainer
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.utilities import rank_zero_only
 
+
 def get_wandb_logger(trainer: Trainer) -> WandbLogger:
     if trainer.fast_dev_run:
         raise Exception(

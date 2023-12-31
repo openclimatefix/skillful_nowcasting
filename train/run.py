@@ -18,7 +18,6 @@ from pytorch_lightning import Callback, Trainer
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.utilities import rank_zero_only
 
-
 def get_wandb_logger(trainer: Trainer) -> WandbLogger:
     if trainer.fast_dev_run:
         raise Exception(
@@ -27,11 +26,6 @@ def get_wandb_logger(trainer: Trainer) -> WandbLogger:
 
     if isinstance(trainer.logger, WandbLogger):
         return trainer.logger
-
-    if isinstance(trainer.logger, LoggerCollection):
-        for logger in trainer.logger:
-            if isinstance(logger, WandbLogger):
-                return logger
 
     raise Exception(
         "You are using wandb related callback, but WandbLogger was not found for some reason..."

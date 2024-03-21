@@ -148,7 +148,7 @@ class NowcastingModelHubMixin(ModelHubMixin):
                 force_download=force_download,
                 proxies=proxies,
                 resume_download=resume_download,
-                use_auth_token=use_auth_token,
+                token=use_auth_token,
                 local_files_only=local_files_only,
             )
         model = cls(**model_kwargs["config"])

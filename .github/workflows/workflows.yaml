@@ -1,11 +1,20 @@
-name: Python package
+name: Run tests
 
 on: [push]
+
 jobs:
-  call-run-python-tests:
-    uses: openclimatefix/.github/.github/workflows/python-test.yml@main
-    with:
-      # 0 means don't use pytest-xdist
-      pytest_numcpus: "2"
-      # pytest-cov looks at this folder
-      pytest_cov_dir: "dgmr"
+  run-python-tests:
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"] # The python versions to run tests on
+        os: ["ubuntu-latest", "macos-latest"]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'

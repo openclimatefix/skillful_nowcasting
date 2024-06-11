@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"] # The python versions to run tests on
-        os: ["ubuntu-latest", "macos-latest"]
+        os: ["ubuntu-latest", "macos-latest"] # The os's to run tests on
 
     runs-on: ${{ matrix.os }}
 

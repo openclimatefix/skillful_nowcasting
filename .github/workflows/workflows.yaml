@@ -2,6 +2,10 @@ name: Run tests
 
 on: [push]
 
+env:
+  pytest_cpus: 2 # How many cpu cores will be used to run tests
+  pytest_cov_dir: 'dgmr' # The directory that pytest-cov will look at the coverage
+
 jobs:
   run-python-tests:
     strategy:

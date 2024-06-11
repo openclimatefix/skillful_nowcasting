@@ -32,3 +32,12 @@ jobs:
       - name: Run tests
         run: |
           pytest -n $pytest_cpus --cov-report=xml --cov=$pytest_cov_dir
+      
+      - name: Report coverage
+        run: |
+          coverage report -m
+      
+      - name: "Upload coverage to Codecov"
+        uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: false

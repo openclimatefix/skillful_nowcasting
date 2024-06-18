@@ -12,17 +12,9 @@ class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
         self,
         input_channels: int = 12,
         num_spatial_frames: int = 8,
-        conv_type: str = "standard",
-        **kwargs
+        conv_type: str = "standard"
     ):
         super().__init__()
-        config = locals()
-        config.pop("__class__")
-        config.pop("self")
-        self.config = kwargs.get("config", config)
-        input_channels = self.config["input_channels"]
-        num_spatial_frames = self.config["num_spatial_frames"]
-        conv_type = self.config["conv_type"]
 
         self.spatial_discriminator = SpatialDiscriminator(
             input_channels=input_channels, num_timesteps=num_spatial_frames, conv_type=conv_type
@@ -40,7 +32,10 @@ class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
 
 class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
     def __init__(
-        self, input_channels: int = 12, num_layers: int = 3, conv_type: str = "standard", **kwargs
+        self,
+        input_channels: int = 12,
+        num_layers: int = 3,
+        conv_type: str = "standard"
     ):
         """
         Temporal Discriminator from the Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
@@ -52,13 +47,6 @@ class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
             conv_type: Type of 2d convolutions to use, see satflow/models/utils.py for options
         """
         super().__init__()
-        config = locals()
-        config.pop("__class__")
-        config.pop("self")
-        self.config = kwargs.get("config", config)
-        input_channels = self.config["input_channels"]
-        num_layers = self.config["num_layers"]
-        conv_type = self.config["conv_type"]
 
         self.downsample = torch.nn.AvgPool3d(kernel_size=(1, 2, 2), stride=(1, 2, 2))
         self.space2depth = PixelUnshuffle(downscale_factor=2)
@@ -138,8 +126,7 @@ class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
         input_channels: int = 12,
         num_timesteps: int = 8,
         num_layers: int = 4,
-        conv_type: str = "standard",
-        **kwargs
+        conv_type: str = "standard"
     ):
         """
         Spatial discriminator from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
@@ -151,14 +138,6 @@ class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
             conv_type: Type of 2d convolutions to use, see satflow/models/utils.py for options
         """
         super().__init__()
-        config = locals()
-        config.pop("__class__")
-        config.pop("self")
-        self.config = kwargs.get("config", config)
-        input_channels = self.config["input_channels"]
-        num_timesteps = self.config["num_timesteps"]
-        num_layers = self.config["num_layers"]
-        conv_type = self.config["conv_type"]
         # Randomly, uniformly, select 8 timesteps to do this on from the input
         self.num_timesteps = num_timesteps
         # First step is mean pooling 2x2 to reduce input by half

@@ -21,8 +21,7 @@ class Sampler(torch.nn.Module, PyTorchModelHubMixin):
         forecast_steps: int = 18,
         latent_channels: int = 768,
         context_channels: int = 384,
-        output_channels: int = 1,
-        **kwargs
+        output_channels: int = 1
     ):
         """
         Sampler from the Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
@@ -35,14 +34,8 @@ class Sampler(torch.nn.Module, PyTorchModelHubMixin):
             latent_channels: Number of input channels to the lowest ConvGRU layer
         """
         super().__init__()
-        config = locals()
-        config.pop("__class__")
-        config.pop("self")
-        self.config = kwargs.get("config", config)
-        self.forecast_steps = self.config["forecast_steps"]
-        latent_channels = self.config["latent_channels"]
-        context_channels = self.config["context_channels"]
-        output_channels = self.config["output_channels"]
+
+        self.forecast_steps = forecast_steps
 
         self.convGRU1 = ConvGRU(
             input_channels=latent_channels + context_channels,

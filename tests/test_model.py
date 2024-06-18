@@ -16,6 +16,14 @@ from dgmr.common import DBlock, GBlock
 import einops
 import pytest
 from pytorch_lightning import Trainer
+from torch.testing import assert_close
+
+
+def assert_model_equal(actual, expected):
+    assert(actual.state_dict().keys() == expected.state_dict().keys())
+
+    for x, y in zip(actual.state_dict().values(), expected.state_dict().values()):
+        assert_close(x, y)
 
 
 def test_dblock():
@@ -328,3 +336,78 @@ def test_train_dgmr():
     model = DGMR(forecast_steps=forecast_steps)
 
     trainer.fit(model, train_loader, val_loader)
+
+
+def test_model_serialization(tmp_path):
+    model = DGMR(
+        forecast_steps=1,
+        input_channels=1,
+        output_shape=128,
+        gen_lr=1e-5,
+        disc_lr=1e-4,
+        visualize=True,
+        conv_type="standard",
+        num_samples=1,
+        grid_lambda=16.0,
+        beta1=1.0,
+        beta2=0.995,
+        latent_channels=512,
+        context_channels=256,
+        generation_steps=1
+    )
+
+    model.save_pretrained(tmp_path / "dgmr")
+    modelcopy = DGMR.from_pretrained(tmp_path / "dgmr")
+    assert(model.hparams == modelcopy.hparams)
+    assert_model_equal(model, modelcopy)
+
+
+def test_discriminator_serialization(tmp_path):
+    discriminator = Discriminator(
+        input_channels=1,
+        num_spatial_frames=1,
+        conv_type="standard"
+    )
+
+    discriminator.save_pretrained(tmp_path / "discriminator")
+    discriminatorcopy = Discriminator.from_pretrained(tmp_path / "discriminator")
+    assert_model_equal(discriminator, discriminatorcopy)
+
+
+def test_sampler_serialization(tmp_path):
+    sampler = Sampler(
+        forecast_steps=1,
+        latent_channels=256,
+        context_channels=256,
+        output_channels=1
+    )
+
+    sampler.save_pretrained(tmp_path / "sampler")
+    samplercopy = Sampler.from_pretrained(tmp_path / "sampler")
+    assert_model_equal(sampler, samplercopy)
+
+
+def test_context_conditioning_stack_serialization(tmp_path):
+    ctz = ContextConditioningStack(
+        input_channels=2,
+        output_channels=256,
+        num_context_steps=1,
+        conv_type="standard"
+    )
+
+    ctz.save_pretrained(tmp_path / "context-conditioning-stack")
+    ctzcopy = ContextConditioningStack.from_pretrained(tmp_path / "context-conditioning-stack")
+    assert_model_equal(ctz, ctzcopy)
+
+
+def test_latent_conditioning_stack_serialization(tmp_path):
+    lat = LatentConditioningStack(
+        shape=(4, 4, 4),
+        output_channels=256,
+        use_attention=True
+    )
+
+    lat.save_pretrained(tmp_path / "latent-conditioning-stack")
+    latcopy = LatentConditioningStack.from_pretrained(tmp_path / "latent-conditioning-stack")
+    assert_model_equal(lat, latcopy)
+

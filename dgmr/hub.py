@@ -129,7 +129,7 @@ class NowcastingModelHubMixin(ModelHubMixin):
         proxies,
         resume_download,
         local_files_only,
-        use_auth_token=False,
+        token=False,
         map_location="cpu",
         strict=False,
         **model_kwargs,
@@ -148,10 +148,10 @@ class NowcastingModelHubMixin(ModelHubMixin):
                 force_download=force_download,
                 proxies=proxies,
                 resume_download=resume_download,
-                token=use_auth_token,
+                token=token,
                 local_files_only=local_files_only,
             )
-        model = cls(**model_kwargs["config"])
+        model = cls(**model_kwargs)
 
         state_dict = torch.load(model_file, map_location=map_location)
         model.load_state_dict(state_dict, strict=strict)

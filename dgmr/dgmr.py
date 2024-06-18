@@ -7,6 +7,7 @@ from dgmr.common import ContextConditioningStack, LatentConditioningStack
 from dgmr.discriminators import Discriminator
 from dgmr.generators import Generator, Sampler
 from dgmr.hub import NowcastingModelHubMixin
+
 from dgmr.losses import (
     GridCellLoss,
     NowcastingLoss,
@@ -50,7 +51,6 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         context_channels: int = 384,
         generation_steps: int = 6,
         precip_weight_cap: float = 24.0,
-        **kwargs,
     ):
         """
         Nowcasting GAN is an attempt to recreate DeepMind's Skillful Nowcasting GAN from https://arxiv.org/abs/2104.00954
@@ -76,23 +76,6 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             precip_weight_cap: Custom ceiling for the weight function to compute the grid cell loss
         """
         super().__init__()
-        config = locals()
-        config.pop("__class__")
-        config.pop("self")
-        self.config = kwargs.get("config", config)
-        input_channels = self.config["input_channels"]
-        forecast_steps = self.config["forecast_steps"]
-        output_shape = self.config["output_shape"]
-        gen_lr = self.config["gen_lr"]
-        disc_lr = self.config["disc_lr"]
-        conv_type = self.config["conv_type"]
-        num_samples = self.config["num_samples"]
-        grid_lambda = self.config["grid_lambda"]
-        beta1 = self.config["beta1"]
-        beta2 = self.config["beta2"]
-        latent_channels = self.config["latent_channels"]
-        context_channels = self.config["context_channels"]
-        visualize = self.config["visualize"]
         self.gen_lr = gen_lr
         self.disc_lr = disc_lr
         self.beta1 = beta1

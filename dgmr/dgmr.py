@@ -35,7 +35,7 @@ class DGMR(
     PyTorchModelHubMixin,
     library_name="DGMR",
     tags=["nowcasting", "forecasting", "timeseries", "remote-sensing", "gan"],
-    repo_url="https://github.com/openclimatefix/skillful_nowcasting"
+    repo_url="https://github.com/openclimatefix/skillful_nowcasting",
 ):
     """Deep Generative Model of Radar"""
 

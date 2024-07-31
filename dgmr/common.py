@@ -290,7 +290,7 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         input_channels: int = 1,
         output_channels: int = 768,
         num_context_steps: int = 4,
-        conv_type: str = "standard"
+        conv_type: str = "standard",
     ):
         """
         Conditioning Stack using the context images from Skillful Nowcasting, , see https://arxiv.org/pdf/2104.00954.pdf
@@ -407,7 +407,7 @@ class LatentConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         self,
         shape: (int, int, int) = (8, 8, 8),
         output_channels: int = 768,
-        use_attention: bool = True
+        use_attention: bool = True,
     ):
         """
         Latent conditioning stack from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf

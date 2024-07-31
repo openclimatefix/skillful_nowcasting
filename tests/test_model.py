@@ -20,7 +20,7 @@ from torch.testing import assert_close
 
 
 def assert_model_equal(actual, expected):
-    assert(actual.state_dict().keys() == expected.state_dict().keys())
+    assert actual.state_dict().keys() == expected.state_dict().keys()
 
     for x, y in zip(actual.state_dict().values(), expected.state_dict().values()):
         assert_close(x, y)
@@ -358,7 +358,7 @@ def test_model_serialization(tmp_path):
 
     model.save_pretrained(tmp_path / "dgmr")
     model_copy = DGMR.from_pretrained(tmp_path / "dgmr")
-    assert(model.hparams == model_copy.hparams)
+    assert model.hparams == model_copy.hparams
     assert_model_equal(model, model_copy)
 
 

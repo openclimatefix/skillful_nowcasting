@@ -21,7 +21,7 @@ class Sampler(torch.nn.Module, PyTorchModelHubMixin):
         forecast_steps: int = 18,
         latent_channels: int = 768,
         context_channels: int = 384,
-        output_channels: int = 1
+        output_channels: int = 1,
     ):
         """
         Sampler from the Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf

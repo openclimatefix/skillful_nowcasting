@@ -12,7 +12,7 @@ class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
         self,
         input_channels: int = 12,
         num_spatial_frames: int = 8,
-        conv_type: str = "standard"
+        conv_type: str = "standard",
     ):
         super().__init__()
 
@@ -35,7 +35,7 @@ class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
         self,
         input_channels: int = 12,
         num_layers: int = 3,
-        conv_type: str = "standard"
+        conv_type: str = "standard",
     ):
         """
         Temporal Discriminator from the Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
@@ -126,7 +126,7 @@ class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
         input_channels: int = 12,
         num_timesteps: int = 8,
         num_layers: int = 4,
-        conv_type: str = "standard"
+        conv_type: str = "standard",
     ):
         """
         Spatial discriminator from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf

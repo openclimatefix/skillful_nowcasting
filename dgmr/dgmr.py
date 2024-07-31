@@ -20,7 +20,7 @@ class DGMR(
     PyTorchModelHubMixin,
     library_name="DGMR",
     tags=["nowcasting", "forecasting", "timeseries", "remote-sensing", "gan"],
-    repo_url="https://github.com/openclimatefix/skillful_nowcasting"
+    repo_url="https://github.com/openclimatefix/skillful_nowcasting",
 ):
     """Deep Generative Model of Radar"""
 
@@ -39,7 +39,7 @@ class DGMR(
         beta2: float = 0.999,
         latent_channels: int = 768,
         context_channels: int = 384,
-        generation_steps: int = 6
+        generation_steps: int = 6,
     ):
         """
         Nowcasting GAN is an attempt to recreate DeepMind's Skillful Nowcasting GAN from https://arxiv.org/abs/2104.00954

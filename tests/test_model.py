@@ -357,9 +357,9 @@ def test_model_serialization(tmp_path):
     )
 
     model.save_pretrained(tmp_path / "dgmr")
-    modelcopy = DGMR.from_pretrained(tmp_path / "dgmr")
-    assert(model.hparams == modelcopy.hparams)
-    assert_model_equal(model, modelcopy)
+    model_copy = DGMR.from_pretrained(tmp_path / "dgmr")
+    assert(model.hparams == model_copy.hparams)
+    assert_model_equal(model, model_copy)
 
 
 def test_discriminator_serialization(tmp_path):
@@ -370,8 +370,8 @@ def test_discriminator_serialization(tmp_path):
     )
 
     discriminator.save_pretrained(tmp_path / "discriminator")
-    discriminatorcopy = Discriminator.from_pretrained(tmp_path / "discriminator")
-    assert_model_equal(discriminator, discriminatorcopy)
+    discriminator_copy = Discriminator.from_pretrained(tmp_path / "discriminator")
+    assert_model_equal(discriminator, discriminator_copy)
 
 
 def test_sampler_serialization(tmp_path):
@@ -383,8 +383,8 @@ def test_sampler_serialization(tmp_path):
     )
 
     sampler.save_pretrained(tmp_path / "sampler")
-    samplercopy = Sampler.from_pretrained(tmp_path / "sampler")
-    assert_model_equal(sampler, samplercopy)
+    sampler_copy = Sampler.from_pretrained(tmp_path / "sampler")
+    assert_model_equal(sampler, sampler_copy)
 
 
 def test_context_conditioning_stack_serialization(tmp_path):
@@ -396,8 +396,8 @@ def test_context_conditioning_stack_serialization(tmp_path):
     )
 
     ctz.save_pretrained(tmp_path / "context-conditioning-stack")
-    ctzcopy = ContextConditioningStack.from_pretrained(tmp_path / "context-conditioning-stack")
-    assert_model_equal(ctz, ctzcopy)
+    ctz_copy = ContextConditioningStack.from_pretrained(tmp_path / "context-conditioning-stack")
+    assert_model_equal(ctz, ctz_copy)
 
 
 def test_latent_conditioning_stack_serialization(tmp_path):
@@ -408,6 +408,6 @@ def test_latent_conditioning_stack_serialization(tmp_path):
     )
 
     lat.save_pretrained(tmp_path / "latent-conditioning-stack")
-    latcopy = LatentConditioningStack.from_pretrained(tmp_path / "latent-conditioning-stack")
-    assert_model_equal(lat, latcopy)
+    lat_copy = LatentConditioningStack.from_pretrained(tmp_path / "latent-conditioning-stack")
+    assert_model_equal(lat, lat_copy)
 

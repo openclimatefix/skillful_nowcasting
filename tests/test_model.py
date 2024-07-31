@@ -353,7 +353,7 @@ def test_model_serialization(tmp_path):
         beta2=0.995,
         latent_channels=512,
         context_channels=256,
-        generation_steps=1
+        generation_steps=1,
     )
 
     model.save_pretrained(tmp_path / "dgmr")
@@ -363,11 +363,7 @@ def test_model_serialization(tmp_path):
 
 
 def test_discriminator_serialization(tmp_path):
-    discriminator = Discriminator(
-        input_channels=1,
-        num_spatial_frames=1,
-        conv_type="standard"
-    )
+    discriminator = Discriminator(input_channels=1, num_spatial_frames=1, conv_type="standard")
 
     discriminator.save_pretrained(tmp_path / "discriminator")
     discriminator_copy = Discriminator.from_pretrained(tmp_path / "discriminator")
@@ -376,10 +372,7 @@ def test_discriminator_serialization(tmp_path):
 
 def test_sampler_serialization(tmp_path):
     sampler = Sampler(
-        forecast_steps=1,
-        latent_channels=256,
-        context_channels=256,
-        output_channels=1
+        forecast_steps=1, latent_channels=256, context_channels=256, output_channels=1
     )
 
     sampler.save_pretrained(tmp_path / "sampler")
@@ -389,10 +382,7 @@ def test_sampler_serialization(tmp_path):
 
 def test_context_conditioning_stack_serialization(tmp_path):
     ctz = ContextConditioningStack(
-        input_channels=2,
-        output_channels=256,
-        num_context_steps=1,
-        conv_type="standard"
+        input_channels=2, output_channels=256, num_context_steps=1, conv_type="standard"
     )
 
     ctz.save_pretrained(tmp_path / "context-conditioning-stack")
@@ -401,13 +391,8 @@ def test_context_conditioning_stack_serialization(tmp_path):
 
 
 def test_latent_conditioning_stack_serialization(tmp_path):
-    lat = LatentConditioningStack(
-        shape=(4, 4, 4),
-        output_channels=256,
-        use_attention=True
-    )
+    lat = LatentConditioningStack(shape=(4, 4, 4), output_channels=256, use_attention=True)
 
     lat.save_pretrained(tmp_path / "latent-conditioning-stack")
     lat_copy = LatentConditioningStack.from_pretrained(tmp_path / "latent-conditioning-stack")
     assert_model_equal(lat, lat_copy)
-

@@ -1,11 +1,11 @@
 import pytorch_lightning as pl
 import torch
 import torchvision
+from huggingface_hub import PyTorchModelHubMixin
 
 from dgmr.common import ContextConditioningStack, LatentConditioningStack
 from dgmr.discriminators import Discriminator
 from dgmr.generators import Generator, Sampler
-from dgmr.hub import NowcastingModelHubMixin
 
 from dgmr.losses import (
     GridCellLoss,
@@ -16,7 +16,13 @@ from dgmr.losses import (
 )
 
 
-class DGMR(pl.LightningModule, NowcastingModelHubMixin):
+class DGMR(
+    pl.LightningModule,
+    PyTorchModelHubMixin,
+    library_name="DGMR",
+    tags=["nowcasting", "forecasting", "timeseries", "remote-sensing", "gan"],
+    repo_url="https://github.com/openclimatefix/skillful_nowcasting"
+):
     """Deep Generative Model of Radar"""
 
     def __init__(

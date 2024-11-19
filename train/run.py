@@ -9,7 +9,6 @@ from torch.utils.data import DataLoader
 
 from dgmr import DGMR
 
-wandb.init(project="dgmr")
 from pathlib import Path
 
 import numpy as np
@@ -115,7 +114,11 @@ class TFDataset(torch.utils.data.dataset.Dataset):
     def __init__(self, split):
         super().__init__()
         self.reader = load_dataset(
-            "openclimatefix/nimrod-uk-1km", "sample", split=split, streaming=True
+            "openclimatefix/nimrod-uk-1km", 
+            "sample", 
+            split=split,
+            streaming=True,
+            trust_remote_code=True
         )
         self.iter_reader = self.reader
 
@@ -156,6 +159,7 @@ class DGMRDataModule(LightningDataModule):
         self,
         num_workers: int = 1,
         pin_memory: bool = True,
+        batch_size: int = 16,
     ):
         """
         fake_data: random data is created and used instead. This is useful for testing
@@ -164,6 +168,7 @@ class DGMRDataModule(LightningDataModule):
 
         self.num_workers = num_workers
         self.pin_memory = pin_memory
+        self.batch_size = batch_size
 
         self.dataloader_config = dict(
             pin_memory=self.pin_memory,
@@ -176,32 +181,33 @@ class DGMRDataModule(LightningDataModule):
         )
 
     def train_dataloader(self):
-        dataloader = DataLoader(TFDataset(split="train"), batch_size=12, num_workers=6)
+        dataloader = DataLoader(TFDataset(split="train"), batch_size=self.batch_size, num_workers=self.num_workers)
         return dataloader
 
     def val_dataloader(self):
         train_dataset = TFDataset(
             split="validation",
         )
-        dataloader = DataLoader(train_dataset, batch_size=6, num_workers=6)
+        dataloader = DataLoader(train_dataset, batch_size=self.batch_size, num_workers=self.num_workers)
         return dataloader
 
+if __name__ == "__main__":
+    wandb.init(project="dgmr")
+    wandb_logger = WandbLogger(logger="dgmr")
+    model_checkpoint = ModelCheckpoint(
+        monitor="train/g_loss",
+        dirpath="./",
+        filename="best",
+    )
 
-wandb_logger = WandbLogger(logger="dgmr")
-model_checkpoint = ModelCheckpoint(
-    monitor="train/g_loss",
-    dirpath="./",
-    filename="best",
-)
-
-trainer = Trainer(
-    max_epochs=1000,
-    logger=wandb_logger,
-    callbacks=[model_checkpoint],
-    accelerator="auto",
-    precision=32,
-    # accelerator="tpu", devices=8
-)
-model = DGMR()
-datamodule = DGMRDataModule()
-trainer.fit(model, datamodule)
+    trainer = Trainer(
+        max_epochs=1000,
+        logger=wandb_logger,
+        callbacks=[model_checkpoint],
+        accelerator="auto",
+        precision=32,
+        # accelerator="tpu", devices=8
+    )
+    model = DGMR()
+    datamodule = DGMRDataModule()
+    trainer.fit(model, datamodule)

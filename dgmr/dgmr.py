@@ -3,7 +3,6 @@ import torch
 import torchvision
 from torch.utils.checkpoint import checkpoint
 
-
 from dgmr.common import ContextConditioningStack, LatentConditioningStack
 from dgmr.discriminators import Discriminator
 from dgmr.generators import Generator, Sampler
@@ -156,7 +155,10 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         ######################
         # Optimize Generator #
         ######################
-        predictions = [checkpoint(self.forward, images, use_reentrant=False) for _ in range(self.generation_steps)]
+        predictions = [
+            checkpoint(self.forward, images, use_reentrant=False)
+            for _ in range(self.generation_steps)
+        ]
         grid_cell_reg = grid_cell_regularizer(torch.stack(predictions, dim=0), future_images)
         # Concat along time dimension
         generated_sequence = [torch.cat([images, x], dim=1) for x in predictions]

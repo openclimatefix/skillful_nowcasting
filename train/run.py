@@ -1,21 +1,21 @@
-import torch.utils.data.dataset
-import wandb
-from datasets import load_dataset
-from pytorch_lightning import (
-    LightningDataModule,
-)
-from pytorch_lightning.callbacks import ModelCheckpoint
-from torch.utils.data import DataLoader
-
-from dgmr import DGMR
-
 from pathlib import Path
 
 import numpy as np
+import torch.utils.data.dataset
+import wandb
+from datasets import load_dataset
 from numpy.random import default_rng
-from pytorch_lightning import Callback, Trainer
+from pytorch_lightning import (
+    Callback,
+    LightningDataModule,
+    Trainer,
+)
+from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.utilities import rank_zero_only
+from torch.utils.data import DataLoader
+
+from dgmr import DGMR
 
 
 def get_wandb_logger(trainer: Trainer) -> WandbLogger:
@@ -114,11 +114,11 @@ class TFDataset(torch.utils.data.dataset.Dataset):
     def __init__(self, split):
         super().__init__()
         self.reader = load_dataset(
-            "openclimatefix/nimrod-uk-1km", 
-            "sample", 
+            "openclimatefix/nimrod-uk-1km",
+            "sample",
             split=split,
             streaming=True,
-            trust_remote_code=True
+            trust_remote_code=True,
         )
         self.iter_reader = self.reader
 
@@ -181,15 +181,20 @@ class DGMRDataModule(LightningDataModule):
         )
 
     def train_dataloader(self):
-        dataloader = DataLoader(TFDataset(split="train"), batch_size=self.batch_size, num_workers=self.num_workers)
+        dataloader = DataLoader(
+            TFDataset(split="train"), batch_size=self.batch_size, num_workers=self.num_workers
+        )
         return dataloader
 
     def val_dataloader(self):
         train_dataset = TFDataset(
             split="validation",
         )
-        dataloader = DataLoader(train_dataset, batch_size=self.batch_size, num_workers=self.num_workers)
+        dataloader = DataLoader(
+            train_dataset, batch_size=self.batch_size, num_workers=self.num_workers
+        )
         return dataloader
+
 
 if __name__ == "__main__":
     wandb.init(project="dgmr")

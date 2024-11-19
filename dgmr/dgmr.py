@@ -1,6 +1,8 @@
 import pytorch_lightning as pl
 import torch
 import torchvision
+from torch.utils.checkpoint import checkpoint
+
 
 from dgmr.common import ContextConditioningStack, LatentConditioningStack
 from dgmr.discriminators import Discriminator
@@ -129,7 +131,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         # Two discriminator steps per generator step
         for _ in range(2):
             d_opt.zero_grad()
-            predictions = self(images)
+            predictions = checkpoint(self.forward, images, use_reentrant=False)
             # Cat along time dimension [B, T, C, H, W]
             generated_sequence = torch.cat([images, predictions], dim=1)
             real_sequence = torch.cat([images, future_images], dim=1)
@@ -154,7 +156,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         ######################
         # Optimize Generator #
         ######################
-        predictions = [self(images) for _ in range(self.generation_steps)]
+        predictions = [checkpoint(self.forward, images, use_reentrant=False) for _ in range(self.generation_steps)]
         grid_cell_reg = grid_cell_regularizer(torch.stack(predictions, dim=0), future_images)
         # Concat along time dimension
         generated_sequence = [torch.cat([images, x], dim=1) for x in predictions]

@@ -1,6 +1,6 @@
 # Skillful Nowcasting with Deep Generative Model of Radar (DGMR)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-12-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-13-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 Implementation of DeepMind's Skillful Nowcasting GAN Deep Generative Model of Radar (DGMR) (https://arxiv.org/abs/2104.00954) in PyTorch Lightning.
 
@@ -126,6 +126,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://www.linkedin.com/in/viktor-bordiuzha-93b078211"><img src="https://avatars.githubusercontent.com/u/43813476?v=4?s=100" width="100px;" alt="Viktor Bordiuzha"/><br /><sub><b>Viktor Bordiuzha</b></sub></a><br /><a href="#example-victor30608" title="Examples">💡</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/agijsberts"><img src="https://avatars.githubusercontent.com/u/1579083?v=4?s=100" width="100px;" alt="agijsberts"/><br /><sub><b>agijsberts</b></sub></a><br /><a href="https://github.com/openclimatefix/skillful_nowcasting/commits?author=agijsberts" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Mews"><img src="https://avatars.githubusercontent.com/u/60406199?v=4?s=100" width="100px;" alt="Mews"/><br /><sub><b>Mews</b></sub></a><br /><a href="https://github.com/openclimatefix/skillful_nowcasting/commits?author=Mews" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/rutkovskii"><img src="https://avatars.githubusercontent.com/u/70371908?v=4?s=100" width="100px;" alt="Aleksei Rutkovskii"/><br /><sub><b>Aleksei Rutkovskii</b></sub></a><br /><a href="https://github.com/openclimatefix/skillful_nowcasting/commits?author=rutkovskii" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

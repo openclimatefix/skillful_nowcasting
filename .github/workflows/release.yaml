@@ -5,6 +5,7 @@ on:
       - main
 jobs:
   call-run-python-release:
-    uses: openclimatefix/.github/.github/workflows/python-release.yml@main
+    uses: openclimatefix/.github/.github/workflows/python-release.yml@v1.7.2
     secrets:
       token: ${{ secrets.PYPI_API_TOKEN }}
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}

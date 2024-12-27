@@ -133,9 +133,16 @@ class GridCellLoss(nn.Module):
 
     """
 
-    def __init__(self, weight_fn=None):
+    def __init__(self, weight_fn=None, precip_weight_cap=24.0):
+        """
+        Initialize GridCellLoss.
+
+        Args:
+            weight_fn: A function to compute weights for the loss.
+            ceil: Custom ceiling value for the weight function.
+        """
         super().__init__()
-        self.weight_fn = weight_fn  # In Paper, weight_fn is max(y+1,24)
+        self.weight_fn = lambda y: weight_fn(y, precip_weight_cap) if weight_fn else None
 
     def forward(self, generated_images, targets):
         """
@@ -151,9 +158,10 @@ class GridCellLoss(nn.Module):
         """
         difference = generated_images - targets
         if self.weight_fn is not None:
-            difference *= self.weight_fn(targets)
-        difference /= targets.size(1) * targets.size(3) * targets.size(4)  # 1/HWN
-        return difference.mean()
+            weights = self.weight_fn(targets)
+            difference = difference * weights
+        difference = difference.norm(p=1)
+        return difference / targets.size(1) * targets.size(3) * targets.size(4)
 
 
 class NowcastingLoss(nn.Module):

@@ -10,10 +10,23 @@ from dgmr.hub import NowcastingModelHubMixin
 from dgmr.losses import (
     GridCellLoss,
     NowcastingLoss,
-    grid_cell_regularizer,
     loss_hinge_disc,
     loss_hinge_gen,
 )
+
+def weight_fn(y, precip_weight_cap=24.0):
+    """
+    Weight function for the grid cell loss.
+    w(y) = max(y + 1, ceil)
+
+    Args:
+        y: Tensor of rainfall intensities.
+        ceil: Custom ceiling for the weight function.
+
+    Returns:
+        Weights for each grid cell.
+    """
+    return torch.max(y + 1, torch.tensor(precip_weight_cap, device=y.device))
 
 
 class DGMR(pl.LightningModule, NowcastingModelHubMixin):
@@ -35,6 +48,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         latent_channels: int = 768,
         context_channels: int = 384,
         generation_steps: int = 6,
+        precip_weight_cap: float = 24.0,
         **kwargs,
     ):
         """
@@ -58,6 +72,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             latent_channels: Number of channels that the latent space should be reshaped to,
                 input dimension into ConvGRU, also affects the number of channels for other linked inputs/outputs
             pretrained:
+            precip_weight_cap: Custom ceiling for the weight function to compute the grid cell loss
         """
         super().__init__()
         config = locals()
@@ -82,7 +97,10 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         self.beta1 = beta1
         self.beta2 = beta2
         self.discriminator_loss = NowcastingLoss()
-        self.grid_regularizer = GridCellLoss()
+        self.grid_regularizer = GridCellLoss(
+            weight_fn=weight_fn, 
+            precip_weight_cap=precip_weight_cap
+        )
         self.grid_lambda = grid_lambda
         self.num_samples = num_samples
         self.visualize = visualize
@@ -159,7 +177,10 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             checkpoint(self.forward, images, use_reentrant=False)
             for _ in range(self.generation_steps)
         ]
-        grid_cell_reg = grid_cell_regularizer(torch.stack(predictions, dim=0), future_images)
+
+        gen_mean = torch.stack(predictions, dim=0).mean(dim=0)
+        grid_cell_reg = self.grid_regularizer(gen_mean, future_images)
+
         # Concat along time dimension
         generated_sequence = [torch.cat([images, x], dim=1) for x in predictions]
         real_sequence = torch.cat([images, future_images], dim=1)
@@ -230,7 +251,10 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         # Optimize Generator #
         ######################
         predictions = [self(images) for _ in range(self.generation_steps)]
-        grid_cell_reg = grid_cell_regularizer(torch.stack(predictions, dim=0), future_images)
+
+        gen_mean = torch.stack(predictions, dim=0).mean(dim=0)
+        grid_cell_reg = self.grid_regularizer(gen_mean, future_images)
+
         # Concat along time dimension
         generated_sequence = [torch.cat([images, x], dim=1) for x in predictions]
         real_sequence = torch.cat([images, future_images], dim=1)

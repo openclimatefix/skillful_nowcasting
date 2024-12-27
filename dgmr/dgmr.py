@@ -14,6 +14,7 @@ from dgmr.losses import (
     loss_hinge_gen,
 )
 
+
 def weight_fn(y, precip_weight_cap=24.0):
     """
     Weight function for the grid cell loss.
@@ -98,8 +99,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         self.beta2 = beta2
         self.discriminator_loss = NowcastingLoss()
         self.grid_regularizer = GridCellLoss(
-            weight_fn=weight_fn, 
-            precip_weight_cap=precip_weight_cap
+            weight_fn=weight_fn, precip_weight_cap=precip_weight_cap
         )
         self.grid_lambda = grid_lambda
         self.num_samples = num_samples

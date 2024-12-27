@@ -18,7 +18,6 @@ from torch.utils.data import DataLoader
 from dgmr import DGMR
 
 
-
 def get_wandb_logger(trainer: Trainer) -> WandbLogger:
     if trainer.fast_dev_run:
         raise Exception(

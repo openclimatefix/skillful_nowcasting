@@ -1,8 +1,8 @@
 import pytorch_lightning as pl
 import torch
 import torchvision
-from torch.utils.checkpoint import checkpoint
 from huggingface_hub import PyTorchModelHubMixin
+from torch.utils.checkpoint import checkpoint
 
 from dgmr.common import ContextConditioningStack, LatentConditioningStack
 from dgmr.discriminators import Discriminator

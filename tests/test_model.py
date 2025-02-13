@@ -354,6 +354,7 @@ def test_model_serialization(tmp_path):
         latent_channels=512,
         context_channels=256,
         generation_steps=1,
+        precip_weight_cap=12,
     )
 
     model.save_pretrained(tmp_path / "dgmr")

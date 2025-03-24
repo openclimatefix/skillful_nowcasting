@@ -1,4 +1,5 @@
-""" Test loss functions"""
+"""Test loss functions"""
+
 from dgmr.losses import SSIMLoss, MS_SSIMLoss, SSIMLossDynamic, tv_loss
 import torch
 

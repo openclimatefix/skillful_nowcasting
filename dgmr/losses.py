@@ -1,3 +1,5 @@
+
+"""Module for various loss functions."""
 import numpy as np
 import torch
 import torch.nn as nn
@@ -8,7 +10,7 @@ from torch.nn import functional as F
 class SSIMLoss(nn.Module):
     def __init__(self, convert_range: bool = False, **kwargs):
         """
-        SSIM Loss, optionally converting input range from [-1,1] to [0,1]
+        SSIM Loss, optionally converting input range from [-1,1] to [0,1].
 
         Args:
             convert_range:
@@ -28,7 +30,7 @@ class SSIMLoss(nn.Module):
 class MS_SSIMLoss(nn.Module):
     def __init__(self, convert_range: bool = False, **kwargs):
         """
-        Multi-Scale SSIM Loss, optionally converting input range from [-1,1] to [0,1]
+        Multi-Scale SSIM Loss, optionally converting input range from [-1,1] to [0,1].
 
         Args:
             convert_range:
@@ -48,7 +50,7 @@ class MS_SSIMLoss(nn.Module):
 class SSIMLossDynamic(nn.Module):
     def __init__(self, convert_range: bool = False, **kwargs):
         """
-        SSIM Loss on only dynamic part of the images, optionally converting input range from [-1,1] to [0,1]
+        SSIM Loss on only dynamic part of the images, optionally converting input range from [-1,1] to [0,1].
 
         In Mathieu et al. to stop SSIM regressing towards the mean and predicting only the background, they only
         run SSIM on the dynamic parts of the image. We can accomplish that by subtracting the current image from the future ones
@@ -75,7 +77,7 @@ class SSIMLossDynamic(nn.Module):
 
 def tv_loss(img, tv_weight):
     """
-    Taken from https://github.com/chongyangma/cs231n/blob/master/assignments/assignment3/style_transfer_pytorch.py
+    Taken from https://github.com/chongyangma/cs231n/blob/master/assignments/assignment3/style_transfer_pytorch.py.
     Compute total variation loss.
     Inputs:
     - img: PyTorch Variable of shape (1, 3, H, W) holding an input image.
@@ -129,7 +131,7 @@ class GradientDifferenceLoss(nn.Module):
 
 class GridCellLoss(nn.Module):
     """
-    Grid Cell Regularizer loss from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
+    Grid Cell Regularizer loss from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
 
     """
 
@@ -146,6 +148,8 @@ class GridCellLoss(nn.Module):
 
     def forward(self, generated_images, targets):
         """
+        Forward function.
+        
         Calculates the grid cell regularizer value, assumes generated images are the mean predictions from
         6 calls to the generater (Monte Carlo estimation of the expectations for the latent variable)
 
@@ -165,10 +169,13 @@ class GridCellLoss(nn.Module):
 
 
 class NowcastingLoss(nn.Module):
+    """Nowcast Loss class."""
+    
     def __init__(self):
         super().__init__()
 
     def forward(self, x, real_flag):
+         """Apply the relu function to the input tensor."""
         if real_flag is True:
             x = -x
         return F.relu(1.0 + x).mean()
@@ -176,6 +183,8 @@ class NowcastingLoss(nn.Module):
 
 class FocalLoss(nn.Module):
     """
+    Focal loss class.
+    
     copy from: https://github.com/Hsuxu/Loss_ToolBox-PyTorch/blob/master/FocalLoss/FocalLoss.py
     This is a implementation of Focal Loss with smooth label cross entropy supported which is proposed in
     'Focal Loss for Dense Object Detection. (https://arxiv.org/abs/1708.02002)'
@@ -193,11 +202,12 @@ class FocalLoss(nn.Module):
         self,
         apply_nonlin=None,
         alpha=None,
-        gamma=2,
-        balance_index=0,
-        smooth=1e-5,
-        size_average=True,
+        gamma: int =2,
+        balance_index : int =0,
+        smooth : float =1e-5,
+        size_average : bool =True,
     ):
+        """Initialize Focal lost."""
         super(FocalLoss, self).__init__()
         self.apply_nonlin = apply_nonlin
         self.alpha = alpha
@@ -211,6 +221,7 @@ class FocalLoss(nn.Module):
                 raise ValueError("smooth value should be in [0,1]")
 
     def forward(self, logit, target):
+        """Forward function."""
         if self.apply_nonlin is not None:
             logit = self.apply_nonlin(logit)
         num_class = logit.shape[1]
@@ -277,7 +288,7 @@ def loss_hinge_disc(score_generated, score_real):
 
 
 def loss_hinge_gen(score_generated):
-    """Generator hinge loss."""
+    """Generate hinge loss."""
     loss = -torch.mean(score_generated)
     return loss
 
@@ -300,6 +311,7 @@ def grid_cell_regularizer(generated_samples, batch_targets):
 
 
 def get_loss(loss: str = "mse", **kwargs) -> torch.nn.Module:
+    """Return a loss type based on the passed in string."""
     if isinstance(loss, torch.nn.Module):
         return loss
     assert loss in [

@@ -13,7 +13,7 @@ from dgmr.layers.utils import get_conv_layer
 
 
 class GBlock(torch.nn.Module):
-    """Residual generator block without upsampling"""
+    """Residual generator block without upsampling."""
 
     def __init__(
         self,
@@ -23,7 +23,8 @@ class GBlock(torch.nn.Module):
         spectral_normalized_eps=0.0001,
     ):
         """
-        G Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
+        G Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
+        
         Args:
             input_channels: Number of input channels
             output_channels: Number of output channels
@@ -80,7 +81,7 @@ class GBlock(torch.nn.Module):
 
 
 class UpsampleGBlock(torch.nn.Module):
-    """Residual generator block with upsampling"""
+    """Residual generator block with upsampling."""
 
     def __init__(
         self,
@@ -90,7 +91,8 @@ class UpsampleGBlock(torch.nn.Module):
         spectral_normalized_eps=0.0001,
     ):
         """
-        G Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
+        G Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
+        
         Args:
             input_channels: Number of input channels
             output_channels: Number of output channels
@@ -148,6 +150,8 @@ class UpsampleGBlock(torch.nn.Module):
 
 
 class DBlock(torch.nn.Module):
+    """D block class."""
+    
     def __init__(
         self,
         input_channels: int = 12,
@@ -157,7 +161,8 @@ class DBlock(torch.nn.Module):
         keep_same_output: bool = False,
     ):
         """
-        D and 3D Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
+        D and 3D Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
+        
         Args:
             input_channels: Number of input channels
             output_channels: Number of output channels
@@ -236,6 +241,8 @@ class LBlock(torch.nn.Module):
         conv_type: str = "standard",
     ):
         """
+        Initialize the L-block.
+        
         L-Block for increasing the number of channels in the input
          from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
         Args:
@@ -294,7 +301,7 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         **kwargs
     ):
         """
-        Conditioning Stack using the context images from Skillful Nowcasting, , see https://arxiv.org/pdf/2104.00954.pdf
+        Conditioning Stack using the context images from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
 
         Args:
             input_channels: Number of input channels per timestep
@@ -405,6 +412,7 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         return scale_1, scale_2, scale_3, scale_4
 
     def _mixing_layer(self, inputs, conv_block):
+        """Combine the inputs and then passed into the convolution stack."""
         # Convert from [batch_size, time, h, w, c] -> [batch_size, h, w, c * time]
         # then perform convolution on the output while preserving number of c.
         stacked_inputs = einops.rearrange(inputs, "b t c h w -> b (c t) h w")
@@ -412,6 +420,8 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
 
 
 class LatentConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
+    """Latent conditioning stack class."""
+    
     def __init__(
         self,
         shape: (int, int, int) = (8, 8, 8),
@@ -420,7 +430,7 @@ class LatentConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         **kwargs
     ):
         """
-        Latent conditioning stack from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
+        Latent conditioning stack from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
 
         Args:
             shape: Shape of the latent space, Should be (H/32,W/32,x) of the final image shape

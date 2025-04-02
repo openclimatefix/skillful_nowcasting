@@ -1,5 +1,5 @@
 """
-Originally Taken from https://github.com/rwightman/
+Originally Taken from https://github.com/rwightman/.
 
 https://github.com/rwightman/pytorch-image-models/
 blob/acd6c687fd1c0507128f0ce091829b233c8560b9/timm/models/hub.py
@@ -68,13 +68,11 @@ _logger = logging.getLogger(__name__)
 
 
 class NowcastingModelHubMixin(ModelHubMixin):
-    """
-    HuggingFace ModelHubMixin containing specific adaptions for Nowcasting models
-    """
+    """HuggingFace ModelHubMixin containing specific adaptions for Nowcasting models."""
 
     def __init__(self, *args, **kwargs):
         """
-        Mixin for pl.LightningModule and Hugging Face
+        Mixin for pl.LightningModule and Hugging Face.
 
         Mix this class with your pl.LightningModule class to easily push / download
         the model via the Hugging Face Hub
@@ -98,17 +96,20 @@ class NowcastingModelHubMixin(ModelHubMixin):
         """
 
     def _create_model_card(self, path):
+        """Create a card od the model as a markdown file in the provided string path."""
         model_card = MODEL_CARD_MARKDOWN.format(model_name=type(self).__name__)
         with open(os.path.join(path, "README.md"), "w") as f:
             f.write(model_card)
 
     def _save_config(self, module, save_directory):
+        """Save the configurations to the specified directory."""
         config = dict(module.hparams)
         path = os.path.join(save_directory, CONFIG_NAME)
         with open(path, "w") as f:
             json.dump(config, f)
 
     def _save_pretrained(self, save_directory: str, save_config: bool = True):
+        """Save the model weights, configurations and card."""
         # Save model weights
         path = os.path.join(save_directory, PYTORCH_WEIGHTS_NAME)
         model_to_save = self.module if hasattr(self, "module") else self
@@ -134,6 +135,7 @@ class NowcastingModelHubMixin(ModelHubMixin):
         strict=False,
         **model_kwargs,
     ):
+        """Load the model using the configurations."""
         map_location = torch.device(map_location)
 
         if os.path.isdir(model_id):

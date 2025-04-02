@@ -1,3 +1,4 @@
+"Discriminators."
 import torch
 import torch.nn.functional as F
 from huggingface_hub import PyTorchModelHubMixin
@@ -8,6 +9,7 @@ from dgmr.common import DBlock
 
 
 class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
+    """Discriminators class."""
     def __init__(
         self,
         input_channels: int = 12,
@@ -15,6 +17,10 @@ class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
         conv_type: str = "standard",
         **kwargs
     ):
+        """Initialize the discriminator.
+        
+           Args:
+               input_channels: number of input channels (int)"""
         super().__init__()
         config = locals()
         config.pop("__class__")

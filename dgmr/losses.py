@@ -8,6 +8,8 @@ from torch.nn import functional as F
 
 
 class SSIMLoss(nn.Module):
+    """SSIM loss class."""
+    
     def __init__(self, convert_range: bool = False, **kwargs):
         """
         SSIM Loss, optionally converting input range from [-1,1] to [0,1].
@@ -21,6 +23,7 @@ class SSIMLoss(nn.Module):
         self.ssim_module = SSIM(**kwargs)
 
     def forward(self, x: torch.Tensor, y: torch.Tensor):
+        """Compute the scale structural similarity between two tensors."""
         if self.convert_range:
             x = torch.div(torch.add(x, 1), 2)
             y = torch.div(torch.add(y, 1), 2)
@@ -28,6 +31,8 @@ class SSIMLoss(nn.Module):
 
 
 class MS_SSIMLoss(nn.Module):
+    """Multi-Scale SSIM loss class."""
+    
     def __init__(self, convert_range: bool = False, **kwargs):
         """
         Multi-Scale SSIM Loss, optionally converting input range from [-1,1] to [0,1].
@@ -41,6 +46,7 @@ class MS_SSIMLoss(nn.Module):
         self.ssim_module = MS_SSIM(**kwargs)
 
     def forward(self, x: torch.Tensor, y: torch.Tensor):
+        """Compute the multi scale structural similarity between two tensors."""
         if self.convert_range:
             x = torch.div(torch.add(x, 1), 2)
             y = torch.div(torch.add(y, 1), 2)
@@ -48,6 +54,8 @@ class MS_SSIMLoss(nn.Module):
 
 
 class SSIMLossDynamic(nn.Module):
+    """SSIM loss dynamic class."""
+    
     def __init__(self, convert_range: bool = False, **kwargs):
         """
         SSIM Loss on only dynamic part of the images, optionally converting input range from [-1,1] to [0,1].
@@ -64,6 +72,7 @@ class SSIMLossDynamic(nn.Module):
         self.ssim_module = MS_SSIM(**kwargs)
 
     def forward(self, curr_image: torch.Tensor, x: torch.Tensor, y: torch.Tensor):
+        """Compute Structural Similarity (SSIM) loss from dynamic parts of the image."""
         if self.convert_range:
             curr_image = torch.div(torch.add(curr_image, 1), 2)
             x = torch.div(torch.add(x, 1), 2)
@@ -78,7 +87,9 @@ class SSIMLossDynamic(nn.Module):
 def tv_loss(img, tv_weight):
     """
     Taken from https://github.com/chongyangma/cs231n/blob/master/assignments/assignment3/style_transfer_pytorch.py.
+    
     Compute total variation loss.
+    
     Inputs:
     - img: PyTorch Variable of shape (1, 3, H, W) holding an input image.
     - tv_weight: Scalar giving the weight w_t to use for the TV loss.
@@ -94,22 +105,33 @@ def tv_loss(img, tv_weight):
 
 
 class TotalVariationLoss(nn.Module):
+    """Total variation loss class."""
+    
     def __init__(self, tv_weight: float = 1.0):
+        """
+        Initialize the tv weight.
+           
+        Args:
+            tv_weight: total variation weight (float)
+        """
         super(TotalVariationLoss, self).__init__()
         self.tv_weight = tv_weight
 
     def forward(self, x: torch.Tensor):
+        """Compute the total variation loss."""
         return tv_loss(x, self.tv_weight)
 
 
 class GradientDifferenceLoss(nn.Module):
-    """"""
+    """GradientDifferenceLoss class."""
 
     def __init__(self, alpha: int = 2):
+        """Initialize the gradient difference loss class."""
         super(GradientDifferenceLoss, self).__init__()
         self.alpha = alpha
 
     def forward(self, x: torch.Tensor, y: torch.Tensor):
+        """Compute the gradient loss difference between two tensors."""
         t1 = torch.pow(
             torch.abs(
                 torch.abs(x[:, :, :, 1:, :] - x[:, :, :, :-1, :])
@@ -130,10 +152,7 @@ class GradientDifferenceLoss(nn.Module):
 
 
 class GridCellLoss(nn.Module):
-    """
-    Grid Cell Regularizer loss from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
-
-    """
+    """Grid Cell Regularizer loss from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf."""
 
     def __init__(self, weight_fn=None, precip_weight_cap=24.0):
         """
@@ -172,10 +191,11 @@ class NowcastingLoss(nn.Module):
     """Nowcast Loss class."""
     
     def __init__(self):
+        """Initialize function."""
         super().__init__()
 
     def forward(self, x, real_flag):
-         """Apply the relu function to the input tensor."""
+        """Apply the relu function to the input tensor."""
         if real_flag is True:
             x = -x
         return F.relu(1.0 + x).mean()

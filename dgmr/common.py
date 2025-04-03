@@ -30,6 +30,7 @@ class GBlock(torch.nn.Module):
             input_channels: Number of input channels
             output_channels: Number of output channels
             conv_type: Type of convolution desired, see satflow/models/utils.py for options
+            spectral_normalized_eps: 
         """
         super().__init__()
         self.output_channels = output_channels
@@ -64,6 +65,7 @@ class GBlock(torch.nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply the forward function."""
         # Optionally spectrally normalized 1x1 convolution
         if x.shape[1] != self.output_channels:
             sc = self.conv_1x1(x)
@@ -133,7 +135,8 @@ class UpsampleGBlock(torch.nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Spectrally normalized 1x1 convolution
+        """Apply the forward function."""
+        # Spectrally nsormalized 1x1 convolution
         sc = self.upsample(x)
         sc = self.conv_1x1(sc)
 
@@ -212,6 +215,7 @@ class DBlock(torch.nn.Module):
         # Concatenate to double final channels and keep reduced spatial extent
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply the D residual block."""
         if self.input_channels != self.output_channels:
             x1 = self.conv_1x1(x)
             if not self.keep_same_output:
@@ -279,6 +283,7 @@ class LBlock(torch.nn.Module):
         )
 
     def forward(self, x) -> torch.Tensor:
+        """Apply the L residual block to this tensor."""
         if self.input_channels < self.output_channels:
             sc = self.conv_1x1(x)
             sc = torch.cat([x, sc], dim=1)

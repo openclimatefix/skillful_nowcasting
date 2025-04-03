@@ -1,3 +1,4 @@
+"""Modules for generator blocks."""
 from typing import Tuple
 
 import einops
@@ -292,6 +293,8 @@ class LBlock(torch.nn.Module):
 
 
 class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
+    """Context conditioning stack."""
+    
     def __init__(
         self,
         input_channels: int = 1,
@@ -384,6 +387,7 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
     def forward(
         self, x: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Generate the condition representation."""
         # Each timestep processed separately
         x = self.space2depth(x)
         steps = x.size(1)  # Number of timesteps
@@ -470,14 +474,15 @@ class LatentConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
+        Apply convolution, l blocks and spatial attention module to the tensor.
 
         Args:
             x: tensor on the correct device, to move over the latent distribution
 
         Returns:
+               tensor
 
         """
-
         # Independent draws from Norma ldistribution
         z = self.distribution.sample(self.shape)
         # Batch is at end for some reason, reshape

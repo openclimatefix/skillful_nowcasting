@@ -18,6 +18,8 @@ logger.setLevel(logging.WARN)
 
 
 class Sampler(torch.nn.Module, PyTorchModelHubMixin):
+    """Sampler class."""
+    
     def __init__(
         self,
         forecast_steps: int = 18,
@@ -33,8 +35,10 @@ class Sampler(torch.nn.Module, PyTorchModelHubMixin):
         creates one stack of ConvGRU layers per future timestep.
 
         Args:
-            forecast_steps: Number of forecast steps
-            latent_channels: Number of input channels to the lowest ConvGRU layer
+            forecast_steps: Number of forecast steps (int)
+            latent_channels: Number of input channels to the lowest ConvGRU layer (int)
+            context_channels: Number of context channels (int)
+            output_channels: Number of output channels (int)
         """
         super().__init__()
         config = locals()

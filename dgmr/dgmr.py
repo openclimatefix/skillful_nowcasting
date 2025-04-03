@@ -1,3 +1,5 @@
+"""dgmr model."""
+
 import pytorch_lightning as pl
 import torch
 import torchvision
@@ -18,6 +20,7 @@ from dgmr.losses import (
 def weight_fn(y, precip_weight_cap=24.0):
     """
     Weight function for the grid cell loss.
+    
     w(y) = max(y + 1, ceil)
 
     Args:
@@ -31,7 +34,7 @@ def weight_fn(y, precip_weight_cap=24.0):
 
 
 class DGMR(pl.LightningModule, NowcastingModelHubMixin):
-    """Deep Generative Model of Radar"""
+    """Deep Generative Model of Radar."""
 
     def __init__(
         self,
@@ -53,6 +56,8 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         **kwargs,
     ):
         """
+        Initialize the Deep Generative Model of Radar model.
+        
         Nowcasting GAN is an attempt to recreate DeepMind's Skillful Nowcasting GAN from https://arxiv.org/abs/2104.00954
         but slightly modified for multiple satellite channels
 
@@ -133,10 +138,12 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         torch.autograd.set_detect_anomaly(True)
 
     def forward(self, x):
+        """Apply the generator to the tensor."""
         x = self.generator(x)
         return x
 
     def training_step(self, batch, batch_idx):
+        """Perform the training step for the batch."""
         images, future_images = batch
         images = images.float()
         future_images = future_images.float()
@@ -219,6 +226,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             )
 
     def validation_step(self, batch, batch_idx):
+        """Perform the validation step for the batch."""
         images, future_images = batch
         images = images.float()
         future_images = future_images.float()
@@ -290,6 +298,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             )
 
     def configure_optimizers(self):
+        """Return the adam optimizers."""
         b1 = self.beta1
         b2 = self.beta2
 
@@ -301,6 +310,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
     def visualize_step(
         self, x: torch.Tensor, y: torch.Tensor, y_hat: torch.Tensor, batch_idx: int, step: str
     ) -> None:
+        """Visualize the logging details of the step as a image in tensorboard."""
         # the logger you used (in this case tensorboard)
         tensorboard = self.logger.experiment[0]
         # Timesteps per channel

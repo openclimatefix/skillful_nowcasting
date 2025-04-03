@@ -1,4 +1,3 @@
-
 """Attention module."""
 import einops
 import torch
@@ -23,7 +22,9 @@ def attention_einsum(q, k, v):
 class AttentionLayer(torch.nn.Module):
     """Attention layer class."""
 
-    def __init__(self, input_channels: int, output_channels: int, ratio_kq : int =8, ratio_v : int =8):
+    def __init__(
+        self, input_channels: int, output_channels: int, ratio_kq: int = 8, ratio_v: int = 8
+    ):
         """Initialize the attention layer."""
         super(AttentionLayer, self).__init__()
 

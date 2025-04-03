@@ -20,12 +20,12 @@ from dgmr.losses import (
 def weight_fn(y, precip_weight_cap=24.0):
     """
     Weight function for the grid cell loss.
-    
+
     w(y) = max(y + 1, ceil)
 
     Args:
         y: Tensor of rainfall intensities.
-        ceil: Custom ceiling for the weight function.
+        precip_weight_cap: Custom ceiling for the weight function.
 
     Returns:
         Weights for each grid cell.
@@ -57,28 +57,33 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
     ):
         """
         Initialize the Deep Generative Model of Radar model.
-        
+
         Nowcasting GAN is an attempt to recreate DeepMind's Skillful Nowcasting GAN from https://arxiv.org/abs/2104.00954
-        but slightly modified for multiple satellite channels
+        but slightly modified for multiple satellite channels.
 
         Args:
-            forecast_steps: Number of steps to predict in the future
-            input_channels: Number of input channels per image
-            visualize: Whether to visualize output during training
-            gen_lr: Learning rate for the generator
-            disc_lr: Learning rate for the discriminators, shared for both temporal and spatial discriminator
-            conv_type: Type of 2d convolution to use, see satflow/models/utils.py for options
-            beta1: Beta1 for Adam optimizer
-            beta2: Beta2 for Adam optimizer
-            num_samples: Number of samples of the latent space to sample for training/validation
-            grid_lambda: Lambda for the grid regularization loss
-            output_shape: Shape of the output predictions, generally should be same as the input shape
-            generation_steps: Number of generation steps to use in forward pass, in paper is 6 and the best is chosen for the loss
-                this results in huge amounts of GPU memory though, so less might work better for training.
-            latent_channels: Number of channels that the latent space should be reshaped to,
-                input dimension into ConvGRU, also affects the number of channels for other linked inputs/outputs
-            pretrained:
-            precip_weight_cap: Custom ceiling for the weight function to compute the grid cell loss
+            forecast_steps: Number of steps to predict in the future.
+            input_channels: Number of input channels per image.
+            visualize: Whether to visualize output during training.
+            gen_lr: Learning rate for the generator.
+            disc_lr: Learning rate for the discriminators, shared for both temporal and spatial
+            discriminator.
+            conv_type: Type of 2d convolution to use, see satflow/models/utils.py for options.
+            beta1: Beta1 for Adam optimizer.
+            beta2: Beta2 for Adam optimizer.
+            num_samples: Number of samples of the latent space to sample for training/validation.
+            grid_lambda: Lambda for the grid regularization loss.
+            output_shape: Shape of the output predictions, generally should be same as the
+            input shape.
+            context_channels: Number of context channels (int)
+            generation_steps: Number of generation steps to use in forward pass, in paper is 6
+            and the best is chosen for the loss this results in huge amounts of GPU memory though,
+            so less might work better for training.
+            latent_channels: Number of channels that the latent space should be reshaped to, input
+            dimension into ConvGRU, also affects the number of channels for other linked
+            inputs/outputs.
+            precip_weight_cap: Custom ceiling for the weight function to compute the grid cell loss.
+            **kwargs: Allow initialize of the parameters above through key pairs
         """
         super().__init__()
         config = locals()

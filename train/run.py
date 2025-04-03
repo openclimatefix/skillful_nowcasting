@@ -1,6 +1,7 @@
 """Train the model on the dataset."""
 
 from pathlib import Path
+
 import numpy as np
 import torch.utils.data.dataset
 import wandb
@@ -23,7 +24,8 @@ def get_wandb_logger(trainer: Trainer) -> WandbLogger:
     """Return the wandb logger from the trainer."""
     if trainer.fast_dev_run:
         raise Exception(
-            "Cannot use wandb callbacks since pytorch lightning disables loggers in `fast_dev_run=true` mode."
+            "Cannot use wandb callbacks since pytorch lightning \
+            disables loggers in `fast_dev_run=true` mode."
         )
 
     if isinstance(trainer.logger, WandbLogger):
@@ -36,7 +38,7 @@ def get_wandb_logger(trainer: Trainer) -> WandbLogger:
 
 class WatchModel(Callback):
     """Class for the watch model."""
-    
+
     def __init__(self, log: str = "gradients", log_freq: int = 100):
         """Initialize the log frequency and log name."""
         self.log = log
@@ -51,7 +53,7 @@ class WatchModel(Callback):
 
 class UploadCheckpointsAsArtifact(Callback):
     """class for logging the checkpoint as artifacts."""
-    
+
     def __init__(self, ckpt_dir: str = "checkpoints/", upload_best_only: bool = False):
         """Initialize the checkpoint directory."""
         self.ckpt_dir = ckpt_dir

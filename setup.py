@@ -1,4 +1,3 @@
-
 """Package setup for the dgmr module."""
 from pathlib import Path
 

@@ -1,4 +1,3 @@
-
 """Module for various loss functions."""
 import numpy as np
 import torch
@@ -9,14 +8,14 @@ from torch.nn import functional as F
 
 class SSIMLoss(nn.Module):
     """SSIM loss class."""
-    
+
     def __init__(self, convert_range: bool = False, **kwargs):
         """
         SSIM Loss, optionally converting input range from [-1,1] to [0,1].
 
         Args:
-            convert_range:
-            **kwargs:
+            convert_range: decides whether to normalize the input range
+            **kwargs: configurations values for the MS_SSIM instance.
         """
         super(SSIMLoss, self).__init__()
         self.convert_range = convert_range
@@ -32,14 +31,14 @@ class SSIMLoss(nn.Module):
 
 class MS_SSIMLoss(nn.Module):
     """Multi-Scale SSIM loss class."""
-    
+
     def __init__(self, convert_range: bool = False, **kwargs):
         """
         Multi-Scale SSIM Loss, optionally converting input range from [-1,1] to [0,1].
 
         Args:
-            convert_range:
-            **kwargs:
+            convert_range: decides whether to normalize the input range
+            **kwargs: configurations values for the MS_SSIM instance.
         """
         super(MS_SSIMLoss, self).__init__()
         self.convert_range = convert_range
@@ -55,17 +54,21 @@ class MS_SSIMLoss(nn.Module):
 
 class SSIMLossDynamic(nn.Module):
     """SSIM loss dynamic class."""
-    
+
     def __init__(self, convert_range: bool = False, **kwargs):
         """
-        SSIM Loss on only dynamic part of the images, optionally converting input range from [-1,1] to [0,1].
+        SSIM loss dynamic initialize function.
 
-        In Mathieu et al. to stop SSIM regressing towards the mean and predicting only the background, they only
-        run SSIM on the dynamic parts of the image. We can accomplish that by subtracting the current image from the future ones
+        SSIM Loss on only dynamic part of the images, optionally converting input range
+        from [-1,1] to [0,1].
+
+        In Mathieu et al. to stop SSIM regressing towards the mean and predicting only the
+        background, they only run SSIM on the dynamic parts of the image. We can accomplish
+        that by subtracting the current image from the future ones.
 
         Args:
-            convert_range:
-            **kwargs:
+            convert_range: decides whether to normalize the input range
+            **kwargs: configurations values for the MS_SSIM instance.
         """
         super(SSIMLossDynamic, self).__init__()
         self.convert_range = convert_range
@@ -87,9 +90,9 @@ class SSIMLossDynamic(nn.Module):
 def tv_loss(img, tv_weight):
     """
     Taken from https://github.com/chongyangma/cs231n/blob/master/assignments/assignment3/style_transfer_pytorch.py.
-    
+
     Compute total variation loss.
-    
+
     Inputs:
     - img: PyTorch Variable of shape (1, 3, H, W) holding an input image.
     - tv_weight: Scalar giving the weight w_t to use for the TV loss.
@@ -106,11 +109,11 @@ def tv_loss(img, tv_weight):
 
 class TotalVariationLoss(nn.Module):
     """Total variation loss class."""
-    
+
     def __init__(self, tv_weight: float = 1.0):
         """
         Initialize the tv weight.
-           
+
         Args:
             tv_weight: total variation weight (float)
         """
@@ -160,7 +163,7 @@ class GridCellLoss(nn.Module):
 
         Args:
             weight_fn: A function to compute weights for the loss.
-            ceil: Custom ceiling value for the weight function.
+            precip_weight_cap: Custom ceiling value for the weight function.
         """
         super().__init__()
         self.weight_fn = lambda y: weight_fn(y, precip_weight_cap) if weight_fn else None
@@ -168,9 +171,10 @@ class GridCellLoss(nn.Module):
     def forward(self, generated_images, targets):
         """
         Forward function.
-        
-        Calculates the grid cell regularizer value, assumes generated images are the mean predictions from
-        6 calls to the generater (Monte Carlo estimation of the expectations for the latent variable)
+
+        Calculates the grid cell regularizer value, assumes generated images are the mean
+        predictions from 6 calls to the generater (Monte Carlo estimation of the
+        expectations for the latent variable)
 
         Args:
             generated_images: Mean generated images from the generator
@@ -189,7 +193,7 @@ class GridCellLoss(nn.Module):
 
 class NowcastingLoss(nn.Module):
     """Nowcast Loss class."""
-    
+
     def __init__(self):
         """Initialize function."""
         super().__init__()
@@ -204,28 +208,29 @@ class NowcastingLoss(nn.Module):
 class FocalLoss(nn.Module):
     """
     Focal loss class.
-    
+
     copy from: https://github.com/Hsuxu/Loss_ToolBox-PyTorch/blob/master/FocalLoss/FocalLoss.py
-    This is a implementation of Focal Loss with smooth label cross entropy supported which is proposed in
-    'Focal Loss for Dense Object Detection. (https://arxiv.org/abs/1708.02002)'
+    This is a implementation of Focal Loss with smooth label cross entropy supported
+    which is proposed in'Focal Loss for Dense Object Detection. (https://arxiv.org/abs/1708.02002)'
         Focal_Loss= -1*alpha*(1-pt)*log(pt)
     :param num_class:
     :param alpha: (tensor) 3D or 4D the scalar factor for this criterion
-    :param gamma: (float,double) gamma > 0 reduces the relative loss for well-classified examples (p>0.5) putting more
-                    focus on hard misclassified example
+    :param gamma: (float,double) gamma > 0 reduces the relative loss for well-classified examples
+    (p>0.5) putting more focus on hard misclassified example
     :param smooth: (float,double) smooth value when cross entropy
     :param balance_index: (int) balance class index, should be specific when alpha is float
-    :param size_average: (bool, optional) By default, the losses are averaged over each loss element in the batch.
+    :param size_average: (bool, optional) By default, the losses are
+    averaged over each loss element in the batch.
     """
 
     def __init__(
         self,
         apply_nonlin=None,
         alpha=None,
-        gamma: int =2,
-        balance_index : int =0,
-        smooth : float =1e-5,
-        size_average : bool =True,
+        gamma: int = 2,
+        balance_index: int = 0,
+        smooth: float = 1e-5,
+        size_average: bool = True,
     ):
         """Initialize Focal lost."""
         super(FocalLoss, self).__init__()

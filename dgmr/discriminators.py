@@ -10,7 +10,7 @@ from dgmr.common import DBlock
 
 class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
     """Discriminators class."""
-    
+
     def __init__(
         self,
         input_channels: int = 12,
@@ -20,11 +20,12 @@ class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
     ):
         """
         Initialize the discriminator.
-        
+
         Args:
             input_channels: Number of input channels (int)
             num_spatial_frames: Number of spatial frames (int)
             conv_type: the specified convolution type (str)
+            **kwargs: allow initialize of the parameters above through key pairs
         """
         super().__init__()
         config = locals()
@@ -52,7 +53,7 @@ class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
 
 class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
     """Temporal Discriminator class."""
-    
+
     def __init__(
         self, input_channels: int = 12, num_layers: int = 3, conv_type: str = "standard", **kwargs
     ):
@@ -64,6 +65,7 @@ class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
             crop_size: Size of the crop, in the paper half the width of the input images
             num_layers: Number of intermediate DBlock layers to use
             conv_type: Type of 2d convolutions to use, see satflow/models/utils.py for options
+            **kwargs: allow initialize of the parameters above through key pairs
         """
         super().__init__()
         config = locals()
@@ -149,7 +151,7 @@ class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
 
 class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
     """Spatial Discriminator class."""
-    
+
     def __init__(
         self,
         input_channels: int = 12,
@@ -166,6 +168,7 @@ class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
             num_timesteps: Number of timesteps to use, in the paper 8/18 timesteps were chosen
             num_layers: Number of intermediate DBlock layers to use
             conv_type: Type of 2d convolutions to use, see satflow/models/utils.py for options
+            **kwargs: allow initialize of the parameters above through key pairs
         """
         super().__init__()
         config = locals()

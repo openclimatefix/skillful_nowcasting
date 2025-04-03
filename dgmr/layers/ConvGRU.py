@@ -18,6 +18,8 @@ class ConvGRUCell(torch.nn.Module):
         """Conv GRU class.
 
         Args:
+          input_channels: number of input channels (int)
+          output_channels: number of output channels (int)
           kernel_size: kernel size of the convolutions. Default: 3.
           sn_eps: constant for spectral normalization. Default: 1e-4.
         """

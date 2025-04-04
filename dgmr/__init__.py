@@ -1,3 +1,4 @@
+"""Submodules of dgmr."""
 from .common import ContextConditioningStack, LatentConditioningStack
 from .dgmr import DGMR
 from .discriminators import Discriminator, SpatialDiscriminator, TemporalDiscriminator

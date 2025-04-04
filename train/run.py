@@ -1,3 +1,5 @@
+"""Train the model on the dataset."""
+
 from pathlib import Path
 
 import numpy as np
@@ -19,9 +21,11 @@ from dgmr import DGMR
 
 
 def get_wandb_logger(trainer: Trainer) -> WandbLogger:
+    """Return the wandb logger from the trainer."""
     if trainer.fast_dev_run:
         raise Exception(
-            "Cannot use wandb callbacks since pytorch lightning disables loggers in `fast_dev_run=true` mode."
+            "Cannot use wandb callbacks since pytorch lightning \
+            disables loggers in `fast_dev_run=true` mode."
         )
 
     if isinstance(trainer.logger, WandbLogger):
@@ -33,27 +37,36 @@ def get_wandb_logger(trainer: Trainer) -> WandbLogger:
 
 
 class WatchModel(Callback):
+    """Class for the watch model."""
+
     def __init__(self, log: str = "gradients", log_freq: int = 100):
+        """Initialize the log frequency and log name."""
         self.log = log
         self.log_freq = log_freq
 
     @rank_zero_only
     def on_train_start(self, trainer, pl_module):
+        """Initialize the logger at the start of training."""
         logger = get_wandb_logger(trainer=trainer)
         logger.watch(model=trainer.model, log=self.log, log_freq=self.log_freq, log_graph=True)
 
 
 class UploadCheckpointsAsArtifact(Callback):
+    """class for logging the checkpoint as artifacts."""
+
     def __init__(self, ckpt_dir: str = "checkpoints/", upload_best_only: bool = False):
+        """Initialize the checkpoint directory."""
         self.ckpt_dir = ckpt_dir
         self.upload_best_only = upload_best_only
 
     @rank_zero_only
     def on_keyboard_interrupt(self, trainer, pl_module):
+        """Run when the user interupts the training by pressing a key on the keyboard."""
         self.on_train_end(trainer, pl_module)
 
     @rank_zero_only
     def on_train_end(self, trainer, pl_module):
+        """Log information about the training of the module at the end of training."""
         logger = get_wandb_logger(trainer=trainer)
         experiment = logger.experiment
 
@@ -69,6 +82,7 @@ class UploadCheckpointsAsArtifact(Callback):
 
     @rank_zero_only
     def on_validation_epoch_end(self, trainer, pl_module):
+        """Log information about the validation of the model at the end of each validation epoch."""
         logger = get_wandb_logger(trainer=trainer)
         experiment = logger.experiment
 
@@ -84,6 +98,7 @@ class UploadCheckpointsAsArtifact(Callback):
 
     @rank_zero_only
     def on_train_epoch_end(self, trainer, pl_module):
+        """Log information about the training of the model at the end of each training epoch."""
         logger = get_wandb_logger(trainer=trainer)
         experiment = logger.experiment
 
@@ -111,7 +126,10 @@ def extract_input_and_target_frames(radar_frames):
 
 
 class TFDataset(torch.utils.data.dataset.Dataset):
+    """Class for representing a tensorflow dataset."""
+
     def __init__(self, split):
+        """Load the dataset and the its split type."""
         super().__init__()
         self.reader = load_dataset(
             "openclimatefix/nimrod-uk-1km",
@@ -123,9 +141,11 @@ class TFDataset(torch.utils.data.dataset.Dataset):
         self.iter_reader = self.reader
 
     def __len__(self):
+        """Return the size of the TF dataset."""
         return 1000
 
     def __getitem__(self, item):
+        """Return the next row of the loaded dataset."""
         try:
             row = next(self.iter_reader)
         except Exception:
@@ -143,6 +163,7 @@ class TFDataset(torch.utils.data.dataset.Dataset):
 class DGMRDataModule(LightningDataModule):
     """
     Example of LightningDataModule for NETCDF dataset.
+
     A DataModule implements 5 key methods:
         - prepare_data (things to do on 1 GPU/TPU, not on every GPU/TPU in distributed mode)
         - setup (things to do on every accelerator in distributed mode)
@@ -161,9 +182,7 @@ class DGMRDataModule(LightningDataModule):
         pin_memory: bool = True,
         batch_size: int = 16,
     ):
-        """
-        fake_data: random data is created and used instead. This is useful for testing
-        """
+        """fake_data: random data is created and used instead. This is useful for testing."""
         super().__init__()
 
         self.num_workers = num_workers
@@ -181,12 +200,14 @@ class DGMRDataModule(LightningDataModule):
         )
 
     def train_dataloader(self):
+        """Load the training dataset."""
         dataloader = DataLoader(
             TFDataset(split="train"), batch_size=self.batch_size, num_workers=self.num_workers
         )
         return dataloader
 
     def val_dataloader(self):
+        """Load the validation dataset."""
         train_dataset = TFDataset(
             split="validation",
         )

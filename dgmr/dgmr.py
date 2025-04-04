@@ -1,3 +1,5 @@
+"""dgmr model."""
+
 import pytorch_lightning as pl
 import torch
 import torchvision
@@ -18,11 +20,12 @@ from dgmr.losses import (
 def weight_fn(y, precip_weight_cap=24.0):
     """
     Weight function for the grid cell loss.
+
     w(y) = max(y + 1, ceil)
 
     Args:
         y: Tensor of rainfall intensities.
-        ceil: Custom ceiling for the weight function.
+        precip_weight_cap: Custom ceiling for the weight function.
 
     Returns:
         Weights for each grid cell.
@@ -31,7 +34,7 @@ def weight_fn(y, precip_weight_cap=24.0):
 
 
 class DGMR(pl.LightningModule, NowcastingModelHubMixin):
-    """Deep Generative Model of Radar"""
+    """Deep Generative Model of Radar."""
 
     def __init__(
         self,
@@ -53,27 +56,34 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         **kwargs,
     ):
         """
+        Initialize the Deep Generative Model of Radar model.
+
         Nowcasting GAN is an attempt to recreate DeepMind's Skillful Nowcasting GAN from https://arxiv.org/abs/2104.00954
-        but slightly modified for multiple satellite channels
+        but slightly modified for multiple satellite channels.
 
         Args:
-            forecast_steps: Number of steps to predict in the future
-            input_channels: Number of input channels per image
-            visualize: Whether to visualize output during training
-            gen_lr: Learning rate for the generator
-            disc_lr: Learning rate for the discriminators, shared for both temporal and spatial discriminator
-            conv_type: Type of 2d convolution to use, see satflow/models/utils.py for options
-            beta1: Beta1 for Adam optimizer
-            beta2: Beta2 for Adam optimizer
-            num_samples: Number of samples of the latent space to sample for training/validation
-            grid_lambda: Lambda for the grid regularization loss
-            output_shape: Shape of the output predictions, generally should be same as the input shape
-            generation_steps: Number of generation steps to use in forward pass, in paper is 6 and the best is chosen for the loss
-                this results in huge amounts of GPU memory though, so less might work better for training.
-            latent_channels: Number of channels that the latent space should be reshaped to,
-                input dimension into ConvGRU, also affects the number of channels for other linked inputs/outputs
-            pretrained:
-            precip_weight_cap: Custom ceiling for the weight function to compute the grid cell loss
+            forecast_steps: Number of steps to predict in the future.
+            input_channels: Number of input channels per image.
+            visualize: Whether to visualize output during training.
+            gen_lr: Learning rate for the generator.
+            disc_lr: Learning rate for the discriminators, shared for both temporal and spatial
+            discriminator.
+            conv_type: Type of 2d convolution to use, see satflow/models/utils.py for options.
+            beta1: Beta1 for Adam optimizer.
+            beta2: Beta2 for Adam optimizer.
+            num_samples: Number of samples of the latent space to sample for training/validation.
+            grid_lambda: Lambda for the grid regularization loss.
+            output_shape: Shape of the output predictions, generally should be same as the
+            input shape.
+            context_channels: Number of context channels (int)
+            generation_steps: Number of generation steps to use in forward pass, in paper is 6
+            and the best is chosen for the loss this results in huge amounts of GPU memory though,
+            so less might work better for training.
+            latent_channels: Number of channels that the latent space should be reshaped to, input
+            dimension into ConvGRU, also affects the number of channels for other linked
+            inputs/outputs.
+            precip_weight_cap: Custom ceiling for the weight function to compute the grid cell loss.
+            **kwargs: Allow initialize of the parameters above through key pairs
         """
         super().__init__()
         config = locals()
@@ -133,10 +143,12 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         torch.autograd.set_detect_anomaly(True)
 
     def forward(self, x):
+        """Apply the generator to the tensor."""
         x = self.generator(x)
         return x
 
     def training_step(self, batch, batch_idx):
+        """Perform the training step for the batch."""
         images, future_images = batch
         images = images.float()
         future_images = future_images.float()
@@ -219,6 +231,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             )
 
     def validation_step(self, batch, batch_idx):
+        """Perform the validation step for the batch."""
         images, future_images = batch
         images = images.float()
         future_images = future_images.float()
@@ -290,6 +303,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             )
 
     def configure_optimizers(self):
+        """Return the adam optimizers."""
         b1 = self.beta1
         b2 = self.beta2
 
@@ -301,6 +315,7 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
     def visualize_step(
         self, x: torch.Tensor, y: torch.Tensor, y_hat: torch.Tensor, batch_idx: int, step: str
     ) -> None:
+        """Visualize the logging details of the step as a image in tensorboard."""
         # the logger you used (in this case tensorboard)
         tensorboard = self.logger.experiment[0]
         # Timesteps per channel

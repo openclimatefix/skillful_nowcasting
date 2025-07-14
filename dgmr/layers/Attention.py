@@ -1,4 +1,5 @@
 """Attention module."""
+
 import einops
 import torch
 import torch.nn as nn

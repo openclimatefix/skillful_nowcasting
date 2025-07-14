@@ -1,4 +1,5 @@
 """Modules for generator blocks."""
+
 from typing import Tuple
 
 import einops

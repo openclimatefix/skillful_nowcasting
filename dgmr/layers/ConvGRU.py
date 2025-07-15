@@ -1,3 +1,5 @@
+"""Implementation of Conv GRU and cell module."""
+
 import torch
 import torch.nn.functional as F
 from torch.nn.utils.parametrizations import spectral_norm
@@ -6,16 +8,24 @@ from torch.nn.utils.parametrizations import spectral_norm
 class ConvGRUCell(torch.nn.Module):
     """A ConvGRU implementation."""
 
-    def __init__(self, input_channels: int, output_channels: int, kernel_size=3, sn_eps=0.0001):
-        """Constructor.
+    def __init__(
+        self,
+        input_channels: int,
+        output_channels: int,
+        kernel_size: int = 3,
+        sn_eps: float = 0.0001,
+    ):
+        """Conv GRU class.
 
         Args:
+          input_channels: number of input channels (int)
+          output_channels: number of output channels (int)
           kernel_size: kernel size of the convolutions. Default: 3.
           sn_eps: constant for spectral normalization. Default: 1e-4.
         """
         super().__init__()
-        self._kernel_size = kernel_size
-        self._sn_eps = sn_eps
+        self._kernel_size: int = kernel_size
+        self._sn_eps: float = sn_eps
         self.read_gate_conv = spectral_norm(
             torch.nn.Conv2d(
                 in_channels=input_channels,
@@ -46,7 +56,7 @@ class ConvGRUCell(torch.nn.Module):
 
     def forward(self, x, prev_state):
         """
-        ConvGRU forward, returning the current+new state
+        Conv GRU forward, returning the current+new state.
 
         Args:
             x: Input tensor
@@ -76,7 +86,7 @@ class ConvGRUCell(torch.nn.Module):
 
 
 class ConvGRU(torch.nn.Module):
-    """ConvGRU Cell wrapper to replace tf.static_rnn in TF implementation"""
+    """ConvGRU Cell wrapper to replace tf.static_rnn in TF implementation."""
 
     def __init__(
         self,
@@ -85,10 +95,12 @@ class ConvGRU(torch.nn.Module):
         kernel_size: int = 3,
         sn_eps=0.0001,
     ):
+        """Initialize the convolution layer."""
         super().__init__()
         self.cell = ConvGRUCell(input_channels, output_channels, kernel_size, sn_eps)
 
     def forward(self, x: torch.Tensor, hidden_state=None) -> torch.Tensor:
+        """Apply the forward function on each cell prior to returning it as a stack."""
         outputs = []
         for step in range(len(x)):
             # Compute current timestep

@@ -1,3 +1,4 @@
+"""Discriminators."""
 import torch
 import torch.nn.functional as F
 from huggingface_hub import PyTorchModelHubMixin
@@ -8,12 +9,23 @@ from dgmr.common import DBlock
 
 
 class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
+    """Discriminators class."""
+
     def __init__(
         self,
         input_channels: int = 12,
         num_spatial_frames: int = 8,
         conv_type: str = "standard",
     ):
+        """
+        Initialize the discriminator.
+
+        Args:
+            input_channels: Number of input channels (int)
+            num_spatial_frames: Number of spatial frames (int)
+            conv_type: the specified convolution type (str)
+            **kwargs: allow initialize of the parameters above through key pairs
+        """
         super().__init__()
 
         self.spatial_discriminator = SpatialDiscriminator(
@@ -24,6 +36,7 @@ class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Mixes the spatial loss and temporal loss of the tensor prior to returning it."""
         spatial_loss = self.spatial_discriminator(x)
         temporal_loss = self.temporal_discriminator(x)
 
@@ -31,6 +44,8 @@ class Discriminator(torch.nn.Module, PyTorchModelHubMixin):
 
 
 class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
+    """Temporal Discriminator class."""
+
     def __init__(
         self,
         input_channels: int = 12,
@@ -38,13 +53,14 @@ class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
         conv_type: str = "standard",
     ):
         """
-        Temporal Discriminator from the Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
+        Temporal Discriminator from the Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
 
         Args:
             input_channels: Number of channels per timestep
             crop_size: Size of the crop, in the paper half the width of the input images
             num_layers: Number of intermediate DBlock layers to use
             conv_type: Type of 2d convolutions to use, see satflow/models/utils.py for options
+            **kwargs: allow initialize of the parameters above through key pairs
         """
         super().__init__()
 
@@ -85,6 +101,7 @@ class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
         self.bn = torch.nn.BatchNorm1d(2 * internal_chn * input_channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply the forward function."""
         x = self.downsample(x)
 
         x = self.space2depth(x)
@@ -121,6 +138,8 @@ class TemporalDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
 
 
 class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
+    """Spatial Discriminator class."""
+
     def __init__(
         self,
         input_channels: int = 12,
@@ -129,13 +148,14 @@ class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
         conv_type: str = "standard",
     ):
         """
-        Spatial discriminator from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
+        Spatial discriminator from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
 
         Args:
             input_channels: Number of input channels per timestep
             num_timesteps: Number of timesteps to use, in the paper 8/18 timesteps were chosen
             num_layers: Number of intermediate DBlock layers to use
             conv_type: Type of 2d convolutions to use, see satflow/models/utils.py for options
+            **kwargs: allow initialize of the parameters above through key pairs
         """
         super().__init__()
         # Randomly, uniformly, select 8 timesteps to do this on from the input
@@ -173,6 +193,7 @@ class SpatialDiscriminator(torch.nn.Module, PyTorchModelHubMixin):
         self.bn = torch.nn.BatchNorm1d(2 * internal_chn * input_channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply the forward function to the tensor."""
         # x should be the chosen 8 or so
         idxs = torch.randint(low=0, high=x.size()[1], size=(self.num_timesteps,))
         representations = []

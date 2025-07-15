@@ -1,14 +1,27 @@
+"""The coordinate convolution class."""
+
 import torch
 import torch.nn as nn
 
 
 class AddCoords(nn.Module):
-    def __init__(self, with_r=False):
+    """argument input tensors with spatial information."""
+
+    def __init__(self, with_r: bool = False):
+        """
+        Initialize the add coordinates class.
+
+        Args:
+            with_r: a condition to check if radical distance should included in the spatial
+            information (bool) default = false
+        """
         super().__init__()
-        self.with_r = with_r
+        self.with_r: bool = with_r
 
     def forward(self, input_tensor):
         """
+        Add spatial information to the input tensor.
+
         Args:
             input_tensor: shape(batch, channel, x_dim, y_dim)
         """
@@ -42,7 +55,18 @@ class AddCoords(nn.Module):
 
 
 class CoordConv(nn.Module):
+    """Coordinate convolution class."""
+
     def __init__(self, in_channels, out_channels, with_r=False, **kwargs):
+        """
+        Initialize the coordinate convolution.
+
+        Args:
+            in_channels : number of input channels
+            out_channels : number of output channels,
+            with_r : boolean =False,
+            **kwargs : dict[str, Unknown]
+        """
         super().__init__()
         self.addcoords = AddCoords(with_r=with_r)
         in_size = in_channels + 2
@@ -50,7 +74,8 @@ class CoordConv(nn.Module):
             in_size += 1
         self.conv = nn.Conv2d(in_size, out_channels, **kwargs)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply a forward pass on the input tensor."""
         ret = self.addcoords(x)
         ret = self.conv(ret)
         return ret

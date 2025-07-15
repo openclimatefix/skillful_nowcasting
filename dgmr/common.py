@@ -1,3 +1,4 @@
+"""Modules for generator blocks."""
 from typing import Tuple
 
 import einops
@@ -13,7 +14,7 @@ from dgmr.layers.utils import get_conv_layer
 
 
 class GBlock(torch.nn.Module):
-    """Residual generator block without upsampling"""
+    """Residual generator block without upsampling."""
 
     def __init__(
         self,
@@ -23,11 +24,13 @@ class GBlock(torch.nn.Module):
         spectral_normalized_eps=0.0001,
     ):
         """
-        G Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
+        G Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
+
         Args:
             input_channels: Number of input channels
             output_channels: Number of output channels
             conv_type: Type of convolution desired, see satflow/models/utils.py for options
+            spectral_normalized_eps: constrains the spectral norm of the weights.
         """
         super().__init__()
         self.output_channels = output_channels
@@ -62,6 +65,7 @@ class GBlock(torch.nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply the forward function."""
         # Optionally spectrally normalized 1x1 convolution
         if x.shape[1] != self.output_channels:
             sc = self.conv_1x1(x)
@@ -80,7 +84,7 @@ class GBlock(torch.nn.Module):
 
 
 class UpsampleGBlock(torch.nn.Module):
-    """Residual generator block with upsampling"""
+    """Residual generator block with upsampling."""
 
     def __init__(
         self,
@@ -90,11 +94,13 @@ class UpsampleGBlock(torch.nn.Module):
         spectral_normalized_eps=0.0001,
     ):
         """
-        G Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
+        G Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
+
         Args:
-            input_channels: Number of input channels
-            output_channels: Number of output channels
-            conv_type: Type of convolution desired, see satflow/models/utils.py for options
+            input_channels: Number of input channels.
+            output_channels: Number of output channels.
+            conv_type: Type of convolution desired, see satflow/models/utils.py for options.
+            spectral_normalized_eps: constrains the spectral norm of the weights.
         """
         super().__init__()
         self.output_channels = output_channels
@@ -130,7 +136,8 @@ class UpsampleGBlock(torch.nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Spectrally normalized 1x1 convolution
+        """Apply the forward function."""
+        # Spectrally nsormalized 1x1 convolution
         sc = self.upsample(x)
         sc = self.conv_1x1(sc)
 
@@ -148,6 +155,8 @@ class UpsampleGBlock(torch.nn.Module):
 
 
 class DBlock(torch.nn.Module):
+    """D block class."""
+
     def __init__(
         self,
         input_channels: int = 12,
@@ -157,13 +166,15 @@ class DBlock(torch.nn.Module):
         keep_same_output: bool = False,
     ):
         """
-        D and 3D Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
+        D and 3D Block from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
+
         Args:
             input_channels: Number of input channels
             output_channels: Number of output channels
             conv_type: Convolution type, see satflow/models/utils.py for options
             first_relu: Whether to have an ReLU before the first 3x3 convolution
-            keep_same_output: Whether the output should have the same spatial dimensions as input, if False, downscales by 2
+            keep_same_output: Whether the output should have the same spatial dimensions
+            as input, if False, downscales by 2
         """
         super().__init__()
         self.input_channels = input_channels
@@ -206,6 +217,7 @@ class DBlock(torch.nn.Module):
         # Concatenate to double final channels and keep reduced spatial extent
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply the D residual block."""
         if self.input_channels != self.output_channels:
             x1 = self.conv_1x1(x)
             if not self.keep_same_output:
@@ -236,6 +248,8 @@ class LBlock(torch.nn.Module):
         conv_type: str = "standard",
     ):
         """
+        Initialize the L-block.
+
         L-Block for increasing the number of channels in the input
          from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
         Args:
@@ -271,6 +285,7 @@ class LBlock(torch.nn.Module):
         )
 
     def forward(self, x) -> torch.Tensor:
+        """Apply the L residual block to this tensor."""
         if self.input_channels < self.output_channels:
             sc = self.conv_1x1(x)
             sc = torch.cat([x, sc], dim=1)
@@ -285,6 +300,8 @@ class LBlock(torch.nn.Module):
 
 
 class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
+    """Context conditioning stack."""
+
     def __init__(
         self,
         input_channels: int = 1,
@@ -293,20 +310,22 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         conv_type: str = "standard",
     ):
         """
-        Conditioning Stack using the context images from Skillful Nowcasting, , see https://arxiv.org/pdf/2104.00954.pdf
+        Conditioning Stack using the context images from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
 
         Args:
             input_channels: Number of input channels per timestep
             output_channels: Number of output channels for the lowest block
+            num_context_steps: number of context steps (int)
             conv_type: Type of 2D convolution to use, see satflow/models/utils.py for options
+            **kwargs: Allow initialize of the parameters above through key pairs
         """
         super().__init__()
 
         conv2d = get_conv_layer(conv_type)
         self.space2depth = PixelUnshuffle(downscale_factor=2)
         # Process each observation processed separately with 4 downsample blocks
-        # Concatenate across channel dimension, and for each output, 3x3 spectrally normalized convolution to reduce
-        # number of channels by 2, followed by ReLU
+        # Concatenate across channel dimension, and for each output, 3x3 spectrally
+        # normalized convolution to reduce number of channels by 2, followed by ReLU
         self.d1 = DBlock(
             input_channels=4 * input_channels,
             output_channels=((output_channels // 4) * input_channels) // num_context_steps,
@@ -368,6 +387,7 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
     def forward(
         self, x: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Generate the condition representation."""
         # Each timestep processed separately
         x = self.space2depth(x)
         steps = x.size(1)  # Number of timesteps
@@ -396,6 +416,7 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         return scale_1, scale_2, scale_3, scale_4
 
     def _mixing_layer(self, inputs, conv_block):
+        """Combine the inputs and then passed into the convolution stack."""
         # Convert from [batch_size, time, h, w, c] -> [batch_size, h, w, c * time]
         # then perform convolution on the output while preserving number of c.
         stacked_inputs = einops.rearrange(inputs, "b t c h w -> b (c t) h w")
@@ -403,6 +424,8 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
 
 
 class LatentConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
+    """Latent conditioning stack class."""
+
     def __init__(
         self,
         shape: (int, int, int) = (8, 8, 8),
@@ -410,12 +433,13 @@ class LatentConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         use_attention: bool = True,
     ):
         """
-        Latent conditioning stack from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
+        Latent conditioning stack from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
 
         Args:
             shape: Shape of the latent space, Should be (H/32,W/32,x) of the final image shape
             output_channels: Number of output channels for the conditioning stack
             use_attention: Whether to have a self-attention block or not
+            **kwargs: allow initialize of the parameters above through key pairs
         """
         super().__init__()
 
@@ -443,14 +467,15 @@ class LatentConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
+        Apply convolution, l blocks and spatial attention module to the tensor.
 
         Args:
             x: tensor on the correct device, to move over the latent distribution
 
         Returns:
+               tensor
 
         """
-
         # Independent draws from Norma ldistribution
         z = self.distribution.sample(self.shape)
         # Batch is at end for some reason, reshape

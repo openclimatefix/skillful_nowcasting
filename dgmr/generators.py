@@ -1,3 +1,5 @@
+"""Generators."""
+
 import logging
 from typing import List
 
@@ -16,6 +18,8 @@ logger.setLevel(logging.WARN)
 
 
 class Sampler(torch.nn.Module, PyTorchModelHubMixin):
+    """Sampler class."""
+
     def __init__(
         self,
         forecast_steps: int = 18,
@@ -24,14 +28,17 @@ class Sampler(torch.nn.Module, PyTorchModelHubMixin):
         output_channels: int = 1,
     ):
         """
-        Sampler from the Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf
+        Sampler from the Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
 
         The sampler takes the output from the Latent and Context conditioning stacks and
         creates one stack of ConvGRU layers per future timestep.
 
         Args:
-            forecast_steps: Number of forecast steps
-            latent_channels: Number of input channels to the lowest ConvGRU layer
+            forecast_steps: Number of forecast steps (int)
+            latent_channels: Number of input channels to the lowest ConvGRU layer (int)
+            context_channels: Number of context channels (int)
+            output_channels: Number of output channels (int)
+            **kwargs: allow initialize of the parameters above through key pairs
         """
         super().__init__()
 
@@ -119,10 +126,14 @@ class Sampler(torch.nn.Module, PyTorchModelHubMixin):
         self, conditioning_states: List[torch.Tensor], latent_dim: torch.Tensor
     ) -> torch.Tensor:
         """
-        Perform the sampling from Skillful Nowcasting with GANs
+        Perform the sampling from Skillful Nowcasting with GANs.
+
         Args:
-            conditioning_states: Outputs from the `ContextConditioningStack` with the 4 input states, ordered from largest to smallest spatially
-            latent_dim: Output from `LatentConditioningStack` for input into the ConvGRUs
+            conditioning_states: Outputs from the `ContextConditioningStack` with the 4 input
+            states, ordered from largest to smallest spatially latent_dim: Output from
+            `LatentConditioningStack` for input into the ConvGRUs
+
+            latent_dim: (torch.Tensor)
 
         Returns:
             forecast_steps-length output of images for future timesteps
@@ -172,6 +183,8 @@ class Sampler(torch.nn.Module, PyTorchModelHubMixin):
 
 
 class Generator(torch.nn.Module, PyTorchModelHubMixin):
+    """Generator class."""
+
     def __init__(
         self,
         conditioning_stack: torch.nn.Module,
@@ -179,18 +192,20 @@ class Generator(torch.nn.Module, PyTorchModelHubMixin):
         sampler: torch.nn.Module,
     ):
         """
-        Wraps the three parts of the generator for simpler calling
+        Wrap the three parts of the generator for simpler calling.
+
         Args:
-            conditioning_stack:
-            latent_stack:
-            sampler:
+            conditioning_stack: (torch.nn.Module)
+            latent_stack: (torch.nn.Module)
+            sampler: Combines the conditioning information and latent information (torch.nn.Module)
         """
         super().__init__()
         self.conditioning_stack = conditioning_stack
         self.latent_stack = latent_stack
         self.sampler = sampler
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor):
+        """Apply a forward pass on the tensor."""
         conditioning_states = self.conditioning_stack(x)
         latent_dim = self.latent_stack(x)
         x = self.sampler(conditioning_states, latent_dim)

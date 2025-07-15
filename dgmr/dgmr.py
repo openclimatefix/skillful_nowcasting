@@ -3,12 +3,12 @@
 import pytorch_lightning as pl
 import torch
 import torchvision
+from huggingface_hub import PyTorchModelHubMixin
 from torch.utils.checkpoint import checkpoint
 
 from dgmr.common import ContextConditioningStack, LatentConditioningStack
 from dgmr.discriminators import Discriminator
 from dgmr.generators import Generator, Sampler
-from dgmr.hub import NowcastingModelHubMixin
 from dgmr.losses import (
     GridCellLoss,
     NowcastingLoss,
@@ -33,8 +33,14 @@ def weight_fn(y, precip_weight_cap=24.0):
     return torch.max(y + 1, torch.tensor(precip_weight_cap, device=y.device))
 
 
-class DGMR(pl.LightningModule, NowcastingModelHubMixin):
-    """Deep Generative Model of Radar."""
+class DGMR(
+    pl.LightningModule,
+    PyTorchModelHubMixin,
+    library_name="DGMR",
+    tags=["nowcasting", "forecasting", "timeseries", "remote-sensing", "gan"],
+    repo_url="https://github.com/openclimatefix/skillful_nowcasting",
+):
+    """Deep Generative Model of Radar"""
 
     def __init__(
         self,
@@ -53,7 +59,6 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
         context_channels: int = 384,
         generation_steps: int = 6,
         precip_weight_cap: float = 24.0,
-        **kwargs,
     ):
         """
         Initialize the Deep Generative Model of Radar model.
@@ -83,26 +88,8 @@ class DGMR(pl.LightningModule, NowcastingModelHubMixin):
             dimension into ConvGRU, also affects the number of channels for other linked
             inputs/outputs.
             precip_weight_cap: Custom ceiling for the weight function to compute the grid cell loss.
-            **kwargs: Allow initialize of the parameters above through key pairs
         """
         super().__init__()
-        config = locals()
-        config.pop("__class__")
-        config.pop("self")
-        self.config = kwargs.get("config", config)
-        input_channels = self.config["input_channels"]
-        forecast_steps = self.config["forecast_steps"]
-        output_shape = self.config["output_shape"]
-        gen_lr = self.config["gen_lr"]
-        disc_lr = self.config["disc_lr"]
-        conv_type = self.config["conv_type"]
-        num_samples = self.config["num_samples"]
-        grid_lambda = self.config["grid_lambda"]
-        beta1 = self.config["beta1"]
-        beta2 = self.config["beta2"]
-        latent_channels = self.config["latent_channels"]
-        context_channels = self.config["context_channels"]
-        visualize = self.config["visualize"]
         self.gen_lr = gen_lr
         self.disc_lr = disc_lr
         self.beta1 = beta1

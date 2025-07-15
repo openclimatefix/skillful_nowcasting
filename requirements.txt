@@ -5,7 +5,8 @@ numpy
 torchvision>=0.11.0
 pytorch_lightning
 einops
-huggingface_hub==0.21.4
+huggingface_hub>=0.23.3
+safetensors
 wandb
 datasets
 tensorflow

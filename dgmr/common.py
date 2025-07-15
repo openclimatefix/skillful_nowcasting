@@ -308,7 +308,6 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         output_channels: int = 768,
         num_context_steps: int = 4,
         conv_type: str = "standard",
-        **kwargs
     ):
         """
         Conditioning Stack using the context images from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
@@ -321,14 +320,6 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
             **kwargs: Allow initialize of the parameters above through key pairs
         """
         super().__init__()
-        config = locals()
-        config.pop("__class__")
-        config.pop("self")
-        self.config = kwargs.get("config", config)
-        input_channels = self.config["input_channels"]
-        output_channels = self.config["output_channels"]
-        num_context_steps = self.config["num_context_steps"]
-        conv_type = self.config["conv_type"]
 
         conv2d = get_conv_layer(conv_type)
         self.space2depth = PixelUnshuffle(downscale_factor=2)
@@ -440,7 +431,6 @@ class LatentConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
         shape: (int, int, int) = (8, 8, 8),
         output_channels: int = 768,
         use_attention: bool = True,
-        **kwargs
     ):
         """
         Latent conditioning stack from Skillful Nowcasting, see https://arxiv.org/pdf/2104.00954.pdf.
@@ -452,13 +442,6 @@ class LatentConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
             **kwargs: allow initialize of the parameters above through key pairs
         """
         super().__init__()
-        config = locals()
-        config.pop("__class__")
-        config.pop("self")
-        self.config = kwargs.get("config", config)
-        shape = self.config["shape"]
-        output_channels = self.config["output_channels"]
-        use_attention = self.config["use_attention"]
 
         self.shape = shape
         self.use_attention = use_attention

@@ -1,4 +1,5 @@
 """Module for various loss functions."""
+
 import numpy as np
 import torch
 import torch.nn as nn

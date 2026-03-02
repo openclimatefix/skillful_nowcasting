@@ -2,7 +2,6 @@ import einops
 import pytest
 import torch
 import torch.nn.functional as F
-from dgmr.layers.ConvGRU import ConvGRUCell
 from pytorch_lightning import Trainer
 from torch.testing import assert_close
 
@@ -18,6 +17,7 @@ from dgmr import (
 )
 from dgmr.common import DBlock, GBlock
 from dgmr.layers import ConvGRU
+from dgmr.layers.ConvGRU import ConvGRUCell
 
 
 def assert_model_equal(actual, expected):

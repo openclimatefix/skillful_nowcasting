@@ -1,6 +1,5 @@
 """Modules for generator blocks."""
 
-
 import einops
 import torch
 import torch.nn.functional as F

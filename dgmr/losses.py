@@ -173,8 +173,8 @@ class GridCellLoss(nn.Module):
         """
         Forward function.
 
-        Calculates the grid cell regularizer value, assumes generated images are the mean
-        predictions from 6 calls to the generater (Monte Carlo estimation of the
+        Calculates the grid cell regularizer value, assumes generated images are to be mean
+        predictions from 6 calls to the generator (Monte Carlo estimation of the
         expectations for the latent variable)
 
         Args:

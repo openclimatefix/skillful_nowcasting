@@ -61,7 +61,7 @@ class UploadCheckpointsAsArtifact(Callback):
 
     @rank_zero_only
     def on_keyboard_interrupt(self, trainer, pl_module):
-        """Run when the user interupts the training by pressing a key on the keyboard."""
+        """Run when the user interrupts the training by pressing a key on the keyboard."""
         self.on_train_end(trainer, pl_module)
 
     @rank_zero_only

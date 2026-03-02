@@ -46,7 +46,7 @@ from datasets import load_dataset
 dataset = load_dataset("openclimatefix/mrms", "default_sequence", streaming=True)
 ```
 
-This steams the data with 24 timesteps per example, just like the UK DGMR dataset. To get individual MRMS frames, instead of a sequence, this can be achieved through
+This streams the data with 24 timesteps per example, just like the UK DGMR dataset. To get individual MRMS frames, instead of a sequence, this can be achieved through
 
 ```python
 from datasets import load_dataset

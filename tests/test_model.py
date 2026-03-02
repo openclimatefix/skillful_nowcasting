@@ -1,22 +1,23 @@
-import torch
-import torch.nn.functional as F
-from dgmr import (
-    DGMR,
-    Generator,
-    Discriminator,
-    TemporalDiscriminator,
-    SpatialDiscriminator,
-    Sampler,
-    LatentConditioningStack,
-    ContextConditioningStack,
-)
-from dgmr.layers import ConvGRU
-from dgmr.layers.ConvGRU import ConvGRUCell
-from dgmr.common import DBlock, GBlock
 import einops
 import pytest
+import torch
+import torch.nn.functional as F
 from pytorch_lightning import Trainer
 from torch.testing import assert_close
+
+from dgmr import (
+    DGMR,
+    ContextConditioningStack,
+    Discriminator,
+    Generator,
+    LatentConditioningStack,
+    Sampler,
+    SpatialDiscriminator,
+    TemporalDiscriminator,
+)
+from dgmr.common import DBlock, GBlock
+from dgmr.layers import ConvGRU
+from dgmr.layers.ConvGRU import ConvGRUCell
 
 
 def assert_model_equal(actual, expected):

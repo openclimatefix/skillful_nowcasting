@@ -27,7 +27,7 @@ class AttentionLayer(torch.nn.Module):
         self, input_channels: int, output_channels: int, ratio_kq: int = 8, ratio_v: int = 8
     ):
         """Initialize the attention layer."""
-        super(AttentionLayer, self).__init__()
+        super().__init__()
 
         self.ratio_kq = ratio_kq
         self.ratio_v = ratio_v

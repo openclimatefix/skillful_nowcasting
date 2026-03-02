@@ -1,7 +1,6 @@
 """Generators."""
 
 import logging
-from typing import List
 
 import einops
 import torch
@@ -123,7 +122,7 @@ class Sampler(torch.nn.Module, PyTorchModelHubMixin):
         self.depth2space = PixelShuffle(upscale_factor=2)
 
     def forward(
-        self, conditioning_states: List[torch.Tensor], latent_dim: torch.Tensor
+        self, conditioning_states: list[torch.Tensor], latent_dim: torch.Tensor
     ) -> torch.Tensor:
         """
         Perform the sampling from Skillful Nowcasting with GANs.

@@ -18,7 +18,7 @@ class SSIMLoss(nn.Module):
             convert_range: decides whether to normalize the input range
             **kwargs: configurations values for the MS_SSIM instance.
         """
-        super(SSIMLoss, self).__init__()
+        super().__init__()
         self.convert_range = convert_range
         self.ssim_module = SSIM(**kwargs)
 
@@ -41,7 +41,7 @@ class MS_SSIMLoss(nn.Module):
             convert_range: decides whether to normalize the input range
             **kwargs: configurations values for the MS_SSIM instance.
         """
-        super(MS_SSIMLoss, self).__init__()
+        super().__init__()
         self.convert_range = convert_range
         self.ssim_module = MS_SSIM(**kwargs)
 
@@ -71,7 +71,7 @@ class SSIMLossDynamic(nn.Module):
             convert_range: decides whether to normalize the input range
             **kwargs: configurations values for the MS_SSIM instance.
         """
-        super(SSIMLossDynamic, self).__init__()
+        super().__init__()
         self.convert_range = convert_range
         self.ssim_module = MS_SSIM(**kwargs)
 
@@ -118,7 +118,7 @@ class TotalVariationLoss(nn.Module):
         Args:
             tv_weight: total variation weight (float)
         """
-        super(TotalVariationLoss, self).__init__()
+        super().__init__()
         self.tv_weight = tv_weight
 
     def forward(self, x: torch.Tensor):
@@ -131,7 +131,7 @@ class GradientDifferenceLoss(nn.Module):
 
     def __init__(self, alpha: int = 2):
         """Initialize the gradient difference loss class."""
-        super(GradientDifferenceLoss, self).__init__()
+        super().__init__()
         self.alpha = alpha
 
     def forward(self, x: torch.Tensor, y: torch.Tensor):
@@ -234,7 +234,7 @@ class FocalLoss(nn.Module):
         size_average: bool = True,
     ):
         """Initialize Focal lost."""
-        super(FocalLoss, self).__init__()
+        super().__init__()
         self.apply_nonlin = apply_nonlin
         self.alpha = alpha
         self.gamma = gamma

@@ -1,5 +1,5 @@
 """Submodules for the layers."""
 
-from .Attention import AttentionLayer
-from .ConvGRU import ConvGRU
-from .CoordConv import CoordConv
+from .attention import AttentionLayer
+from .convgru import ConvGRU
+from .coordconv import CoordConv

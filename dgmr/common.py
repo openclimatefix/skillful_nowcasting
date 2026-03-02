@@ -1,6 +1,5 @@
 """Modules for generator blocks."""
 
-from typing import Tuple
 
 import einops
 import torch
@@ -387,7 +386,7 @@ class ContextConditioningStack(torch.nn.Module, PyTorchModelHubMixin):
 
     def forward(
         self, x: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Generate the condition representation."""
         # Each timestep processed separately
         x = self.space2depth(x)

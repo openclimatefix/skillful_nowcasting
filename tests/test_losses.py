@@ -1,7 +1,8 @@
 """Test loss functions"""
 
-from dgmr.losses import SSIMLoss, MS_SSIMLoss, SSIMLossDynamic, tv_loss
 import torch
+
+from dgmr.losses import MS_SSIMLoss, SSIMLoss, SSIMLossDynamic, tv_loss
 
 
 def test_ssim_loss():

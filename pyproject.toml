@@ -1,0 +1,114 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dgmr"
+version = "1.4.3"
+description = "PyTorch Skillful Nowcasting GAN Implementation"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Jacob Prince-Bieker", email = "jacob@bieker.tech" },
+]
+requires-python = ">=3.11"
+keywords = [
+    "artificial intelligence",
+    "deep learning",
+    "transformer",
+    "attention mechanism",
+    "metnet",
+    "forecasting",
+    "remote-sensing",
+    "gan",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "torch",
+    "antialiased_cnns",
+    "pytorch_msssim",
+    "numpy",
+    "torchvision>=0.11.0",
+    "pytorch_lightning",
+    "einops",
+    "huggingface_hub>=0.23.3",
+    "safetensors",
+    "wandb",
+    "datasets",
+    "tensorflow",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "pip-audit>=2.7",
+    "bandit>=1.7",
+]
+
+[project.urls]
+Homepage = "https://github.com/openclimatefix/skillful_nowcasting"
+Repository = "https://github.com/openclimatefix/skillful_nowcasting"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "S",   # flake8-bandit
+    "RUF", # ruff-specific rules
+    "D",   # pydocstyle
+]
+ignore = [
+    "E501",   # line too long - handled by formatter
+    "D200",   # One-line docstring should fit on one line
+    "D202",   # No blank lines allowed after function docstring
+    "D210",   # No whitespaces allowed surrounding docstring text
+    "D212",   # Multi-line docstring summary should start at the first line
+    "D415",   # First line should end with a period, question mark, or exclamation point
+    "D105",   # Missing docstring in magic method
+    "SIM108", # Use ternary operator instead of if-else - can reduce readability
+    "B905",   # zip() without strict parameter - Python 3.10 feature
+    "N801",   # Allow underscores in class names for acronyms
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "E402"]
+"tests/*" = ["S", "D", "S101", "RUF059"]
+"dgmr/*.py" = ["N812", "S101"]
+"dgmr/layers/*.py" = ["N812", "S101"]
+"tests/*.py" = ["N812"]
+"train/*" = ["C408"]
+"dgmr/losses.py" = ["SIM102"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

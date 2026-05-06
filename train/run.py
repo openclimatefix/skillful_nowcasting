@@ -23,10 +23,8 @@ from dgmr import DGMR
 def get_wandb_logger(trainer: Trainer) -> WandbLogger:
     """Return the wandb logger from the trainer."""
     if trainer.fast_dev_run:
-        raise Exception(
-            "Cannot use wandb callbacks since pytorch lightning \
-            disables loggers in `fast_dev_run=true` mode."
-        )
+        raise Exception("Cannot use wandb callbacks since pytorch lightning \
+            disables loggers in `fast_dev_run=true` mode.")
 
     if isinstance(trainer.logger, WandbLogger):
         return trainer.logger
